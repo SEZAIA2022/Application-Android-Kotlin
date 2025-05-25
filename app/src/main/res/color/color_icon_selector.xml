@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lorsque le champ a le focus -->
+    <item android:color="@color/blue" android:state_focused="true"/>
+    <!-- Si erreur → rouge foncé -->
+    <!--<item android:color="@color/red" android:state_error="true"/> -->
+    <!-- Lorsque le champ n'a pas le focus -->
+    <item android:color="@color/gray"/>
+</selector>

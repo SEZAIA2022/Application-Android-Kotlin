@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Permet l'accès HTTP à un serveur spécifique, comme un serveur ngrok -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">172.20.10.6</domain>
+    </domain-config>
+
+</network-security-config>

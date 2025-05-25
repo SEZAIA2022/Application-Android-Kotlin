@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.screen.DeleteAccountActivity">
+
+    <!-- Toolbar -->
+    <include
+        android:id="@+id/custom_toolbar"
+        layout="@layout/toolbar_layout"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_group_24"
+            android:hint="@string/email"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="113dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_visibility_off_24"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="169dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newPasswordLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newPassword"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_visibility_off_24"
+            android:hint="@string/new_password"
+            android:inputType="textPassword"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="329dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        style="@style/MyCustomButtonBlue"
+        android:layout_marginBottom="284dp"
+        android:text="@string/Continue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newPasswordLayout" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

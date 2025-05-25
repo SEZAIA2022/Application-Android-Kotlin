@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/main"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".ui.screen.LoginActivity"
+tools:layout_editor_absoluteX="0dp"
+tools:layout_editor_absoluteY="35dp">
+
+<!-- Toolbar -->
+<include
+    android:id="@+id/custom_toolbar"
+    layout="@layout/toolbar_layout"
+    android:layout_width="0dp"
+    android:layout_height="65dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+
+<TextView
+    android:id="@+id/textView3"
+    style="@style/CustomTextView"
+    android:text="@string/otp_verification"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="1.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/custom_toolbar" />
+
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/InfoMessageTextView"
+        android:text="@string/enter_the_verification_code_we_just_sent_on_your_email_address"
+        app:layout_constraintBottom_toTopOf="@+id/otpLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:layout_constraintVertical_bias="0.094" />
+
+    <LinearLayout
+        android:id="@+id/otpLayout"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="464dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/otpLayout1"
+            style="@style/otpTextInputLayout">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/otpInput1"
+                style="@style/otpTextInputEditText" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/otpLayout2"
+            style="@style/otpTextInputLayout">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/otpInput2"
+                style="@style/otpTextInputEditText" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/otpLayout3"
+            style="@style/otpTextInputLayout">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/otpInput3"
+                style="@style/otpTextInputEditText" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/otpLayout4"
+            style="@style/otpTextInputLayout"
+            android:layout_marginEnd="0dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/otpInput4"
+                style="@style/otpTextInputEditText" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        style="@style/MyCustomButtonBlue"
+        android:layout_marginTop="8dp"
+        android:text="@string/Continue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/otpLayout"/>
+
+    <TextView
+        android:id="@+id/resend"
+        style="@style/CustomClickableTextView"
+        android:text="@string/resend"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnContinue"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

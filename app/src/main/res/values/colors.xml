@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">@color/design_default_color_on_secondary</color>
+    <color name="white">@color/design_default_color_background</color>
+    <color name="blue">#FF29405E</color>
+    <color name="gray">#FF7F7F7F</color>
+    <color name="red">@color/design_default_color_error</color>
+    <color name="light_blue">#2196F3</color>
+
+</resources>

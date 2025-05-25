@@ -1,0 +1,131 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Sezaia" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- Couleur claire pour la status bar -->
+        <item name="android:statusBarColor">@color/white</item>
+
+        <!-- Icônes sombres -->
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Nécessaire pour dessiner le fond de la status bar -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.Sezaia" parent="Base.Theme.Sezaia" />
+    <style name="Theme.Sezaia.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.Sezaia.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Sezaia.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="MyCustomButtonBlue" parent="Widget.Material3.Button">
+        <item name="android:backgroundTint">@color/blue</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="percentWidth">0.85</item>
+        <item name="android:layout_weight">0.85</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="layout_constraintWidth_percent">0.85</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <style name="MyCustomButtonWhite" parent="MyCustomButtonBlue">
+        <item name="android:backgroundTint">@android:color/white</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="strokeColor">@color/blue</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Style pour MaterialCardView -->
+    <style name="CardStyle">
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">4dp</item>
+    </style>
+
+    <!-- Style pour TextInputLayout personnalisé -->
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundMode">outline</item>
+        <item name="layout_constraintWidth_percent">0.85</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:paddingVertical">8dp</item>
+        <item name="boxCornerRadiusBottomEnd">8dp</item>
+        <item name="boxCornerRadiusBottomStart">8dp</item>
+        <item name="boxCornerRadiusTopEnd">8dp</item>
+        <item name="boxCornerRadiusTopStart">8dp</item>
+        <item name="android:color">@color/blue</item>
+        <item name="android:textCursorDrawable">@color/blue</item>
+        <item name="boxStrokeColor">@color/blue</item>
+        <item name="hintTextColor">@color/color_icon_selector</item>
+    </style>
+
+    <!-- Style pour TextInputEditText -->
+    <style name="CustomTextInputEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:drawableTint">@color/color_icon_selector</item>
+        <item name="android:inputType">text</item>
+    </style>
+    <!-- Style pour TextView -->
+    <style name="CustomTextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">556dp</item>
+        <item name="layout_constraintVertical_bias">0.27</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <!-- Style pour le lien cliquable -->
+    <style name="CustomClickableTextView">
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+
+    </style>
+    <!--Style pour InfoMessageTextView"-->
+    <style name="InfoMessageTextView">
+        <item name="android:textColor">@color/gray</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="layout_constraintHorizontal_bias">0.5</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:layout_margin">24dp</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+    <!--Style pour otpTextInputLayout"-->
+
+    <style name="otpTextInputLayout" parent="CustomTextInputLayout">
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginEnd">15dp</item>
+    </style>
+    <!--Style pour otpTextInputEditText"-->
+    <style name="otpTextInputEditText" parent="CustomTextInputEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+    </style>
+
+
+
+</resources>

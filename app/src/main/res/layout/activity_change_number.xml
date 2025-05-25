@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.screen.ChangeNumberActivity"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="-26dp">
+
+    <!-- Toolbar -->
+    <include
+        android:id="@+id/custom_toolbar"
+        layout="@layout/toolbar_layout"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/countryCodeLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="76dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.098"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/countryCodePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_country_code"
+            android:contentDescription="@string/country_code_picker_description"
+            android:paddingVertical="8dp"
+            app:ccp_contentColor="?attr/colorOnSurface"
+            app:ccp_defaultNameCode="FR"
+            app:ccp_showFlag="true"
+            app:ccp_showFullName="false"
+            app:ccp_showNameCode="false"
+            app:ccp_showPhoneCode="true"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="87dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/numberLayout"
+        style="@style/CustomTextInputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/countryCodeLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/number"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_group_24"
+            android:hint="@string/phone_number"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="113dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/CustomTextInputLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/newUsernameLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.098"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/numberLayout"
+        app:layout_constraintVertical_bias="0.0">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/newCountryCodePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_country_code"
+            android:contentDescription="@string/country_code_picker_description"
+            android:paddingVertical="8dp"
+            app:ccp_contentColor="?attr/colorOnSurface"
+            app:ccp_defaultNameCode="FR"
+            app:ccp_showFlag="true"
+            app:ccp_showFullName="false"
+            app:ccp_showNameCode="false"
+            app:ccp_showPhoneCode="true"
+            tools:layout_editor_absoluteX="179dp"
+            tools:layout_editor_absoluteY="128dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newNumberLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/numberLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/newNumber"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_group_24"
+            android:hint="@string/new_number"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="323dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/newNumberLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_visibility_off_24"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="329dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnlogin"
+        style="@style/MyCustomButtonBlue"
+        android:layout_marginTop="48dp"
+        android:text="@string/login"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordLayout"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
