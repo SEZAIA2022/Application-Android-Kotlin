@@ -54,7 +54,7 @@
         tools:ignore="UnknownId" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnlogin"
+        android:id="@+id/btnContinueLogin"
         style="@style/MyCustomButtonBlue"
         android:layout_marginTop="36dp"
         android:text="@string/continue_to_login"
