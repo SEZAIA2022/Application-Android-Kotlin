@@ -13,6 +13,10 @@ import com.houssein.sezaia.model.response.SignUpResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SignUpActivity : BaseActivity() {
 
@@ -68,7 +72,6 @@ class SignUpActivity : BaseActivity() {
         username = findViewById(R.id.username)
         email = findViewById(R.id.email)
         ccp = findViewById(R.id.countryCodePicker)
-        val selectedCountryCode = ccp.selectedCountryCodeWithPlus // ex: "+33"
         phoneNumber = findViewById(R.id.phone)
         address = findViewById(R.id.address)
         city = findViewById(R.id.city)
@@ -101,19 +104,18 @@ class SignUpActivity : BaseActivity() {
 
     private fun registerUser() {
         val request = SignUpRequest(
-            username = usernameInput.text.toString(),
-            email = emailInput.text.toString(),
-            password = passwordInput.text.toString(),
-            confirmPassword = confirmPasswordInput.text.toString(),
-            number = phoneInput.text.toString(),
-            address = addressInput.text.toString(),
-            countryCode = countryCodeInput.text.toString(),
-            city = cityInput.text.toString(),
-            postalCode = postalCodeInput.text.toString()
+            username = username.text.toString(),
+            email = email.text.toString(),
+            password = password.text.toString(),
+            confirmPassword = confirmPassword.text.toString(),
+            number = phoneNumber.text.toString(),
+            address = address.text.toString(),
+            countryCode = ccp.selectedCountryCodeWithPlus,
+            city = city.text.toString(),
+            postalCode = postalCode.text.toString()
         )
 
-        RetrofitClient.instance.signUp(request).enqueue(object :
-            WindowInsetsAnimation.Callback<SignUpResponse> {
+        RetrofitClient.instance.signUp(request).enqueue(object : Callback<SignUpResponse> {
             override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val token = response.body()?.token
