@@ -155,4 +155,14 @@ class CameraActivity : BaseActivity() {
             startActivity(intent)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        isQrCodeProcessed = false
+        if (::overlayView.isInitialized) {
+            overlayView.clearBox()
+        }
+        requestCameraPermission()
+    }
+
 }
