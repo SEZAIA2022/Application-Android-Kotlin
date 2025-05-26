@@ -202,7 +202,11 @@ class VerifyOtpActivity : BaseActivity() {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 
         when (source) {
-            "ForgetActivity" -> startActivity(Intent(this, CreatePasswordActivity::class.java))
+            "ForgetActivity" -> {
+                val intent = Intent(this, CreatePasswordActivity::class.java)
+                intent.putExtra("email", email)
+                startActivity(intent)
+            }
             "SignUpActivity", "ChangeEmailActivity", "DeleteAccountActivity" -> {
                 val intent = Intent(this, SuccessActivity::class.java)
                 intent.putExtra("title", getSuccessTitle(source))

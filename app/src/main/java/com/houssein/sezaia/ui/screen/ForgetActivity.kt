@@ -8,7 +8,7 @@ import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
-import com.houssein.sezaia.model.response.ForgotPasswordRequest
+import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity

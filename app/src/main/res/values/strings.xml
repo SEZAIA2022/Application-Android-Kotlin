@@ -65,4 +65,17 @@
     <string name="new_password">New password</string>
     <string name="old_password">Old password</string>
     <string name="confirm_new_password">Confirm new password</string>
+    <string name="create_new_password">Create new password</string>
+    <string name="create_pass_message">Your new password must be unique from those previously used.</string>
+
+    <string name="fill_all_fields">Veuillez remplir tous les champs</string>
+    <string name="passwords_do_not_match">Les mots de passe ne correspondent pas</string>
+    <string name="password_changed">Mot de passe changé</string>
+    <string name="password_changed_successfully">Votre mot de passe a été modifié avec succès</string>
+    <string name="registration_failed">Échec de inscription</string>
+    <string name="server_error">Erreur serveur</string>
+    <string name="network_error">Erreur réseau</string>
+    <string name="unknown_error">Erreur inconnue</string>
+    <string name="email_missing">email missing\n</string>
+
 </resources>

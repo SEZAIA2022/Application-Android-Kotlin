@@ -1,8 +1,10 @@
 package com.houssein.sezaia.network
 
+import com.houssein.sezaia.model.request.CreateNewPasswordRequest
 import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.request.SignUpRequest
-import com.houssein.sezaia.model.response.ForgotPasswordRequest
+import com.houssein.sezaia.model.request.ForgotPasswordRequest
+import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
@@ -25,6 +27,9 @@ interface ApiService {
     @POST("/register")
     fun signUp(@Body request: SignUpRequest): Call<SignUpResponse>
 
+    @POST("change-password")
+    fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<CreateNewPasswordResponse>
+
 
     @POST("/verify_forget")
     fun verifyForgetOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
@@ -40,6 +45,7 @@ interface ApiService {
 
     @POST("/resend_otp")
     fun resendOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
+
 
 
 }

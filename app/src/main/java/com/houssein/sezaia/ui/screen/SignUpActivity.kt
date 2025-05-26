@@ -108,7 +108,7 @@ class SignUpActivity : BaseActivity() {
 
         RetrofitClient.instance.signUp(request).enqueue(object : Callback<SignUpResponse> {
             override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
-                if (response.isSuccessful) {
+                if (response.isSuccessful  && response.body() != null) {
                     val token = response.body()?.token
                     val message = response.body()?.message ?: "OTP envoyé"
                     Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_LONG).show()
