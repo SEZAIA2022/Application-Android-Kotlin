@@ -2,7 +2,6 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.WindowInsetsAnimation
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
@@ -22,8 +21,8 @@ class SignUpActivity : BaseActivity() {
 
     private lateinit var username: TextInputEditText
     private lateinit var email: TextInputEditText
-    private lateinit var ccp: CountryCodePicker
-    private lateinit var phoneNumber: TextInputEditText
+    private lateinit var countryCode: CountryCodePicker
+    private lateinit var number: TextInputEditText
     private lateinit var address: TextInputEditText
     private lateinit var city: TextInputEditText
     private lateinit var postalCode: TextInputEditText
@@ -31,48 +30,43 @@ class SignUpActivity : BaseActivity() {
     private lateinit var confirmPassword: TextInputEditText
     private lateinit var signUpButton: Button
     private lateinit var loginLink: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_sign_up)
 
-        // Appliquer les insets des barres système
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-
-        // Initialisation des vues
         initViews()
 
-        // Configuration de la Toolbar
         UIUtils.initToolbar(
-            this,getString(R.string.sign_up),actionIconRes = R.drawable.baseline_density_medium_24 , onBackClick = {finish()},
+            this,
+            getString(R.string.sign_up),
+            actionIconRes = R.drawable.baseline_density_medium_24,
+            onBackClick = { finish() },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
-        // Gérer l'affichage des mots de passe
+
         UIUtils.hideShowPassword(this, password)
         UIUtils.hideShowPassword(this, confirmPassword)
 
-        // Gestion du bouton d'inscription
         handleSignUpButtonClick()
 
-        // Rendre le texte cliquable pour la connexion
-        val textView: TextView = findViewById(R.id.loginLink)
-        val fullText = textView.text.toString()
         UIUtils.setupClickableText(
             context = this,
-            textView = textView,
-            fullText = fullText,
-            clickableText = getString(R.string.login),  // Assure-toi que cette chaîne existe
-            clickableColorRes = R.color.light_blue,  // Assure-toi que cette couleur est définie
+            textView = loginLink,
+            fullText = loginLink.text.toString(),
+            clickableText = getString(R.string.login),
+            clickableColorRes = R.color.light_blue,
             targetActivity = LoginActivity::class.java
         )
     }
 
-    // Initialiser les vues
     private fun initViews() {
         username = findViewById(R.id.username)
         email = findViewById(R.id.email)
-        ccp = findViewById(R.id.countryCodePicker)
-        phoneNumber = findViewById(R.id.phone)
+        countryCode = findViewById(R.id.countryCodePicker)
+        number = findViewById(R.id.phone)
         address = findViewById(R.id.address)
         city = findViewById(R.id.city)
         postalCode = findViewById(R.id.postalCode)
@@ -82,48 +76,43 @@ class SignUpActivity : BaseActivity() {
         loginLink = findViewById(R.id.loginLink)
     }
 
-    // Gérer l'événement du bouton d'inscription
     private fun handleSignUpButtonClick() {
         signUpButton.setOnClickListener {
-            val user = username.text.toString()
-            val mail = email.text.toString()
+            val user = username.text.toString().trim()
+            val mail = email.text.toString().trim()
             val pass = password.text.toString()
             val confirm = confirmPassword.text.toString()
 
-            // Validation des champs
             if (user.isEmpty() || mail.isEmpty() || pass.isEmpty() || confirm.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
             } else if (pass != confirm) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Creating account...", Toast.LENGTH_SHORT).show()
-                // Logique d'inscription à implémenter ici (ex. Firebase)
+                registerUser()
             }
         }
     }
 
     private fun registerUser() {
         val request = SignUpRequest(
-            username = username.text.toString(),
-            email = email.text.toString(),
+            username = username.text.toString().trim(),
+            email = email.text.toString().trim(),
             password = password.text.toString(),
-            confirmPassword = confirmPassword.text.toString(),
-            number = phoneNumber.text.toString(),
-            address = address.text.toString(),
-            countryCode = ccp.selectedCountryCodeWithPlus,
-            city = city.text.toString(),
-            postalCode = postalCode.text.toString()
+            confirm_password = confirmPassword.text.toString(),
+            number = number.text.toString().trim(),
+            address = address.text.toString().trim(),
+            country_code = countryCode.selectedCountryCodeWithPlus,
+            city = city.text.toString().trim(),
+            postal_code = postalCode.text.toString().trim()
         )
 
         RetrofitClient.instance.signUp(request).enqueue(object : Callback<SignUpResponse> {
             override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
-                if (response.isSuccessful && response.body() != null) {
+                if (response.isSuccessful) {
                     val token = response.body()?.token
-                    val message = response.body()?.message ?: "Inscription réussie"
-
+                    val message = response.body()?.message ?: "OTP envoyé"
                     Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_LONG).show()
 
-                    // Rediriger vers l'activité de vérification OTP
                     val intent = Intent(this@SignUpActivity, VerifyOtpActivity::class.java)
                     intent.putExtra("token", token)
                     intent.putExtra("previousPage", "SignUpActivity")
@@ -133,7 +122,7 @@ class SignUpActivity : BaseActivity() {
                     val errorMessage = try {
                         val errorBody = response.errorBody()?.string()
                         val json = JSONObject(errorBody ?: "")
-                        json.getString("message")
+                        json.optString("message", "Erreur inconnue")
                     } catch (e: Exception) {
                         "Erreur serveur"
                     }
@@ -146,6 +135,6 @@ class SignUpActivity : BaseActivity() {
             }
         })
     }
-
-
 }
+
+

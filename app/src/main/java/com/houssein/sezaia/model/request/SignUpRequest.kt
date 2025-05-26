@@ -4,10 +4,10 @@ data class SignUpRequest(
     val username: String,
     val email: String,
     val password: String,
-    val confirmPassword: String,
+    val confirm_password: String,
     val number: String,
     val address: String,
-    val countryCode: String,
+    val country_code: String,
     val city: String,
-    val postalCode: String
+    val postal_code: String
 )

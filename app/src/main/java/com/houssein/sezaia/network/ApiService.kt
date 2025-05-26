@@ -22,7 +22,7 @@ interface ApiService {
     @POST("/forgot_password")
     fun forgotPassword(@Body request: ForgotPasswordRequest): Call<ForgotPasswordResponse>
 
-    @POST("/sign_up")
+    @POST("/register")
     fun signUp(@Body request: SignUpRequest): Call<SignUpResponse>
 
 
