@@ -1,0 +1,41 @@
+[33mcommit c8a3b7a4b39864477f739665eaa4ab1b0fa98867[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Tue May 27 12:28:11 2025 +0200
+
+    Prendre un rendez vous
+
+[33mcommit 48a8a8dc13a47b65152580736bd44bdd8cbe2886[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Mon May 26 16:14:22 2025 +0200
+
+    Detector Qrcode
+
+[33mcommit 34b5ec3e03db8dd5a517e4577f62c4e071ca5385[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Mon May 26 15:44:34 2025 +0200
+
+    success
+
+[33mcommit d9048b71a778c84fe85961a99e01da0678ce0119[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Mon May 26 15:07:01 2025 +0200
+
+    verify forget password and create new password
+
+[33mcommit 3aadd1e7baaf80af8764250db68c124019307c7e[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Mon May 26 12:07:30 2025 +0200
+
+    signupActivity and otpver
+
+[33mcommit e8f955bd010fe3023849d21808bae29a755d3651[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Mon May 26 11:00:32 2025 +0200
+
+    Initial commit
+
+[33mcommit 45c3beefd14118fe27de3c10459d64c1276d8d32[m
+Author: [1;31mSEZAIA2022[m <ehsan.sgooya@seza.ai>
+Date:   Sun May 25 14:14:02 2025 +0200
+
+    Initial commit

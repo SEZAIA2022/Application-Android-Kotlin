@@ -3,6 +3,7 @@ package com.houssein.sezaia.ui.screen
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,7 +40,8 @@ class DaysAdapter(private val days: List<DayItem>) : RecyclerView.Adapter<DaysAd
             notifyDataSetChanged()
         }
 
-        holder.timeSlotRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context, RecyclerView.HORIZONTAL, false)
+        holder.timeSlotRecyclerView.layoutManager =
+            GridLayoutManager(holder.itemView.context, 3)
         holder.timeSlotRecyclerView.adapter = if (day.isSelected) TimeSlotAdapter(day.timeSlots) else null
     }
 

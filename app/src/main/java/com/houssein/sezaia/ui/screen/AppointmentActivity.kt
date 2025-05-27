@@ -67,7 +67,7 @@ class AppointmentActivity : AppCompatActivity() {
         val slots = mutableListOf<String>()
         calendar.set(Calendar.HOUR_OF_DAY, 8)
         calendar.set(Calendar.MINUTE, 0)
-        while (calendar.get(Calendar.HOUR_OF_DAY) <= 16) {
+        while (calendar.get(Calendar.HOUR_OF_DAY) <= 18) {
             slots.add(timeFormat.format(calendar.time))
             calendar.add(Calendar.HOUR_OF_DAY, 2)
         }
