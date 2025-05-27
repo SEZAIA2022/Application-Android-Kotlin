@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -7,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.DayItem
+import com.houssein.sezaia.ui.utils.UIUtils
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -20,6 +22,11 @@ class AppointmentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appointment)
 
+        UIUtils.applySystemBarsInsets(findViewById(R.id.main))
+        UIUtils.initToolbar(
+            this,getString(R.string.appointment),actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
+            onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
+        )
         daysRecyclerView = findViewById(R.id.daysRecyclerView)
         confirmButton = findViewById(R.id.confirmButton)
 
