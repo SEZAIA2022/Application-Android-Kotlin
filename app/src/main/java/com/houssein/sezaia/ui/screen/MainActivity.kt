@@ -48,7 +48,13 @@ class MainActivity : BaseActivity() {
 
     private fun setupListeners() {
         backButton.setOnClickListener {
-            finish()
+            showDialog("Are you sure?",
+                "press leave to quit",
+                positiveButtonText = "Leave",
+                onPositiveClick = { finish() },
+                negativeButtonText = "Cancel",
+                onNegativeClick = {},
+                cancelable = false)
         }
         actionButton.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))

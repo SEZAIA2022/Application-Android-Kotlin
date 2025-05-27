@@ -126,12 +126,20 @@ class SignUpActivity : BaseActivity() {
                     } catch (e: Exception) {
                         "Erreur serveur"
                     }
-                    showDialog("Échec de l'inscription", errorMessage)
+                    showDialog("Échec de l'inscription", errorMessage,positiveButtonText = null, // pas de bouton positif
+                        onPositiveClick = null,
+                        negativeButtonText = "OK",
+                        onNegativeClick = { /* rien */ },
+                        cancelable = true)
                 }
             }
 
             override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
-                showDialog("Erreur réseau", t.localizedMessage ?: "Erreur inconnue")
+                showDialog("Erreur réseau", t.localizedMessage ?: "Erreur inconnue",positiveButtonText = null, // pas de bouton positif
+                    onPositiveClick = null,
+                    negativeButtonText = "OK",
+                    onNegativeClick = { /* rien */ },
+                    cancelable = true)
             }
         })
     }

@@ -111,12 +111,20 @@ class LoginActivity : BaseActivity() {
                             "user" -> CameraActivity::class.java
                             "admin" -> WelcomeAdminActivity::class.java
                             else -> {
-                                showDialog("Error", "Role unknown : $role")
+                                showDialog("Error", "Role unknown : $role",positiveButtonText = null, // pas de bouton positif
+                                    onPositiveClick = null,
+                                    negativeButtonText = "OK",
+                                    onNegativeClick = { /* rien */ },
+                                    cancelable = true)
                                 return
                             }
                         }
                         startActivity(Intent(this@LoginActivity, targetActivity))
-                    } ?: showDialog("Error", "Empty response from the server.")
+                    } ?: showDialog("Error", "Empty response from the server.", positiveButtonText = null, // pas de bouton positif
+                        onPositiveClick = null,
+                        negativeButtonText = "OK",
+                        onNegativeClick = { /* rien */ },
+                        cancelable = true)
                 } else {
                     resetInputStyles(R.color.red, clear = true, inputFields)
                     usernameLayout.error = " "
@@ -129,12 +137,20 @@ class LoginActivity : BaseActivity() {
                     } catch (e: Exception) {
                         "Network Error : ${response.code()}"
                     }
-                    showDialog("Connection failure", errorMessage)
+                    showDialog("Connection failure", errorMessage,positiveButtonText = null, // pas de bouton positif
+                        onPositiveClick = null,
+                        negativeButtonText = "OK",
+                        onNegativeClick = { /* rien */ },
+                        cancelable = true)
                 }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                showDialog("Connection failure", t.localizedMessage ?: "Unknown error")
+                showDialog("Connection failure", t.localizedMessage ?: "Unknown error", positiveButtonText = null, // pas de bouton positif
+                    onPositiveClick = null,
+                    negativeButtonText = "OK",
+                    onNegativeClick = { /* rien */ },
+                    cancelable = true)
             }
         })
     }

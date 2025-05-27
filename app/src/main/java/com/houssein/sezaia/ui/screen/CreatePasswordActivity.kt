@@ -90,7 +90,11 @@ class CreatePasswordActivity : BaseActivity() {
     private fun resetPassword() {
         val email = intent.getStringExtra("email")
         if (email.isNullOrEmpty()) {
-            showDialog(getString(R.string.error), getString(R.string.email_missing))
+            showDialog(getString(R.string.error), getString(R.string.email_missing), positiveButtonText = null, // pas de bouton positif
+                onPositiveClick = null,
+                negativeButtonText = "OK",
+                onNegativeClick = { /* rien */ },
+                cancelable = true)
             return
         }
 
@@ -121,12 +125,20 @@ class CreatePasswordActivity : BaseActivity() {
                     } catch (e: Exception) {
                         getString(R.string.server_error)
                     }
-                    showDialog(getString(R.string.registration_failed), errorMessage)
+                    showDialog(getString(R.string.registration_failed), errorMessage, positiveButtonText = null, // pas de bouton positif
+                        onPositiveClick = null,
+                        negativeButtonText = "OK",
+                        onNegativeClick = { /* rien */ },
+                        cancelable = true)
                 }
             }
 
             override fun onFailure(call: Call<CreateNewPasswordResponse>, t: Throwable) {
-                showDialog(getString(R.string.network_error), t.localizedMessage ?: getString(R.string.unknown_error))
+                showDialog(getString(R.string.network_error), t.localizedMessage ?: getString(R.string.unknown_error), positiveButtonText = null, // pas de bouton positif
+                    onPositiveClick = null,
+                    negativeButtonText = "OK",
+                    onNegativeClick = { /* rien */ },
+                    cancelable = true)
             }
         })
     }
