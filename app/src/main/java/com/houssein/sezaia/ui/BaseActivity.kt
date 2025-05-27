@@ -33,8 +33,8 @@ open class BaseActivity : AppCompatActivity() {
                 editText.text = null
             }
         }
-
     }
+
     fun showDialog(title: String, message: String) {
         AlertDialog.Builder(this)
             .setTitle(title)
