@@ -107,6 +107,8 @@ class LoginActivity : BaseActivity() {
                 if (response.isSuccessful) {
                     response.body()?.let { responseBody ->
                         val role = responseBody.role.lowercase()
+                        val user = responseBody.user
+                        val email = responseBody.email
                         val targetActivity = when (role) {
                             "user" -> CameraActivity::class.java
                             "admin" -> WelcomeAdminActivity::class.java
@@ -119,6 +121,12 @@ class LoginActivity : BaseActivity() {
                                 return
                             }
                         }
+                        getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("loggedUsername", user)
+                            .putString("LoggedEmail", email)
+                            .apply()
+
                         startActivity(Intent(this@LoginActivity, targetActivity))
                     } ?: showDialog("Error", "Empty response from the server.", positiveButtonText = null, // pas de bouton positif
                         onPositiveClick = null,

@@ -2,6 +2,7 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.BaseActivity
@@ -17,8 +18,18 @@ class WelcomeAdminActivity : BaseActivity() {
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
 
         UIUtils.initToolbar(
-            this,getString(R.string.welcome_admin), onBackClick = {finish()},
+            this, getString(R.string.welcome_admin),
+            onBackClick = { finish() },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
+
+        // 🔵 Récupération et affichage du username
+        val username = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+            .getString("loggedUsername", "Admin")
+
+        val email = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+            .getString("LoggedEmail", "Admin")
+
+        findViewById<TextView>(R.id.usernameText).text = "Bienvenue, $username, $email 👋"
     }
 }
