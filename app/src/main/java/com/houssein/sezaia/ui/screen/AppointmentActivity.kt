@@ -2,12 +2,14 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.houssein.sezaia.R
-import com.houssein.sezaia.model.DayItem
+import com.houssein.sezaia.model.data.DayItem
+import com.houssein.sezaia.model.data.QuestionAnswer
 import com.houssein.sezaia.ui.utils.UIUtils
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -17,6 +19,7 @@ import java.util.*
 class AppointmentActivity : AppCompatActivity() {
     private lateinit var daysRecyclerView: RecyclerView
     private lateinit var confirmButton: MaterialButton
+    private lateinit var responseList: List<QuestionAnswer>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +34,14 @@ class AppointmentActivity : AppCompatActivity() {
         confirmButton = findViewById(R.id.confirmButton)
 
         setupDaysRecyclerView()
+        // Récupérer la liste envoyée depuis ChatbotActivity
+        responseList = intent.getSerializableExtra("responses") as? ArrayList<QuestionAnswer> ?: emptyList()
+
+        // Afficher chaque question et réponse dans le Logcat
+        responseList.forEachIndexed { index, qa ->
+            Log.d("AppointmentActivity", "Q${index + 1}: ${qa.question}")
+            Log.d("AppointmentActivity", "R${index + 1}: ${qa.answer}")
+        }
     }
 
     private fun setupDaysRecyclerView() {

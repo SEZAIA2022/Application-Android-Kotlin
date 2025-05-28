@@ -6,10 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
-import com.houssein.sezaia.model.DayItem
+import com.houssein.sezaia.model.data.DayItem
 
 class DaysAdapter(private val days: List<DayItem>) : RecyclerView.Adapter<DaysAdapter.DayViewHolder>() {
 

@@ -121,7 +121,7 @@ class LoginActivity : BaseActivity() {
                                 return
                             }
                         }
-                        getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                        getSharedPreferences("LoginData", MODE_PRIVATE)
                             .edit()
                             .putString("loggedUsername", user)
                             .putString("LoggedEmail", email)
