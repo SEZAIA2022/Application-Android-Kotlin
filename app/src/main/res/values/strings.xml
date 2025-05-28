@@ -77,8 +77,9 @@
     <string name="network_error">Erreur réseau</string>
     <string name="unknown_error">Erreur inconnue</string>
     <string name="email_missing">email missing\n</string>
-    <string name="optional_comment">tap your comment</string>
+    <string name="optional_comment">type your comment</string>
     <string name="confirm_appointment">Confirm Appointment</string>
     <string name="select_technician">select technicien</string>
+    <string name="send">send</string>
 
 </resources>

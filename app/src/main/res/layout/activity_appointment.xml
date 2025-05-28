@@ -29,14 +29,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/confirmButton"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/MyCustomButtonBlue"
         android:layout_margin="16dp"
-        android:text="Confirmer le rendez-vous"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/blue"
-        app:cornerRadius="12dp"
+        android:text="@string/confirm_appointment"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

@@ -63,6 +63,7 @@
             android:id="@+id/buttonSend"
             style="@style/MyCustomButtonBlue"
             android:backgroundTint="@color/blue"
+            android:layout_margin="16dp"
             android:text="@string/Continue"
             />
     </LinearLayout>
