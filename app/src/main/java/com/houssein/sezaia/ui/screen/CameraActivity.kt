@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Size
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -18,9 +20,15 @@ import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.houssein.sezaia.R
-import com.houssein.sezaia.ui.utils.BarcodeOverlayView
+import com.houssein.sezaia.model.request.QrCodeRequest
+import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.ui.BaseActivity
+import com.houssein.sezaia.ui.utils.BarcodeOverlayView
 import com.houssein.sezaia.ui.utils.UIUtils
+import com.houssein.sezaia.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.concurrent.Executors
 
 class CameraActivity : BaseActivity() {
@@ -36,23 +44,13 @@ class CameraActivity : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_camera)
 
-        // Appliquer les insets des barres système
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-
-        val prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-        prefs.edit().putBoolean("showCardsInSettings", true).apply()
-
-        UIUtils.initToolbar(
-            this,getString(R.string.welcome_user), actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
-            onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
-        )
 
         previewView = findViewById(R.id.previewView)
         overlayView = findViewById(R.id.overlayView)
 
         requestCameraPermission()
     }
-
 
     private fun requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -91,6 +89,7 @@ class CameraActivity : BaseActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    @OptIn(ExperimentalGetImage::class)
     private fun processImageProxy(scanner: com.google.mlkit.vision.barcode.BarcodeScanner, imageProxy: ImageProxy) {
         val mediaImage = imageProxy.image ?: run {
             imageProxy.close()
@@ -148,13 +147,45 @@ class CameraActivity : BaseActivity() {
 
         if (!isQrCodeProcessed) {
             isQrCodeProcessed = true
-            Toast.makeText(this, "QR Code scanné: $value", Toast.LENGTH_SHORT).show()
-
-            val intent = Intent(this, WelcomeChatbotActivity::class.java)
-            intent.putExtra("qr_data", value)
-            startActivity(intent)
+            verifyQrCodeWithServer(value)
         }
     }
+
+    private fun verifyQrCodeWithServer(qrCode: String) {
+        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode))
+            .enqueue(object : Callback<QrCodeResponse> {
+                override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
+                    if (response.isSuccessful && response.body()?.status == "success") {
+                        val intent = Intent(this@CameraActivity, WelcomeChatbotActivity::class.java)
+                        getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("qrData", qrCode)
+                            .apply()
+                        startActivity(intent)
+                    } else {
+                        val message = response.body()?.message ?: "QR Code don't valid."
+                        Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
+
+                        // Délai de 3 secondes avant de réactiver le scan
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            isQrCodeProcessed = false
+                            overlayView.clearBox()
+                        }, 3000)
+                    }
+                }
+
+                override fun onFailure(call: Call<QrCodeResponse>, t: Throwable) {
+                    Toast.makeText(this@CameraActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+
+                    // Délai de 3 secondes avant de réactiver le scan
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        isQrCodeProcessed = false
+                        overlayView.clearBox()
+                    }, 3000)
+                }
+            })
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -164,5 +195,4 @@ class CameraActivity : BaseActivity() {
         }
         requestCameraPermission()
     }
-
 }

@@ -25,10 +25,10 @@ class WelcomeAdminActivity : BaseActivity() {
 
         // 🔵 Récupération et affichage du username
         val username = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .getString("loggedUsername", "Admin")
+            .getString("loggedUsername", "Username not found")//si existe pas retourne Username not found
 
         val email = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .getString("LoggedEmail", "Admin")
+            .getString("LoggedEmail", "Email not found")
 
         findViewById<TextView>(R.id.usernameText).text = "Bienvenue, $username, $email 👋"
     }
