@@ -37,6 +37,9 @@ class AppointmentActivity : AppCompatActivity() {
         daysRecyclerView = findViewById(R.id.daysRecyclerView)
         confirmButton = findViewById(R.id.confirmButton)
 
+        // Désactiver le bouton au lancement
+        confirmButton.isEnabled = false
+
         setupDaysRecyclerView()
 
         confirmButton.setOnClickListener {
@@ -61,6 +64,8 @@ class AppointmentActivity : AppCompatActivity() {
         val adapter = DaysAdapter(days) { dayLabel, timeSlot ->
             selectedDay = dayLabel
             selectedTimeSlot = timeSlot
+            // Activer le bouton dès qu’on a une sélection
+            confirmButton.isEnabled = true
         }
         daysRecyclerView.layoutManager = LinearLayoutManager(this)
         daysRecyclerView.adapter = adapter
