@@ -3,14 +3,20 @@ package com.houssein.sezaia.ui.screen
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.GridLayoutManager
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.DayItem
 
-class DaysAdapter(private val days: List<DayItem>) : RecyclerView.Adapter<DaysAdapter.DayViewHolder>() {
+class DaysAdapter(
+    private val days: List<DayItem>,
+    private val onTimeSlotSelected: (String, String) -> Unit
+) : RecyclerView.Adapter<DaysAdapter.DayViewHolder>() {
+
+    private var selectedDayPosition: Int = RecyclerView.NO_POSITION
+    private var selectedTimeSlot: String? = null
 
     class DayViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val dayCard: CardView = view.findViewById(R.id.dayCard)
@@ -27,21 +33,32 @@ class DaysAdapter(private val days: List<DayItem>) : RecyclerView.Adapter<DaysAd
         val day = days[position]
         holder.dayButton.text = day.label
 
-        holder.dayCard.setCardBackgroundColor(
-            holder.itemView.context.getColor(
-                if (day.isSelected) R.color.white else R.color.white
-            )
-        )
+        holder.timeSlotRecyclerView.layoutManager = GridLayoutManager(holder.itemView.context, 3)
 
-        holder.dayButton.setOnClickListener {
-            days.forEach { it.isSelected = false }
-            day.isSelected = true
-            notifyDataSetChanged()
+        // Afficher les créneaux seulement si ce jour est sélectionné
+        if (position == selectedDayPosition) {
+            holder.timeSlotRecyclerView.adapter = TimeSlotAdapter(
+                day.label,
+                day.timeSlots,
+                selectedTimeSlot
+            ) { selectedDay, selectedTime ->
+                selectedTimeSlot = selectedTime
+                onTimeSlotSelected(selectedDay, selectedTime)
+                notifyDataSetChanged()
+            }
+            holder.timeSlotRecyclerView.visibility = View.VISIBLE
+        } else {
+            holder.timeSlotRecyclerView.adapter = null
+            holder.timeSlotRecyclerView.visibility = View.GONE
         }
 
-        holder.timeSlotRecyclerView.layoutManager =
-            GridLayoutManager(holder.itemView.context, 3)
-        holder.timeSlotRecyclerView.adapter = if (day.isSelected) TimeSlotAdapter(day.timeSlots) else null
+        holder.dayButton.setOnClickListener {
+            if (selectedDayPosition != position) {
+                selectedDayPosition = position
+                selectedTimeSlot = null
+                notifyDataSetChanged()
+            }
+        }
     }
 
     override fun getItemCount(): Int = days.size
