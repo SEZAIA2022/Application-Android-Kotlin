@@ -5,11 +5,13 @@ import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.request.SignUpRequest
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.request.QrCodeRequest
+import com.houssein.sezaia.model.request.SaveResponseRequest
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
+import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SignUpResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -34,6 +36,9 @@ interface ApiService {
 
     @POST("/exist_qr")
     fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
+
+    @POST("/save_response")
+    fun saveResponse(@Body request: SaveResponseRequest): Call<SaveResponseResponse>
 
 
     @POST("/verify_forget")

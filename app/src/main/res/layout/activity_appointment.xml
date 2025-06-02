@@ -2,8 +2,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/main"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".ui.screen.AppointmentActivity">
@@ -22,10 +22,33 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
+        app:layout_constraintBottom_toTopOf="@id/commentLayout"
+        app:layout_constraintVertical_chainStyle="spread_inside" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/commentLayout"
+        style="@style/CustomTextInputLayout"
+        app:layout_constraintTop_toBottomOf="@id/daysRecyclerView"
         app:layout_constraintBottom_toTopOf="@id/confirmButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/comment"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_comment_24"
+            android:hint="@string/optional_comment"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:maxLines="5"
+            android:gravity="top|start"
+            android:padding="8dp"
+            tools:text="Your comment here ..." />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/confirmButton"
@@ -35,4 +58,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

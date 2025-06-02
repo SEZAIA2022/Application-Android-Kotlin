@@ -82,7 +82,11 @@ class ChatbotActivity : BaseActivity() {
             val questionText = questions.getOrNull(currentQuestionIndex - 1)?.text ?: ""
             val answer = "Yes"
             addMessage(answer, true)
-            questionResponseList.add(QuestionAnswer(questionText, answer))
+            questionResponseList.add(
+                QuestionAnswer(id = currentQuestionIndex, question = questionText, answer = answer)
+            )
+
+
             askNextQuestion()
         }
 
@@ -90,7 +94,11 @@ class ChatbotActivity : BaseActivity() {
             val questionText = questions.getOrNull(currentQuestionIndex - 1)?.text ?: ""
             val answer = "No"
             addMessage(answer, true)
-            questionResponseList.add(QuestionAnswer(questionText, answer))
+            questionResponseList.add(
+                QuestionAnswer(id = currentQuestionIndex, question = questionText, answer = answer)
+            )
+
+
             askNextQuestion()
         }
 
