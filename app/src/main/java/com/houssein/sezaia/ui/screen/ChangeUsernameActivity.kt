@@ -35,9 +35,9 @@ class ChangeUsernameActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        password.setOnClickListener(
-            changeUsername()
-        )
+//        password.setOnClickListener(
+//            changeUsername()
+//        )
     }
 
     private fun changeUsername(){
