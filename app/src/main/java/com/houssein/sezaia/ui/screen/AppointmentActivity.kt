@@ -85,8 +85,9 @@ class AppointmentActivity : AppCompatActivity() {
                 val qrCode = qrData ?: return@setOnClickListener
 
 
-                val inputFormat = SimpleDateFormat("dd MMMM", Locale.ENGLISH)
+                val inputFormat = SimpleDateFormat("EEEE dd MMMM", Locale.ENGLISH)
                 val parsedDate = inputFormat.parse(selectedDayLabel!!)
+
                 val dayNameFormat = SimpleDateFormat("EEEE, dd MMMM", Locale.ENGLISH)
                 val dayWithName = dayNameFormat.format(parsedDate)
                 val formattedDate = "$dayWithName $selectedTimeSlot"  // ex: "Tuesday, 03 June 16:00"
@@ -149,22 +150,18 @@ class AppointmentActivity : AppCompatActivity() {
     private fun generateUpcomingDays(count: Int): List<DayItem> {
         val list = mutableListOf<DayItem>()
         val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("dd MMMM", Locale.ENGLISH)
-
-        val holidays = setOf(
-            LocalDate.of(2025, 1, 1), LocalDate.of(2025, 4, 21), LocalDate.of(2025, 5, 1),
-            LocalDate.of(2025, 5, 8), LocalDate.of(2025, 5, 29), LocalDate.of(2025, 6, 9),
-            LocalDate.of(2025, 7, 14), LocalDate.of(2025, 8, 15), LocalDate.of(2025, 11, 1),
-            LocalDate.of(2025, 11, 11), LocalDate.of(2025, 12, 25)
-        )
+        val formatter = SimpleDateFormat("EEEE dd MMMM", Locale.ENGLISH)
 
         while (list.size < count) {
             val date = calendar.time
             val localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+            val dayOfWeek = localDate.dayOfWeek
 
-            if (dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY && !holidays.contains(localDate)) {
-                val label = formatter.format(date) // 👈 Ex: "03 June"
+            val isWeekend = dayOfWeek == java.time.DayOfWeek.SATURDAY || dayOfWeek == java.time.DayOfWeek.SUNDAY
+            val isHoliday = isPublicHoliday(localDate)
+
+            if (!isWeekend && !isHoliday) {
+                val label = formatter.format(date)
                 list.add(DayItem(label, generateTimeSlots(date)))
             }
 
@@ -173,6 +170,48 @@ class AppointmentActivity : AppCompatActivity() {
 
         return list
     }
+
+    private fun isPublicHoliday(date: LocalDate): Boolean {
+        val fixedHolidays = setOf(
+            LocalDate.of(date.year, 1, 1),   // Jour de l'an
+            LocalDate.of(date.year, 5, 1),   // Fête du Travail
+            LocalDate.of(date.year, 5, 8),   // Victoire 1945
+            LocalDate.of(date.year, 7, 14),  // Fête nationale
+            LocalDate.of(date.year, 8, 15),  // Assomption
+            LocalDate.of(date.year, 11, 1),  // Toussaint
+            LocalDate.of(date.year, 11, 11), // Armistice
+            LocalDate.of(date.year, 12, 25)  // Noël
+
+        )
+
+        val easter = calculateEaster(date.year)
+        val easterMonday = easter.plusDays(1)
+        val ascension = easter.plusDays(39)
+        val pentecost = easter.plusDays(50)
+
+        val movableHolidays = setOf(easterMonday, ascension, pentecost)
+
+        return date in fixedHolidays || date in movableHolidays
+    }
+
+    private fun calculateEaster(year: Int): LocalDate {
+        val a = year % 19
+        val b = year / 100
+        val c = year % 100
+        val d = b / 4
+        val e = b % 4
+        val f = (b + 8) / 25
+        val g = (b - f + 1) / 3
+        val h = (19 * a + b - d - g + 15) % 30
+        val i = c / 4
+        val k = c % 4
+        val l = (32 + 2 * e + 2 * i - h - k) % 7
+        val m = (a + 11 * h + 22 * l) / 451
+        val month = (h + l - 7 * m + 114) / 31
+        val day = ((h + l - 7 * m + 114) % 31) + 1
+        return LocalDate.of(year, month, day)
+    }
+
 
     private fun generateTimeSlots(date: Date): List<String> {
         val calendar = Calendar.getInstance().apply { time = date }
