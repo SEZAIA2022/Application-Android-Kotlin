@@ -48,10 +48,7 @@ class AppointmentActivity : AppCompatActivity() {
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         UIUtils.initToolbar(
-            this,
-            getString(R.string.appointment),
-            actionIconRes = R.drawable.baseline_density_medium_24,
-            onBackClick = { finish() },
+            this,getString(R.string.appointment),actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
@@ -117,6 +114,12 @@ class AppointmentActivity : AppCompatActivity() {
 
                 sendEmail(toEmail.toString(), message)
 
+                val intent = Intent(this@AppointmentActivity, SuccessActivity::class.java).apply {
+                    putExtra("title", getString(R.string.request_sent))
+                    putExtra("content", getString(R.string.request_message_sent))
+                    putExtra("button", getString(R.string.return_to_camera))
+                }
+                startActivity(intent)
 
             } else {
                 Toast.makeText(this, "Veuillez sélectionner une date, un créneau et remplir le commentaire.", Toast.LENGTH_SHORT).show()

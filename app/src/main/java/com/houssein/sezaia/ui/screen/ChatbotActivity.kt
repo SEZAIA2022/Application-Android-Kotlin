@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -44,7 +45,7 @@ class ChatbotActivity : BaseActivity() {
 
         UIUtils.initToolbar(
             this, getString(R.string.chatbot),
-            onBackClick = { finish() },
+            actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
     }
@@ -55,6 +56,7 @@ class ChatbotActivity : BaseActivity() {
         fetchQuestionsFromApi()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun resetChat() {
         messages.clear()
         questions.clear()

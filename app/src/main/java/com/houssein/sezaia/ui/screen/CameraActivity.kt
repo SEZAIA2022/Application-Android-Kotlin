@@ -46,6 +46,11 @@ class CameraActivity : BaseActivity() {
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
 
+        UIUtils.initToolbar(
+            this,getString(R.string.qr_code_scan),actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {},
+            onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
+        )
+
         previewView = findViewById(R.id.previewView)
         overlayView = findViewById(R.id.overlayView)
 

@@ -81,5 +81,10 @@
     <string name="confirm_appointment">Confirm Appointment</string>
     <string name="select_technician">select technicien</string>
     <string name="send">send</string>
+    <string name="request_sent">Request sent</string>
+    <string name="request_message_sent"><![CDATA[Your request has been sent, you will receive an email containing the date of arrival of our technicians, thank you]]></string>
+    <string name="return_to_camera">Return to camera</string>
+    <string name="success">Success</string>
+    <string name="qr_code_scan">Qr code Scanner</string>
 
 </resources>

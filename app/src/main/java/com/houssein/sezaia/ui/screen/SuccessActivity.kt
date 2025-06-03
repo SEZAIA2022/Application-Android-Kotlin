@@ -23,23 +23,30 @@ class SuccessActivity : AppCompatActivity() {
         initViews()
         setupListeners()
         UIUtils.initToolbar(
-            this,getString(R.string.change_email),actionIconRes = R.drawable.outline_verified_24, onBackClick = {},
-            onActionClick = { recreate() }
+            this,getString(R.string.success),actionIconRes = R.drawable.outline_verified_24, onBackClick = {},
+            onActionClick = {}
         )
     }
 
     private fun initViews(){
         val newTitle = intent.getStringExtra("title")
         val newMessage = intent.getStringExtra("content")
+        val newButton = intent.getStringExtra("button")
         btnContinueLogin = findViewById(R.id.btnContinueLogin)
         title = findViewById(R.id.textView3)
         message = findViewById((R.id.textView2))
         title.text = newTitle
         message.text = newMessage
+        btnContinueLogin.text = newButton
     }
 
     private fun setupListeners() {
-        btnContinueLogin.setOnClickListener { startActivity( Intent(this@SuccessActivity, LoginActivity::class.java)) }
+        if (btnContinueLogin.text == "Return to camera"){
+            btnContinueLogin.setOnClickListener { startActivity( Intent(this@SuccessActivity, CameraActivity::class.java)) }
+        } else {
+            btnContinueLogin.setOnClickListener { startActivity( Intent(this@SuccessActivity, LoginActivity::class.java)) }
+
+        }
     }
 
 }

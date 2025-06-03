@@ -28,6 +28,7 @@ class LoginActivity : BaseActivity() {
     private lateinit var btnSignUp: Button
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -125,6 +126,10 @@ class LoginActivity : BaseActivity() {
                             .edit()
                             .putString("loggedUsername", user)
                             .putString("LoggedEmail", email)
+                            .apply()
+                        getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putBoolean("showCardsInSettings", true)
                             .apply()
 
                         startActivity(Intent(this@LoginActivity, targetActivity))
