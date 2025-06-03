@@ -115,6 +115,7 @@ class CreatePasswordActivity : BaseActivity() {
                     val intent = Intent(this@CreatePasswordActivity, SuccessActivity::class.java).apply {
                         putExtra("title", getString(R.string.password_changed))
                         putExtra("content", getString(R.string.password_changed_successfully))
+                        putExtra("button", getString(R.string.return_to_login))
                     }
                     startActivity(intent)
                 } else {

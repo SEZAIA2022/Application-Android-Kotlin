@@ -87,6 +87,7 @@
     <string name="http_error">Http error</string>
     <string name="unexpected_response">Unexpected response</string>
     <string name="failed">Failed</string>
+    <string name="return_to_login">Return to login</string>
 
 
 </resources>
