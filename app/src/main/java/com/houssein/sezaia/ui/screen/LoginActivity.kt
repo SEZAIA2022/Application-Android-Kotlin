@@ -126,6 +126,8 @@ class LoginActivity : BaseActivity() {
                             .edit()
                             .putString("loggedUsername", user)
                             .putString("LoggedEmail", email)
+                            .putBoolean("isLoggedIn", true)
+                            .putString("userRole", role)
                             .apply()
                         getSharedPreferences("MyPrefs", MODE_PRIVATE)
                             .edit()

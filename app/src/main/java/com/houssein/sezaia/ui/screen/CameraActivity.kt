@@ -191,7 +191,13 @@ class CameraActivity : BaseActivity() {
             })
     }
 
-
+    override fun onStart() {
+        super.onStart()
+        getSharedPreferences("MyPrefs", MODE_PRIVATE)
+            .edit()
+            .putBoolean("showCardsInSettings", true)
+            .apply()
+    }
     override fun onResume() {
         super.onResume()
         isQrCodeProcessed = false

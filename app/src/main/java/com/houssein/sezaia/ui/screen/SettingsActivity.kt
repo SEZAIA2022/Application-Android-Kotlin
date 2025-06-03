@@ -73,10 +73,17 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun logoutAction() {
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        prefs.edit()
+            .putBoolean("isLoggedIn", false)
+            .remove("userRole")  // Supprime le rôle
+            .apply()
+
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+
     }
 
     private fun openProfilePage() {

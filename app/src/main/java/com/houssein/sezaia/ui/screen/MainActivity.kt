@@ -25,6 +25,26 @@ class MainActivity : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
+
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val isLoggedIn = prefs.getBoolean("isLoggedIn", false)
+        val userRole = prefs.getString("userRole", null)
+
+        if (isLoggedIn && userRole != null) {
+            val targetActivity = when(userRole) {
+                "user" -> CameraActivity::class.java
+                "admin" -> WelcomeAdminActivity::class.java
+                else -> MainActivity::class.java
+            }
+            startActivity(Intent(this, targetActivity))
+        }
+//        else {
+//            startActivity(Intent(this, LoginActivity::class.java))
+//        }
+//
+//        finish()
+
+
         // Appliquer les insets des barres système
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         requestCameraPermissionIfNeeded()
