@@ -85,7 +85,6 @@ class AppointmentActivity : AppCompatActivity() {
                 val qrCode = qrData ?: return@setOnClickListener
 
 
-                // 👉 Date sans doublon
                 val inputFormat = SimpleDateFormat("dd MMMM", Locale.ENGLISH)
                 val parsedDate = inputFormat.parse(selectedDayLabel!!)
                 val dayNameFormat = SimpleDateFormat("EEEE, dd MMMM", Locale.ENGLISH)
@@ -93,7 +92,7 @@ class AppointmentActivity : AppCompatActivity() {
                 val formattedDate = "$dayWithName $selectedTimeSlot"  // ex: "Tuesday, 03 June 16:00"
                 val toEmail =  loggedEmail
                 println(toEmail.toString())
-                val message = "Rendez vous confirme pour le $formattedDate\nCommentaire: $commentText"
+                val message = "Appointment confirmed for $formattedDate\nComment: $commentText"
 
 
                 responseList.forEach { qa ->
@@ -122,7 +121,7 @@ class AppointmentActivity : AppCompatActivity() {
                 startActivity(intent)
 
             } else {
-                Toast.makeText(this, "Veuillez sélectionner une date, un créneau et remplir le commentaire.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please select a date, a time slot and fill in the comments.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -205,14 +204,13 @@ class AppointmentActivity : AppCompatActivity() {
             override fun onResponse(call: Call<SaveResponseResponse>, response: Response<SaveResponseResponse>) {
                 if (response.isSuccessful) {
                     val serverResponse = response.body()
-                    Toast.makeText(this@AppointmentActivity, "✅ ${serverResponse?.message}", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@AppointmentActivity, "❌ Erreur : ${response.message()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentActivity, "${getString(R.string.error)} : ${response.message()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<SaveResponseResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "❌ Échec : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AppointmentActivity, "${getString(R.string.failed)} : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -226,20 +224,18 @@ class AppointmentActivity : AppCompatActivity() {
         val request = AskRepairRequest(username, date, comment, qrCode)
         RetrofitClient.instance.sendAsk(request).enqueue(object : Callback<AskRepairResponse> {
             override fun onResponse(call: Call<AskRepairResponse>, response: Response<AskRepairResponse>) {
-                if (response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "✅ ${response.body()?.message}", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@AppointmentActivity, "❌ Erreur : ${response.message()}", Toast.LENGTH_SHORT).show()
+                if (!response.isSuccessful) {
+                    Toast.makeText(this@AppointmentActivity, "${getString(R.string.error)} : ${response.message()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<AskRepairResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "❌ Échec réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AppointmentActivity, "${getString(R.string.network_error)} : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
             }
         })
     }
 
-    fun sendEmail(toEmail: String, message: String) {
+    private fun sendEmail(toEmail: String, message: String) {
         val request = SendEmailRequest(to_email = toEmail, message = message)
 
         RetrofitClient.instance.sendEmail(request).enqueue(object : retrofit2.Callback<SendEmailResponse> {
@@ -251,20 +247,25 @@ class AppointmentActivity : AppCompatActivity() {
                     val body = response.body()
                     if (body?.message != null) {
                         // Succès
-                        println("Email envoyé : ${body.message}")
+                        Toast.makeText(this@AppointmentActivity, getString(R.string.request_message_sent), Toast.LENGTH_SHORT).show()
+                        println("${getString(R.string.request_message_sent)} : ${body.error}")
                     } else if (body?.error != null) {
                         // Erreur renvoyée par le serveur
-                        println("Erreur serveur : ${body.error}")
+                        Toast.makeText(this@AppointmentActivity, getString(R.string.server_error), Toast.LENGTH_SHORT).show()
+                        println("${getString(R.string.server_error)} : ${body.error}")
                     } else {
-                        println("Réponse inattendue")
+                        Toast.makeText(this@AppointmentActivity, getString(R.string.unexpected_response), Toast.LENGTH_SHORT).show()
+                        println(getString(R.string.unexpected_response))
                     }
                 } else {
-                    println("Erreur HTTP : ${response.code()}")
+                    Toast.makeText(this@AppointmentActivity, getString(R.string.http_error), Toast.LENGTH_SHORT).show()
+                    println("${getString(R.string.http_error)}: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: retrofit2.Call<SendEmailResponse>, t: Throwable) {
-                println("Échec réseau : ${t.message}")
+                Toast.makeText(this@AppointmentActivity, getString(R.string.network_error), Toast.LENGTH_SHORT).show()
+                println("${getString(R.string.network_error)} : ${t.message}")
             }
         })
     }
