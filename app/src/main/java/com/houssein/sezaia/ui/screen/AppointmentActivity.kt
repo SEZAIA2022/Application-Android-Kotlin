@@ -2,9 +2,9 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Email
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,8 +14,12 @@ import com.google.android.material.textfield.TextInputEditText
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.DayItem
 import com.houssein.sezaia.model.data.QuestionAnswer
+import com.houssein.sezaia.model.request.AskRepairRequest
 import com.houssein.sezaia.model.request.SaveResponseRequest
+import com.houssein.sezaia.model.request.SendEmailRequest
+import com.houssein.sezaia.model.response.AskRepairResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
+import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.utils.UIUtils
 import retrofit2.Call
@@ -32,7 +36,7 @@ class AppointmentActivity : AppCompatActivity() {
     private lateinit var confirmButton: MaterialButton
     private lateinit var commentEditText: TextInputEditText
 
-    private var selectedDay: String? = null
+    private var selectedDayLabel: String? = null
     private var selectedTimeSlot: String? = null
     private var commentText: String = ""
 
@@ -55,17 +59,10 @@ class AppointmentActivity : AppCompatActivity() {
         confirmButton = findViewById(R.id.confirmButton)
         commentEditText = findViewById(R.id.comment)
 
-        confirmButton.isEnabled = false // Désactivé au départ
+        confirmButton.isEnabled = false
 
-        // Récupérer la liste envoyée depuis ChatbotActivity
         @Suppress("UNCHECKED_CAST")
         responseList = intent.getSerializableExtra("responses") as? ArrayList<QuestionAnswer> ?: emptyList()
-
-        // Afficher questions/réponses dans Logcat
-        responseList.forEachIndexed { index, qa ->
-            Log.d("AppointmentActivity", "Q${index + 1}: ${qa.question}")
-            Log.d("AppointmentActivity", "R${index + 1}: ${qa.answer}")
-        }
 
         commentEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -79,32 +76,48 @@ class AppointmentActivity : AppCompatActivity() {
 
         setupDaysRecyclerView()
 
-
         val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
-        val user = sharedPref.getString("loggedUsername", null)
-        val email = sharedPref.getString("LoggedEmail", null)
+        val loggedUser = sharedPref.getString("loggedUsername", null)
+        val loggedEmail = sharedPref.getString("LoggedEmail", null)
         val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
         val qrData = sharedPreferences.getString("qrData", null)
 
         confirmButton.setOnClickListener {
-            if (selectedDay != null && selectedTimeSlot != null && commentText.isNotBlank()) {
-                val username = user
-                val qrCode = qrData
+            if (selectedDayLabel != null && selectedTimeSlot != null && commentText.isNotBlank()) {
+                val username = loggedUser ?: return@setOnClickListener
+                val qrCode = qrData ?: return@setOnClickListener
 
-                // Envoyer chaque question+réponse séparément
-                responseList.forEachIndexed { index, qa ->
-                    val questionId = qa.id
-                    val responseText = qa.answer
 
-                    sendResponseWithRetrofit(questionId.toString(), responseText,
-                        username.toString(), qrCode.toString())
+                // 👉 Date sans doublon
+                val inputFormat = SimpleDateFormat("dd MMMM", Locale.ENGLISH)
+                val parsedDate = inputFormat.parse(selectedDayLabel!!)
+                val dayNameFormat = SimpleDateFormat("EEEE, dd MMMM", Locale.ENGLISH)
+                val dayWithName = dayNameFormat.format(parsedDate)
+                val formattedDate = "$dayWithName $selectedTimeSlot"  // ex: "Tuesday, 03 June 16:00"
+                val toEmail =  loggedEmail
+                println(toEmail.toString())
+                val message = "Rendez vous confirme pour le $formattedDate\nCommentaire: $commentText"
+
+
+                responseList.forEach { qa ->
+                    sendResponseWithRetrofit(
+                        qa.id.toString(),
+                        qa.answer,
+                        username,
+                        qrCode
+                    )
                 }
 
-                Toast.makeText(
-                    this,
-                    "Rendez-vous confirmé pour le $selectedDay à $selectedTimeSlot.\nCommentaire: $commentText",
-                    Toast.LENGTH_LONG
-                ).show()
+                sendAskRepair(
+                    username,
+                    formattedDate,
+                    commentText,
+                    qrCode
+                )
+
+                sendEmail(toEmail.toString(), message)
+
+
             } else {
                 Toast.makeText(this, "Veuillez sélectionner une date, un créneau et remplir le commentaire.", Toast.LENGTH_SHORT).show()
             }
@@ -114,7 +127,7 @@ class AppointmentActivity : AppCompatActivity() {
     private fun setupDaysRecyclerView() {
         val days = generateUpcomingDays(14)
         val adapter = DaysAdapter(days) { dayLabel, timeSlot ->
-            selectedDay = dayLabel
+            selectedDayLabel = dayLabel  // 👈 Sans heure
             selectedTimeSlot = timeSlot
             updateConfirmButtonState()
         }
@@ -123,7 +136,7 @@ class AppointmentActivity : AppCompatActivity() {
     }
 
     private fun updateConfirmButtonState() {
-        val enabled = !selectedDay.isNullOrEmpty() &&
+        val enabled = !selectedDayLabel.isNullOrEmpty() &&
                 !selectedTimeSlot.isNullOrEmpty() &&
                 commentText.isNotBlank()
 
@@ -134,7 +147,7 @@ class AppointmentActivity : AppCompatActivity() {
     private fun generateUpcomingDays(count: Int): List<DayItem> {
         val list = mutableListOf<DayItem>()
         val calendar = Calendar.getInstance()
-        val formatter = SimpleDateFormat("EEEE, dd MMMM", Locale.FRENCH)
+        val formatter = SimpleDateFormat("dd MMMM", Locale.ENGLISH)
 
         val holidays = setOf(
             LocalDate.of(2025, 1, 1), LocalDate.of(2025, 4, 21), LocalDate.of(2025, 5, 1),
@@ -149,7 +162,7 @@ class AppointmentActivity : AppCompatActivity() {
             val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
             if (dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY && !holidays.contains(localDate)) {
-                val label = formatter.format(date)
+                val label = formatter.format(date) // 👈 Ex: "03 June"
                 list.add(DayItem(label, generateTimeSlots(date)))
             }
 
@@ -200,4 +213,59 @@ class AppointmentActivity : AppCompatActivity() {
             }
         })
     }
+
+    private fun sendAskRepair(
+        username: String,
+        date: String,
+        comment: String,
+        qrCode: String
+    ) {
+        val request = AskRepairRequest(username, date, comment, qrCode)
+        RetrofitClient.instance.sendAsk(request).enqueue(object : Callback<AskRepairResponse> {
+            override fun onResponse(call: Call<AskRepairResponse>, response: Response<AskRepairResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@AppointmentActivity, "✅ ${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@AppointmentActivity, "❌ Erreur : ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<AskRepairResponse>, t: Throwable) {
+                Toast.makeText(this@AppointmentActivity, "❌ Échec réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+    fun sendEmail(toEmail: String, message: String) {
+        val request = SendEmailRequest(to_email = toEmail, message = message)
+
+        RetrofitClient.instance.sendEmail(request).enqueue(object : retrofit2.Callback<SendEmailResponse> {
+            override fun onResponse(
+                call: retrofit2.Call<SendEmailResponse>,
+                response: retrofit2.Response<SendEmailResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.message != null) {
+                        // Succès
+                        println("Email envoyé : ${body.message}")
+                    } else if (body?.error != null) {
+                        // Erreur renvoyée par le serveur
+                        println("Erreur serveur : ${body.error}")
+                    } else {
+                        println("Réponse inattendue")
+                    }
+                } else {
+                    println("Erreur HTTP : ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<SendEmailResponse>, t: Throwable) {
+                println("Échec réseau : ${t.message}")
+            }
+        })
+    }
+
+
+
 }

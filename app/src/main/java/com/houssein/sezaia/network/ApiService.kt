@@ -1,17 +1,21 @@
 package com.houssein.sezaia.network
 
+import com.houssein.sezaia.model.request.AskRepairRequest
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
 import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.request.SignUpRequest
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.request.QrCodeRequest
 import com.houssein.sezaia.model.request.SaveResponseRequest
+import com.houssein.sezaia.model.request.SendEmailRequest
+import com.houssein.sezaia.model.response.AskRepairResponse
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
+import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.SignUpResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -39,6 +43,13 @@ interface ApiService {
 
     @POST("/save_response")
     fun saveResponse(@Body request: SaveResponseRequest): Call<SaveResponseResponse>
+
+    @POST("/send_ask")
+    fun sendAsk(@Body askRepairRequest: AskRepairRequest): Call<AskRepairResponse>
+
+    @POST("send_email")
+    fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>
+
 
 
     @POST("/verify_forget")
