@@ -1,6 +1,7 @@
 package com.houssein.sezaia.ui.utils
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -16,6 +17,7 @@ import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -59,6 +61,7 @@ object UIUtils {
             false
         }
     }
+
     fun makeTextClickable(
         context: Context,
         textView: TextView,
@@ -114,7 +117,7 @@ object UIUtils {
         title.text = titleText
 
         // Forcer la couleur blanche
-        val whiteColor = ContextCompat.getColor(activity,R.color.white)
+        val whiteColor = ContextCompat.getColor(activity, R.color.white)
         back.setColorFilter(whiteColor)
         action.setColorFilter(whiteColor)
 
@@ -158,6 +161,7 @@ object UIUtils {
             context.startActivity(Intent(context, targetActivity))
         }
     }
+
     // Fonction pour le TextWatcher des champs de saisie
     fun inputWatcher(
         inputField: TextInputEditText,
@@ -177,7 +181,17 @@ object UIUtils {
         }
     }
 
+    fun Activity.hideKeyboard() {
+        val view: View? = this.currentFocus
+        if (view != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
 
 
 
 }
+
+
+

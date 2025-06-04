@@ -21,7 +21,7 @@
 
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/countryCodeLayout"
+        android:id="@+id/oldCountryCodeLayout"
         style="@style/CustomTextInputLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.hbb20.CountryCodePicker
-            android:id="@+id/countryCodePicker"
+            android:id="@+id/oldCountryCodePicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/border_country_code"
@@ -49,15 +49,15 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/numberLayout"
+        android:id="@+id/oldPhoneLayout"
         style="@style/CustomTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/countryCodeLayout">
+        app:layout_constraintTop_toBottomOf="@+id/oldCountryCodeLayout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/number"
+            android:id="@+id/oldPhoneNumber"
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_group_24"
             android:hint="@string/phone_number"
@@ -66,15 +66,16 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/newCountryCodeLayout"
         style="@style/CustomTextInputLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/newUsernameLayout"
+        app:layout_constraintBottom_toTopOf="@+id/newPhoneLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.098"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/numberLayout"
+        app:layout_constraintTop_toBottomOf="@+id/oldPhoneLayout"
         app:layout_constraintVertical_bias="0.0">
 
         <com.hbb20.CountryCodePicker
@@ -95,16 +96,16 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/newNumberLayout"
+        android:id="@+id/newPhoneLayout"
         style="@style/CustomTextInputLayout"
         android:layout_marginTop="80dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/numberLayout">
+        app:layout_constraintTop_toBottomOf="@+id/oldPhoneLayout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/newNumber"
+            android:id="@+id/newPhoneNumber"
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_group_24"
             android:hint="@string/new_number"
@@ -119,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newNumberLayout">
+        app:layout_constraintTop_toBottomOf="@+id/newPhoneLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
@@ -132,10 +133,10 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnlogin"
+        android:id="@+id/btnChangeNumber"
         style="@style/MyCustomButtonBlue"
         android:layout_marginTop="48dp"
-        android:text="@string/login"
+        android:text="@string/change_number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
