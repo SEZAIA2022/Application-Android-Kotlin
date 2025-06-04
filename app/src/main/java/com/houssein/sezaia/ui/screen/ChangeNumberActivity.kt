@@ -14,8 +14,7 @@ import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
-import com.houssein.sezaia.ui.utils.UIUtils.hideKeyboard
-import org.json.JSONObject
+
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -77,25 +76,13 @@ class ChangeNumberActivity : BaseActivity() {
 
     private fun setupListeners() {
         btnChangeNumber.setOnClickListener {
-            if (validateInputs()) {
-                hideKeyboard()
+            if (UIUtils.validateInputs(inputFields)) {
                 changeNumber()
             }
         }
     }
 
-    private fun validateInputs(): Boolean {
-        var isValid = true
-        inputFields.forEach { (editText, layout) ->
-            if (editText.text.isNullOrBlank()) {
-                layout.error = "required fields"
-                isValid = false
-            } else {
-                layout.error = null
-            }
-        }
-        return isValid
-    }
+
 
     private fun changeNumber() {
         val oldNumber = oldNumberEditText.text.toString()
@@ -123,12 +110,12 @@ class ChangeNumberActivity : BaseActivity() {
                         )
                     }
                 } else {
-//                    resetInputStyles(R.color.red, clear = true, inputFields)
+                    resetInputStyles(R.color.red, clear = true, inputFields)
                     oldNumberLayout.error = " "
                     newNumberLayout.error = " "
                     passwordLayout.error = " "
 
-                    val errorMessage = parseErrorMessage(response)
+                    val errorMessage = UIUtils.parseErrorMessage(response)
                     showDialog(
                         title = "Number not changed",
                         message = errorMessage,
@@ -151,14 +138,7 @@ class ChangeNumberActivity : BaseActivity() {
         })
     }
 
-    private fun parseErrorMessage(response: Response<*>): String {
-        return try {
-            val json = response.errorBody()?.string()
-            JSONObject(json ?: "{}").optString("message", "Unknown error")
-        } catch (e: Exception) {
-            "Network error: ${response.code()}"
-        }
-    }
+
 
     override fun onResume() {
         super.onResume()

@@ -47,8 +47,6 @@ class SignUpActivity : BaseActivity() {
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
-        UIUtils.hideShowPassword(this, password)
-        UIUtils.hideShowPassword(this, confirmPassword)
 
         handleSignUpButtonClick()
 
@@ -74,6 +72,8 @@ class SignUpActivity : BaseActivity() {
         confirmPassword = findViewById(R.id.confirm_password)
         signUpButton = findViewById(R.id.sign_up_button)
         loginLink = findViewById(R.id.loginLink)
+        UIUtils.hideShowPassword(this, password)
+        UIUtils.hideShowPassword(this, confirmPassword)
     }
 
     private fun handleSignUpButtonClick() {

@@ -29,7 +29,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/email"
             style="@style/CustomTextInputEditText"
-            android:drawableEnd="@drawable/baseline_group_24"
+            android:drawableEnd="@drawable/baseline_mail_24"
             android:hint="@string/email"
             tools:layout_editor_absoluteX="30dp"
             tools:layout_editor_absoluteY="113dp" />
@@ -77,7 +77,7 @@
         android:id="@+id/btnContinue"
         style="@style/MyCustomButtonBlue"
         android:layout_marginBottom="284dp"
-        android:text="@string/Continue"
+        android:text="@string/delete_account"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"

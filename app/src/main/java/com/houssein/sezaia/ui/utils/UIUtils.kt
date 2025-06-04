@@ -30,6 +30,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.screen.SettingsActivity
+import org.json.JSONObject
+import retrofit2.Response
 
 object UIUtils {
     @SuppressLint("ClickableViewAccessibility")
@@ -181,15 +183,28 @@ object UIUtils {
         }
     }
 
-    fun Activity.hideKeyboard() {
-        val view: View? = this.currentFocus
-        if (view != null) {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
+    fun validateInputs(inputFields:List<Pair<TextInputEditText, TextInputLayout>>): Boolean {
+        var isValid = true
+        inputFields.forEach { (editText, layout) ->
+            if (editText.text.isNullOrBlank()) {
+                layout.error = "required fields"
+                isValid = false
+            } else {
+                layout.error = null
+            }
         }
+        return isValid
     }
 
 
+    fun parseErrorMessage(response: Response<*>): String {
+        return try {
+            val json = response.errorBody()?.string()
+            JSONObject(json ?: "{}").optString("message", "Unknown error")
+        } catch (e: Exception) {
+            "Network error: ${response.code()}"
+        }
+    }
 
 }
 
