@@ -70,6 +70,9 @@ interface ApiService {
     @POST("/change_email")
     fun changeEmail(@Body request: ChangeNumberRequest): Call<ChangeNumberResponse>
 
+    @POST("/delete_account")
+    fun deleteAccount(@Body request: ChangeNumberRequest): Call<ChangeNumberResponse>
+
 
 
 

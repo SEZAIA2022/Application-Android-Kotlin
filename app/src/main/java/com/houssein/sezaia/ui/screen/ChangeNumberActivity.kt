@@ -102,6 +102,7 @@ class ChangeNumberActivity : BaseActivity() {
                     response.body()?.let { body ->
                         Toast.makeText(this@ChangeNumberActivity, body.message, Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this@ChangeNumberActivity, ProfileActivity::class.java))
+                        finish()
                     } ?: run {
                         showDialog(
                             "Error", "Empty response from server",

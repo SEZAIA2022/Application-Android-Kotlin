@@ -93,6 +93,7 @@ class ChangeUsernameActivity : BaseActivity() {
                     val message = body.message
                     Toast.makeText(this@ChangeUsernameActivity, message, Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@ChangeUsernameActivity, ProfileActivity::class.java))
+                    finish()
                 }
                 else {
                     resetInputStyles(R.color.red, clear = true, inputFields)
