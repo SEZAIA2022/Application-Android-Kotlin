@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.hbb20.CountryCodePicker
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ChangeNumberRequest
 import com.houssein.sezaia.model.response.ChangeNumberResponse
@@ -25,8 +26,8 @@ class ChangeNumberActivity : BaseActivity() {
     private lateinit var oldNumberEditText: TextInputEditText
     private lateinit var newNumberEditText: TextInputEditText
     private lateinit var passwordEditText: TextInputEditText
-    private lateinit var oldPostalCodeEditText: TextInputEditText
-    private lateinit var newPostalCodeEditText: TextInputEditText
+    private lateinit var oldPostalCodeEditText: CountryCodePicker
+    private lateinit var newPostalCodeEditText: CountryCodePicker
     private lateinit var oldNumberLayout: TextInputLayout
     private lateinit var newNumberLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
@@ -36,8 +37,8 @@ class ChangeNumberActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_number)
-
         enableEdgeToEdge()
+        // Appliquer les insets des barres système
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         initViews()
 
@@ -99,8 +100,8 @@ class ChangeNumberActivity : BaseActivity() {
     private fun changeNumber() {
         val oldNumber = oldNumberEditText.text.toString()
         val newNumber = newNumberEditText.text.toString()
-        val oldPostalCode = oldPostalCodeEditText.text.toString()
-        val newPostalCode = newPostalCodeEditText.text.toString()
+        val oldPostalCode = oldPostalCodeEditText.selectedCountryCodeWithPlus.toString()
+        val newPostalCode = newPostalCodeEditText.selectedCountryCodeWithPlus.toString()
         val password = passwordEditText.text.toString()
 
         val request = ChangeNumberRequest(oldPostalCode, oldNumber, newPostalCode, newNumber, password)
@@ -122,7 +123,7 @@ class ChangeNumberActivity : BaseActivity() {
                         )
                     }
                 } else {
-                    resetInputStyles(R.color.red, clear = true, inputFields)
+//                    resetInputStyles(R.color.red, clear = true, inputFields)
                     oldNumberLayout.error = " "
                     newNumberLayout.error = " "
                     passwordLayout.error = " "

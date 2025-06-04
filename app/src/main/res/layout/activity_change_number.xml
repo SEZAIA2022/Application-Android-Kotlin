@@ -59,8 +59,9 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/oldPhoneNumber"
             style="@style/CustomTextInputEditText"
-            android:drawableEnd="@drawable/baseline_group_24"
+            android:drawableEnd="@drawable/baseline_local_phone_24"
             android:hint="@string/phone_number"
+            android:inputType="number"
             tools:layout_editor_absoluteX="30dp"
             tools:layout_editor_absoluteY="113dp" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -107,8 +108,9 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/newPhoneNumber"
             style="@style/CustomTextInputEditText"
-            android:drawableEnd="@drawable/baseline_group_24"
+            android:drawableEnd="@drawable/baseline_local_phone_24"
             android:hint="@string/new_number"
+            android:inputType="number"
             tools:layout_editor_absoluteX="30dp"
             tools:layout_editor_absoluteY="323dp" />
     </com.google.android.material.textfield.TextInputLayout>
