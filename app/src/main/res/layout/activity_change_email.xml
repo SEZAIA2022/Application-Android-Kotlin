@@ -73,7 +73,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnlogin"
+        android:id="@+id/btnChangeEmail"
         style="@style/MyCustomButtonBlue"
         android:layout_marginBottom="284dp"
         android:text="@string/change_email"

@@ -138,7 +138,7 @@ class VerifyOtpActivity : BaseActivity() {
             "ChangeEmailActivity" -> RetrofitClient.instance.verifyChangeEmailOtp(payload)
             "DeleteAccountActivity" -> RetrofitClient.instance.deleteAccount(payload)
             else -> {
-                Toast.makeText(this, "Source inconnue", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Unknown Source", Toast.LENGTH_SHORT).show()
                 return
             }
         }
@@ -152,7 +152,7 @@ class VerifyOtpActivity : BaseActivity() {
                         val json = JSONObject(response.errorBody()?.string() ?: "")
                         json.getString("message")
                     } catch (e: Exception) {
-                        "Erreur du serveur"
+                        "Server error"
                     }
                     indicateOtpError()
                     Toast.makeText(this@VerifyOtpActivity, errorMessage, Toast.LENGTH_SHORT).show()
@@ -160,7 +160,7 @@ class VerifyOtpActivity : BaseActivity() {
             }
 
             override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@VerifyOtpActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -184,7 +184,7 @@ class VerifyOtpActivity : BaseActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val data = response.body()!!
                     token = data["token"] as? String
-                    val msg = data["message"] as? String ?: "OTP envoyé."
+                    val msg = data["message"] as? String ?: "OTP sent."
                     Toast.makeText(this@VerifyOtpActivity, msg, Toast.LENGTH_SHORT).show()
                 } else {
                     showError(response)
@@ -192,13 +192,13 @@ class VerifyOtpActivity : BaseActivity() {
             }
 
             override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@VerifyOtpActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     private fun handleSuccess(data: Map<String, Any>) {
-        val message = data["message"] as? String ?: "Vérifié avec succès"
+        val message = data["message"] as? String ?: "Successfully verified"
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 
         when (source) {
@@ -211,6 +211,7 @@ class VerifyOtpActivity : BaseActivity() {
                 val intent = Intent(this, SuccessActivity::class.java)
                 intent.putExtra("title", getSuccessTitle(source))
                 intent.putExtra("content", getSuccessMessage(source))
+                intent.putExtra("button", getSuccessButton(source))
                 startActivity(intent)
             }
         }
@@ -221,23 +222,30 @@ class VerifyOtpActivity : BaseActivity() {
             val errorJson = JSONObject(response.errorBody()?.string() ?: "")
             errorJson.getString("message")
         } catch (e: Exception) {
-            "Erreur inattendue"
+            "Unexpected error"
         }
         Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
     }
 
     private fun getSuccessTitle(source: String?): String = when (source) {
-        "SignUpActivity" -> "Compte créé"
-        "ChangeEmailActivity" -> "Email modifié"
-        "DeleteAccountActivity" -> "Compte supprimé"
-        else -> "Succès"
+        "SignUpActivity" -> "Created account"
+        "ChangeEmailActivity" -> "Email modified"
+        "DeleteAccountActivity" -> "Account deleted "
+        else -> "Success"
     }
 
     private fun getSuccessMessage(source: String?): String = when (source) {
-        "SignUpActivity" -> "Votre compte a été créé avec succès."
-        "ChangeEmailActivity" -> "Votre email a été modifié avec succès."
-        "DeleteAccountActivity" -> "Votre compte a été supprimé avec succès."
-        else -> "Opération terminée avec succès."
+        "SignUpActivity" -> "Your account has been successfully created."
+        "ChangeEmailActivity" -> "Your email has been successfully modified, and you should be able to access it now."
+        "DeleteAccountActivity" -> "Your account has been successfully deleted, and you will no longer be able to access it."
+        else -> "Operation successfully completed."
+    }
+
+    private fun getSuccessButton(source: String?): String = when (source) {
+        "SignUpActivity" -> getString(R.string.return_to_login)
+        "ChangeEmailActivity" -> getString(R.string.return_to_login)
+        "DeleteAccountActivity" -> getString(R.string.return_to_login)
+        else -> "Continue"
     }
 
     fun moveFocus(currentField: TextInputEditText, nextField: TextInputEditText?, prevField: TextInputEditText?) {

@@ -110,7 +110,7 @@ class SignUpActivity : BaseActivity() {
             override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
                 if (response.isSuccessful  && response.body() != null) {
                     val token = response.body()?.token
-                    val message = response.body()?.message ?: "OTP envoyé"
+                    val message = response.body()?.message
                     Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_LONG).show()
 
                     val intent = Intent(this@SignUpActivity, VerifyOtpActivity::class.java)
