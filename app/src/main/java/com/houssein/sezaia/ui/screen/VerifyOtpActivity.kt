@@ -200,12 +200,16 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun resendOtp() {
+        verifyButton.text = "Veuillez patienter..."
+        verifyButton.isEnabled = false
         val request = ResendOtpRequest(email = email ?: "", token = token ?: "")
         RetrofitClient.instance.resendOtp(request).enqueue(object : Callback<ResendOtpResponse> {
             override fun onResponse(call: Call<ResendOtpResponse>, response: Response<ResendOtpResponse>) {
+                verifyButton.isEnabled = true
+                verifyButton.text = getString(R.string.Continue)
                 if (response.isSuccessful && response.body() != null) {
                     val data = response.body()!!
-                    token = data.token // Met à jour le token
+                    token = data.new_token // Met à jour le token
                     Toast.makeText(this@VerifyOtpActivity, data.message ?: "OTP sent.", Toast.LENGTH_SHORT).show()
                 } else {
                     showErrorResponse(response)
@@ -213,6 +217,8 @@ class VerifyOtpActivity : BaseActivity() {
             }
 
             override fun onFailure(call: Call<ResendOtpResponse>, t: Throwable) {
+                verifyButton.text = getString(R.string.Continue)
+                verifyButton.isEnabled = true
                 showNetworkError(t)
             }
         })
