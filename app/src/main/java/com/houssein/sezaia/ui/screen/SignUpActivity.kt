@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.hbb20.CountryCodePicker
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.SignUpRequest
@@ -19,17 +20,29 @@ import retrofit2.Response
 
 class SignUpActivity : BaseActivity() {
 
-    private lateinit var username: TextInputEditText
-    private lateinit var email: TextInputEditText
-    private lateinit var countryCode: CountryCodePicker
-    private lateinit var number: TextInputEditText
-    private lateinit var address: TextInputEditText
-    private lateinit var city: TextInputEditText
-    private lateinit var postalCode: TextInputEditText
-    private lateinit var password: TextInputEditText
-    private lateinit var confirmPassword: TextInputEditText
-    private lateinit var signUpButton: Button
+    private lateinit var usernameEditText: TextInputEditText
+    private lateinit var emailEditText: TextInputEditText
+    private lateinit var countryCodeEditText: CountryCodePicker
+    private lateinit var numberEditText: TextInputEditText
+    private lateinit var addressEditText: TextInputEditText
+    private lateinit var cityEditText: TextInputEditText
+    private lateinit var postalCodeEditText: TextInputEditText
+    private lateinit var passwordEditText: TextInputEditText
+    private lateinit var confirmPasswordEditText: TextInputEditText
+
+    private lateinit var usernameLayout: TextInputLayout
+    private lateinit var emailLayout: TextInputLayout
+    private lateinit var numberLayout: TextInputLayout
+    private lateinit var addressLayout: TextInputLayout
+    private lateinit var cityLayout: TextInputLayout
+    private lateinit var postalCodeLayout: TextInputLayout
+    private lateinit var passwordLayout: TextInputLayout
+    private lateinit var confirmPasswordLayout: TextInputLayout
+
+    private lateinit var btnSignUp: Button
     private lateinit var loginLink: TextView
+    private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +50,7 @@ class SignUpActivity : BaseActivity() {
         setContentView(R.layout.activity_sign_up)
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
+
         initViews()
 
         UIUtils.initToolbar(
@@ -47,9 +61,6 @@ class SignUpActivity : BaseActivity() {
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
-
-        handleSignUpButtonClick()
-
         UIUtils.setupClickableText(
             context = this,
             textView = loginLink,
@@ -58,52 +69,67 @@ class SignUpActivity : BaseActivity() {
             clickableColorRes = R.color.light_blue,
             targetActivity = LoginActivity::class.java
         )
+
+        setupListeners()
     }
+
 
     private fun initViews() {
-        username = findViewById(R.id.username)
-        email = findViewById(R.id.email)
-        countryCode = findViewById(R.id.countryCodePicker)
-        number = findViewById(R.id.phone)
-        address = findViewById(R.id.address)
-        city = findViewById(R.id.city)
-        postalCode = findViewById(R.id.postalCode)
-        password = findViewById(R.id.password)
-        confirmPassword = findViewById(R.id.confirm_password)
-        signUpButton = findViewById(R.id.sign_up_button)
+        usernameEditText = findViewById(R.id.username)
+        emailEditText = findViewById(R.id.email)
+        countryCodeEditText = findViewById(R.id.countryCodePicker)
+        numberEditText = findViewById(R.id.phone)
+        addressEditText = findViewById(R.id.address)
+        cityEditText = findViewById(R.id.city)
+        postalCodeEditText = findViewById(R.id.postalCode)
+        passwordEditText = findViewById(R.id.password)
+        confirmPasswordEditText = findViewById(R.id.confirm_password)
+
+        usernameLayout = findViewById(R.id.usernameInputLayout)
+        emailLayout = findViewById(R.id.emailInputLayout)
+        numberLayout = findViewById(R.id.phoneInputLayout)
+        addressLayout = findViewById(R.id.addressInputLayout)
+        cityLayout = findViewById(R.id.cityInputLayout)
+        postalCodeLayout = findViewById(R.id.postalCodeInputLayout)
+        passwordLayout = findViewById(R.id.passwordInputLayout)
+        confirmPasswordLayout = findViewById(R.id.confirmPasswordInputLayout)
+
+        btnSignUp = findViewById(R.id.sign_up_button)
         loginLink = findViewById(R.id.loginLink)
-        UIUtils.hideShowPassword(this, password)
-        UIUtils.hideShowPassword(this, confirmPassword)
+        inputFields = listOf(
+            usernameEditText to usernameLayout,
+            emailEditText to emailLayout,
+            numberEditText to numberLayout,
+            addressEditText to addressLayout,
+            cityEditText to cityLayout,
+            postalCodeEditText to postalCodeLayout,
+            passwordEditText to passwordLayout,
+            confirmPasswordEditText to confirmPasswordLayout
+        )
+
+        UIUtils.hideShowPassword(this, passwordEditText)
+        UIUtils.hideShowPassword(this, confirmPasswordEditText)
     }
 
-    private fun handleSignUpButtonClick() {
-        signUpButton.setOnClickListener {
-            val user = username.text.toString().trim()
-            val mail = email.text.toString().trim()
-            val pass = password.text.toString()
-            val confirm = confirmPassword.text.toString()
-
-            if (user.isEmpty() || mail.isEmpty() || pass.isEmpty() || confirm.isEmpty()) {
-                Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
-            } else if (pass != confirm) {
-                Toast.makeText(this, "Les mots de passe ne correspondent pas", Toast.LENGTH_SHORT).show()
-            } else {
-                registerUser()
-            }
+    private fun setupListeners() {
+        btnSignUp.setOnClickListener {
+            registerUser()
+        }
+        inputFields.forEach { (editText, layout) ->
+            editText.addTextChangedListener(UIUtils.inputWatcher(editText, layout))
         }
     }
-
     private fun registerUser() {
         val request = SignUpRequest(
-            username = username.text.toString().trim(),
-            email = email.text.toString().trim(),
-            password = password.text.toString(),
-            confirm_password = confirmPassword.text.toString(),
-            number = number.text.toString().trim(),
-            address = address.text.toString().trim(),
-            country_code = countryCode.selectedCountryCodeWithPlus,
-            city = city.text.toString().trim(),
-            postal_code = postalCode.text.toString().trim()
+            username = usernameEditText.text.toString().trim(),
+            email = emailEditText.text.toString().trim(),
+            password = passwordEditText.text.toString(),
+            confirm_password = confirmPasswordEditText.text.toString(),
+            number = numberEditText.text.toString().trim(),
+            address = addressEditText.text.toString().trim(),
+            country_code = countryCodeEditText.selectedCountryCodeWithPlus,
+            city = cityEditText.text.toString().trim(),
+            postal_code = postalCodeEditText.text.toString().trim()
         )
 
         RetrofitClient.instance.signUp(request).enqueue(object : Callback<SignUpResponse> {
@@ -119,14 +145,24 @@ class SignUpActivity : BaseActivity() {
                     intent.putExtra("email", request.email)
                     startActivity(intent)
                 } else {
+                    resetInputStyles(R.color.red, clear = true, inputFields)
+                    usernameLayout.error= ""
+                    emailLayout.error = ""
+                    numberLayout.error = ""
+                    addressLayout.error = ""
+                    cityLayout.error = ""
+                    postalCodeLayout.error = ""
+                    passwordLayout.error = ""
+                    confirmPasswordLayout.error = ""
+
                     val errorMessage = try {
                         val errorBody = response.errorBody()?.string()
                         val json = JSONObject(errorBody ?: "")
-                        json.optString("message", "Erreur inconnue")
+                        json.optString("message", "Unknown error")
                     } catch (e: Exception) {
-                        "Erreur serveur"
+                        "Server error"
                     }
-                    showDialog("Échec de l'inscription", errorMessage,positiveButtonText = null, // pas de bouton positif
+                    showDialog("Registration failure", errorMessage,positiveButtonText = null, // pas de bouton positif
                         onPositiveClick = null,
                         negativeButtonText = "OK",
                         onNegativeClick = { /* rien */ },
@@ -135,7 +171,7 @@ class SignUpActivity : BaseActivity() {
             }
 
             override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
-                showDialog("Erreur réseau", t.localizedMessage ?: "Erreur inconnue",positiveButtonText = null, // pas de bouton positif
+                showDialog("Network error", t.localizedMessage ?: "Unknown error",positiveButtonText = null, // pas de bouton positif
                     onPositiveClick = null,
                     negativeButtonText = "OK",
                     onNegativeClick = { /* rien */ },

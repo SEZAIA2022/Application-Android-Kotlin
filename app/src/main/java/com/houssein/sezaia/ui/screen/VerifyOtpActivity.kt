@@ -125,7 +125,6 @@ class VerifyOtpActivity : BaseActivity() {
 
     private fun verifyOtp() {
         val otp = getOtp()
-
         val payload = mapOf(
             "otp" to otp,
             "token" to (token ?: ""),
@@ -136,7 +135,7 @@ class VerifyOtpActivity : BaseActivity() {
             "ForgetActivity" -> RetrofitClient.instance.verifyForgetOtp(payload)
             "SignUpActivity" -> RetrofitClient.instance.verifyRegisterOtp(payload)
             "ChangeEmailActivity" -> RetrofitClient.instance.verifyChangeEmailOtp(payload)
-            "DeleteAccountActivity" -> RetrofitClient.instance.deleteAccount(payload)
+            "DeleteAccountActivity" -> RetrofitClient.instance.verifyDeleteAccount(payload)
             else -> {
                 Toast.makeText(this, "Unknown Source", Toast.LENGTH_SHORT).show()
                 return

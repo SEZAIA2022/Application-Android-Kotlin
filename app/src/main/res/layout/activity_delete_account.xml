@@ -55,7 +55,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/newPasswordLayout"
+        android:id="@+id/confirmPasswordLayout"
         style="@style/CustomTextInputLayout"
         android:layout_marginTop="4dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -64,17 +64,17 @@
         app:layout_constraintTop_toBottomOf="@+id/passwordLayout">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/newPassword"
+            android:id="@+id/confirmPassword"
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_visibility_off_24"
-            android:hint="@string/new_password"
+            android:hint="@string/confirm_password"
             android:inputType="textPassword"
             tools:layout_editor_absoluteX="30dp"
             tools:layout_editor_absoluteY="329dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnContinue"
+        android:id="@+id/btnDeleteAccount"
         style="@style/MyCustomButtonBlue"
         android:layout_marginBottom="284dp"
         android:text="@string/delete_account"
@@ -82,7 +82,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/newPasswordLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/confirmPasswordLayout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

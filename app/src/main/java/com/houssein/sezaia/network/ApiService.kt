@@ -6,6 +6,7 @@ import com.houssein.sezaia.model.request.ChangeNumberRequest
 import com.houssein.sezaia.model.request.ChangePasswordRequest
 import com.houssein.sezaia.model.request.ChangeUsernameRequest
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
+import com.houssein.sezaia.model.request.DeleteAccountRequest
 import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.request.SignUpRequest
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
@@ -18,6 +19,7 @@ import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.model.response.ChangePasswordResponse
 import com.houssein.sezaia.model.response.ChangeUsernameResponse
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
+import com.houssein.sezaia.model.response.DeleteAccountResponse
 import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
@@ -25,6 +27,7 @@ import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.SignUpResponse
+import com.houssein.sezaia.ui.screen.DeleteAccountActivity
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -67,13 +70,11 @@ interface ApiService {
     @POST("/change_password")
     fun changePassword(@Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
-
-
     @POST("/change_email")
     fun changeEmail(@Body request: ChangeEmailRequest): Call<ChangeEmailResponse>
 
     @POST("/delete_account")
-    fun deleteAccount(@Body request: ChangeNumberRequest): Call<ChangeNumberResponse>
+    fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
 
 
 
@@ -91,8 +92,8 @@ interface ApiService {
     @POST("/verify_change_email")
     fun verifyChangeEmailOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
 
-    @POST("/delete_account")
-    fun deleteAccount(@Body body: Map<String, String>): Call<Map<String, Any>>
+    @POST("/verify_delete_account")
+    fun verifyDeleteAccount(@Body body: Map<String, String>): Call<Map<String, Any>>
 
     @POST("/resend_otp")
     fun resendOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
