@@ -12,6 +12,8 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.network.RetrofitClient
+import com.houssein.sezaia.model.request.*
+import com.houssein.sezaia.model.response.*
 import com.houssein.sezaia.ui.*
 import com.houssein.sezaia.ui.utils.SimpleTextWatcher
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -46,7 +48,7 @@ class VerifyOtpActivity : BaseActivity() {
         initViews()
         UIUtils.initToolbar(
             this, getString(R.string.otp_verification), actionIconRes = R.drawable.baseline_verified_user_24, onBackClick = { finish() },
-            onActionClick = { recreate()}
+            onActionClick = { recreate() }
         )
         setupListeners()
         setupClickableResend()
@@ -125,79 +127,105 @@ class VerifyOtpActivity : BaseActivity() {
 
     private fun verifyOtp() {
         val otp = getOtp()
-        val payload = mapOf(
-            "otp" to otp,
-            "token" to (token ?: ""),
-            "email" to (email ?: "")
-        )
 
-        val call = when (source) {
-            "ForgetActivity" -> RetrofitClient.instance.verifyForgetOtp(payload)
-            "SignUpActivity" -> RetrofitClient.instance.verifyRegisterOtp(payload)
-            "ChangeEmailActivity" -> RetrofitClient.instance.verifyChangeEmailOtp(payload)
-            "DeleteAccountActivity" -> RetrofitClient.instance.verifyDeleteAccount(payload)
+        when (source) {
+            "ForgetActivity" -> {
+                val request = VerifyForgetRequest(otp = otp, token = token ?: "", email = email ?: "")
+                RetrofitClient.instance.verifyForget(request).enqueue(object : Callback<VerifyForgetResponse> {
+                    override fun onResponse(call: Call<VerifyForgetResponse>, response: Response<VerifyForgetResponse>) {
+                        if (response.isSuccessful && response.body() != null) {
+                            handleSuccessResponse(response.body()!!)
+                        } else {
+                            showErrorResponse(response)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<VerifyForgetResponse>, t: Throwable) {
+                        showNetworkError(t)
+                    }
+                })
+            }
+            "SignUpActivity" -> {
+                val request = VerifyRegisterRequest(otp = otp, token = token ?: "", email = email ?: "")
+                RetrofitClient.instance.verifyRegister(request).enqueue(object : Callback<VerifyRegisterResponse> {
+                    override fun onResponse(call: Call<VerifyRegisterResponse>, response: Response<VerifyRegisterResponse>) {
+                        if (response.isSuccessful && response.body() != null) {
+                            handleSuccessResponse(response.body()!!)
+                        } else {
+                            showErrorResponse(response)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<VerifyRegisterResponse>, t: Throwable) {
+                        showNetworkError(t)
+                    }
+                })
+            }
+            "ChangeEmailActivity" -> {
+                val request = VerifyChangeEmailRequest(otp = otp, token = token ?: "", email = email ?: "")
+                RetrofitClient.instance.verifyChangeEmail(request).enqueue(object : Callback<VerifyChangeEmailResponse> {
+                    override fun onResponse(call: Call<VerifyChangeEmailResponse>, response: Response<VerifyChangeEmailResponse>) {
+                        if (response.isSuccessful && response.body() != null) {
+                            handleSuccessResponse(response.body()!!)
+                        } else {
+                            showErrorResponse(response)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<VerifyChangeEmailResponse>, t: Throwable) {
+                        showNetworkError(t)
+                    }
+                })
+            }
+            "DeleteAccountActivity" -> {
+                val request = VerifyDeleteAccountRequest(otp = otp, token = token ?: "", email = email ?: "")
+                RetrofitClient.instance.verifyDeleteAccount(request).enqueue(object : Callback<VerifyDeleteAccountResponse> {
+                    override fun onResponse(call: Call<VerifyDeleteAccountResponse>, response: Response<VerifyDeleteAccountResponse>) {
+                        if (response.isSuccessful && response.body() != null) {
+                            handleSuccessResponse(response.body()!!)
+                        } else {
+                            showErrorResponse(response)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<VerifyDeleteAccountResponse>, t: Throwable) {
+                        showNetworkError(t)
+                    }
+                })
+            }
             else -> {
                 Toast.makeText(this, "Unknown Source", Toast.LENGTH_SHORT).show()
-                return
             }
         }
-
-        call.enqueue(object : Callback<Map<String, Any>> {
-            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
-                if (response.isSuccessful && response.body() != null) {
-                    handleSuccess(response.body()!!)
-                } else {
-                    val errorMessage = try {
-                        val json = JSONObject(response.errorBody()?.string() ?: "")
-                        json.getString("message")
-                    } catch (e: Exception) {
-                        "Server error"
-                    }
-                    indicateOtpError()
-                    Toast.makeText(this@VerifyOtpActivity, errorMessage, Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                Toast.makeText(this@VerifyOtpActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    private fun indicateOtpError() {
-        otpFields.forEach { (editText, layout) ->
-            editText.text?.clear()
-            layout.boxStrokeColor = ContextCompat.getColor(this, R.color.red)
-        }
-        otp1Input.requestFocus()
     }
 
     private fun resendOtp() {
-        val payload = mapOf(
-            "email" to (email ?: ""),
-            "token" to (token ?: "")
-        )
-
-        RetrofitClient.instance.resendOtp(payload).enqueue(object : Callback<Map<String, Any>> {
-            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
+        val request = ResendOtpRequest(email = email ?: "", token = token ?: "")
+        RetrofitClient.instance.resendOtp(request).enqueue(object : Callback<ResendOtpResponse> {
+            override fun onResponse(call: Call<ResendOtpResponse>, response: Response<ResendOtpResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val data = response.body()!!
-                    token = data["token"] as? String
-                    val msg = data["message"] as? String ?: "OTP sent."
-                    Toast.makeText(this@VerifyOtpActivity, msg, Toast.LENGTH_SHORT).show()
+                    token = data.token // Met à jour le token
+                    Toast.makeText(this@VerifyOtpActivity, data.message ?: "OTP sent.", Toast.LENGTH_SHORT).show()
                 } else {
-                    showError(response)
+                    showErrorResponse(response)
                 }
             }
 
-            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                Toast.makeText(this@VerifyOtpActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+            override fun onFailure(call: Call<ResendOtpResponse>, t: Throwable) {
+                showNetworkError(t)
             }
         })
     }
 
-    private fun handleSuccess(data: Map<String, Any>) {
-        val message = data["message"] as? String ?: "Successfully verified"
+    private fun handleSuccessResponse(data: Any) {
+        val message = when (data) {
+            is VerifyForgetResponse -> data.message ?: "Successfully verified"
+            is VerifyRegisterResponse -> data.message ?: "Successfully verified"
+            is VerifyChangeEmailResponse -> data.message ?: "Successfully verified"
+            is VerifyDeleteAccountResponse -> data.message ?: "Successfully verified"
+            else -> "Successfully verified"
+        }
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 
         when (source) {
@@ -216,7 +244,7 @@ class VerifyOtpActivity : BaseActivity() {
         }
     }
 
-    private fun showError(response: Response<*>) {
+    private fun showErrorResponse(response: Response<*>) {
         val errorMsg = try {
             val errorJson = JSONObject(response.errorBody()?.string() ?: "")
             errorJson.getString("message")
@@ -224,12 +252,25 @@ class VerifyOtpActivity : BaseActivity() {
             "Unexpected error"
         }
         Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show()
+        indicateOtpError()
+    }
+
+    private fun showNetworkError(t: Throwable) {
+        Toast.makeText(this, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun indicateOtpError() {
+        otpFields.forEach { (editText, layout) ->
+            editText.text?.clear()
+            layout.boxStrokeColor = ContextCompat.getColor(this, R.color.red)
+        }
+        otp1Input.requestFocus()
     }
 
     private fun getSuccessTitle(source: String?): String = when (source) {
         "SignUpActivity" -> "Created account"
         "ChangeEmailActivity" -> "Email modified"
-        "DeleteAccountActivity" -> "Account deleted "
+        "DeleteAccountActivity" -> "Account deleted"
         else -> "Success"
     }
 
@@ -241,9 +282,7 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun getSuccessButton(source: String?): String = when (source) {
-        "SignUpActivity" -> getString(R.string.return_to_login)
-        "ChangeEmailActivity" -> getString(R.string.return_to_login)
-        "DeleteAccountActivity" -> getString(R.string.return_to_login)
+        "SignUpActivity", "ChangeEmailActivity", "DeleteAccountActivity" -> getString(R.string.return_to_login)
         else -> "Continue"
     }
 

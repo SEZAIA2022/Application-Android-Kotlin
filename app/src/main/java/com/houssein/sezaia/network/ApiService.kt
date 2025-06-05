@@ -11,8 +11,13 @@ import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.request.SignUpRequest
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.request.QrCodeRequest
+import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.request.SaveResponseRequest
 import com.houssein.sezaia.model.request.SendEmailRequest
+import com.houssein.sezaia.model.request.VerifyChangeEmailRequest
+import com.houssein.sezaia.model.request.VerifyDeleteAccountRequest
+import com.houssein.sezaia.model.request.VerifyForgetRequest
+import com.houssein.sezaia.model.request.VerifyRegisterRequest
 import com.houssein.sezaia.model.response.AskRepairResponse
 import com.houssein.sezaia.model.response.ChangeEmailResponse
 import com.houssein.sezaia.model.response.ChangeNumberResponse
@@ -24,13 +29,19 @@ import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
+import com.houssein.sezaia.model.response.ResendOtpResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.SignUpResponse
+import com.houssein.sezaia.model.response.VerifyChangeEmailResponse
+import com.houssein.sezaia.model.response.VerifyDeleteAccountResponse
+import com.houssein.sezaia.model.response.VerifyForgetResponse
+import com.houssein.sezaia.model.response.VerifyRegisterResponse
 import com.houssein.sezaia.ui.screen.DeleteAccountActivity
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface ApiService {
@@ -77,28 +88,20 @@ interface ApiService {
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
 
 
-
-
-
-
-
+    @POST("/resend_otp")
+    fun resendOtp(@Body request: ResendOtpRequest): Call<ResendOtpResponse>
 
     @POST("/verify_forget")
-    fun verifyForgetOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
-
-    @POST("/verify_register")
-    fun verifyRegisterOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
+    fun verifyForget(@Body request: VerifyForgetRequest): Call<VerifyForgetResponse>
 
     @POST("/verify_change_email")
-    fun verifyChangeEmailOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
+    fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<VerifyChangeEmailResponse>
 
     @POST("/verify_delete_account")
-    fun verifyDeleteAccount(@Body body: Map<String, String>): Call<Map<String, Any>>
+    fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<VerifyDeleteAccountResponse>
 
-    @POST("/resend_otp")
-    fun resendOtp(@Body body: Map<String, String>): Call<Map<String, Any>>
-
-
+    @POST("/verify_register")
+    fun verifyRegister(@Body request: VerifyRegisterRequest): Call<VerifyRegisterResponse>
 
 }
 
