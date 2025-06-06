@@ -18,6 +18,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import org.json.JSONObject
 import android.content.Context
+import androidx.core.content.edit
 
 
 class ForgetActivity : BaseActivity() {
@@ -75,13 +76,11 @@ class ForgetActivity : BaseActivity() {
                             Toast.makeText(this@ForgetActivity, message, Toast.LENGTH_LONG).show()
 
                             val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-                            with (sharedPref.edit()) {
+                            sharedPref.edit {
                                 putString("token", token)
                                 putString("previousPage", "ForgetActivity")
                                 putString("email", emailResp)
-                                apply()
                             }
-
                             val intent = Intent(this@ForgetActivity, VerifyOtpActivity::class.java)
                             startActivity(intent)
 
