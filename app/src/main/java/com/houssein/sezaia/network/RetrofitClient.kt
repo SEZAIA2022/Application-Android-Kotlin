@@ -5,7 +5,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.100.164:5000/"
+    private const val BASE_URL = "http://172.20.10.5:5000/"
 
     val instance: ApiService by lazy {
         Retrofit.Builder()
@@ -15,3 +15,6 @@ object RetrofitClient {
             .create(ApiService::class.java)
     }
 }
+
+
+// pour nettoyer le build de l'application en cas d'erreurs, utiliser dans powershell ce commande:  Remove-Item -Recurse -Force "C:\Users\hsein\Sezaia App\Application-Android-Kotlin\app\build"
