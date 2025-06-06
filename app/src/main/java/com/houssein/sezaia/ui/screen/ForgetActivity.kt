@@ -17,6 +17,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import org.json.JSONObject
+import android.content.Context
+
 
 class ForgetActivity : BaseActivity() {
 
@@ -72,11 +74,17 @@ class ForgetActivity : BaseActivity() {
 
                             Toast.makeText(this@ForgetActivity, message, Toast.LENGTH_LONG).show()
 
+                            val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+                            with (sharedPref.edit()) {
+                                putString("token", token)
+                                putString("previousPage", "ForgetActivity")
+                                putString("email", emailResp)
+                                apply()
+                            }
+
                             val intent = Intent(this@ForgetActivity, VerifyOtpActivity::class.java)
-                            intent.putExtra("token", token)
-                            intent.putExtra("previousPage", "ForgetActivity")
-                            intent.putExtra("email", emailResp)
                             startActivity(intent)
+
                         } else {
                             val errorMessage = try {
                                 val json = JSONObject(response.errorBody()?.string() ?: "")

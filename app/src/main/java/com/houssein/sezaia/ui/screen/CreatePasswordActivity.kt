@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -88,7 +89,8 @@ class CreatePasswordActivity : BaseActivity() {
     }
 
     private fun resetPassword() {
-        val email = intent.getStringExtra("email")
+        val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val email =  sharedPref.getString("email", null)
         if (email.isNullOrEmpty()) {
             showDialog(getString(R.string.error), getString(R.string.email_missing), positiveButtonText = null, // pas de bouton positif
                 onPositiveClick = null,

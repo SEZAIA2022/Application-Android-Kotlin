@@ -51,8 +51,6 @@ interface ApiService {
     @GET("questions")
     fun getQuestions(): Call<List<Message>>
 
-    @POST("/forgot_password")
-    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<ForgotPasswordResponse>
 
     @POST("/register")
     fun signUp(@Body request: SignUpRequest): Call<SignUpResponse>
@@ -88,11 +86,14 @@ interface ApiService {
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
 
 
-    @POST("/resend_otp")
-    fun resendOtp(@Body request: ResendOtpRequest): Call<ResendOtpResponse>
+    @POST("/forgot_password")
+    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<ForgotPasswordResponse>
 
     @POST("/verify_forget")
     fun verifyForget(@Body request: VerifyForgetRequest): Call<VerifyForgetResponse>
+
+    @POST("/resend_otp")
+    fun resendOtp(@Body request: ResendOtpRequest): Call<ResendOtpResponse>
 
     @POST("/verify_change_email")
     fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<VerifyChangeEmailResponse>
