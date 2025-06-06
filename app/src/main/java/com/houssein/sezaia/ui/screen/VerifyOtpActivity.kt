@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
@@ -45,13 +46,6 @@ class VerifyOtpActivity : BaseActivity() {
         setupListeners()
         setupClickableResend()
     }
-
-//    private fun loadSharedPrefs() {
-//        val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-//        token = sharedPref.getString("token", null)
-//        previousPage = sharedPref.getString("previousPage", null)
-//        email = sharedPref.getString("email", null)
-//    }
 
     private fun setupToolbar() {
         UIUtils.initToolbar(
@@ -129,53 +123,58 @@ class VerifyOtpActivity : BaseActivity() {
             return
         }
 
-        resendOtpButton.isEnabled = false // Désactive pendant la requête
+        resendOtpButton.isEnabled = false
 
         val request = ResendOtpRequest(savedEmail, savedToken)
 
-        RetrofitClient.instance.resendOtp(request)
-            .enqueue(object : Callback<ResendOtpResponse> {
-                override fun onResponse(call: Call<ResendOtpResponse>, response: Response<ResendOtpResponse>) {
-                    resendOtpButton.isEnabled = true
-                    if (response.isSuccessful && response.body() != null) {
-                        val responseBody = response.body()!!
-                        val newToken = responseBody.new_token
-                        val message = responseBody.message ?: "Code renvoyé"
+        RetrofitClient.instance.resendOtp(request).enqueue(object : Callback<ResendOtpResponse> {
+            override fun onResponse(call: Call<ResendOtpResponse>, response: Response<ResendOtpResponse>) {
+                resendOtpButton.isEnabled = true
 
-                        if (!newToken.isNullOrEmpty()) {
-                            token = newToken
-                            Log.d("VerifyOtpActivity", "token:$token and email:$savedEmail")
-                            with(sharedPref.edit()) {
-                                putString("token", newToken)
-                                putString("email", savedEmail)
-                                apply()
-                            }
-                        }
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val newToken = body?.new_token.orEmpty()
+                    val message = body?.message.orEmpty()
 
-                        Toast.makeText(this@VerifyOtpActivity, message, Toast.LENGTH_SHORT).show()
-                        otpFields.forEach { it.first.text?.clear() }
-                    } else {
-                        val errorMessage = try {
-                            JSONObject(response.errorBody()?.string() ?: "{}").optString("message", "Erreur inconnue")
-                        } catch (e: Exception) {
-                            "Erreur inconnue"
+                    if (newToken.isNotEmpty()) {
+                        token = newToken
+                        Log.d("VerifyOtpActivity", "token:$token and email:$savedEmail")
+                        sharedPref.edit {
+                            putString("token", newToken)
+                            putString("email", savedEmail)
                         }
-                        Toast.makeText(this@VerifyOtpActivity, errorMessage, Toast.LENGTH_SHORT).show()
                     }
-                }
 
-                override fun onFailure(call: Call<ResendOtpResponse>, t: Throwable) {
-                    resendOtpButton.isEnabled = true
-                    Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
-                    Log.e("ResendOtp", "Erreur : ", t)
+                    if (message.isNotEmpty()) {
+                        Toast.makeText(this@VerifyOtpActivity, message, Toast.LENGTH_SHORT).show()
+                    }
+
+                    otpFields.forEach { it.first.text?.clear() }
+                } else {
+                    val errorMessage = try {
+                        JSONObject(response.errorBody()?.string() ?: "{}")
+                            .optString("message", "Erreur inconnue")
+                    } catch (e: Exception) {
+                        "Erreur inconnue"
+                    }
+                    Toast.makeText(this@VerifyOtpActivity, errorMessage, Toast.LENGTH_SHORT).show()
                 }
-            })
+            }
+
+            override fun onFailure(call: Call<ResendOtpResponse>, t: Throwable) {
+                resendOtpButton.isEnabled = true
+                Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+                Log.e("ResendOtp", "Erreur : ", t)
+            }
+        })
     }
 
     private fun verifyOtp() {
         val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        previousPage = sharedPref.getString("previousPage", null)
         token = sharedPref.getString("token", null)
         email = sharedPref.getString("email", null)
+
         val otp = getOtp()
         if (otp.length != 4) {
             Toast.makeText(this, "Veuillez entrer le code complet", Toast.LENGTH_SHORT).show()
@@ -187,8 +186,6 @@ class VerifyOtpActivity : BaseActivity() {
             Log.d("VerifyOtpActivity", "token:$token and email:$email")
             return
         }
-
-        Log.d("VerifyOtpActivity", "Utilisation token pour vérification : $token")
 
         val request = VerifyForgetRequest(otp, token!!, email!!)
 
@@ -214,21 +211,19 @@ class VerifyOtpActivity : BaseActivity() {
             })
     }
 
-    private fun getOtp(): String = otpFields.joinToString("") { it.first.text.toString().trim() }
+    private fun getOtp(): String =
+        otpFields.joinToString("") { it.first.text?.toString()?.trim().orEmpty() }
 
     fun moveFocus(currentField: TextInputEditText, nextField: TextInputEditText?, prevField: TextInputEditText?) {
         val text = currentField.text.toString()
-
         if (text.length > 1) {
             currentField.setText(text[0].toString())
             currentField.setSelection(1)
         }
 
         when {
-            text.length == 1 && nextField != null -> nextField.requestFocus()
-            text.isEmpty() && prevField != null -> prevField.requestFocus()
+            text.length == 1 -> nextField?.requestFocus()
+            text.isEmpty() -> prevField?.requestFocus()
         }
     }
-
-
 }
