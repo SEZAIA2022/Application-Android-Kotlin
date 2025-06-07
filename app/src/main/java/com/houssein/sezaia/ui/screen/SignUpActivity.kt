@@ -144,6 +144,7 @@ class SignUpActivity : BaseActivity() {
                     // Stockage dans SharedPreferences
                     val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
                     sharedPref.edit().apply {
+                        putString("email", emailEditText.text.toString() )
                         putString("previous_page", "SignUpActivity")
                         apply()
                     }

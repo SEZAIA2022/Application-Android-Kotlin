@@ -7,6 +7,7 @@ import com.houssein.sezaia.model.request.ChangePasswordRequest
 import com.houssein.sezaia.model.request.ChangeUsernameRequest
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
 import com.houssein.sezaia.model.request.DeleteAccountRequest
+import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.request.QrCodeRequest
 import com.houssein.sezaia.model.request.ResendOtpRequest
@@ -77,7 +78,7 @@ interface ApiService {
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
 
     @POST("/forgot_password")
-    fun forgotPassword(@Body request: ResendOtpRequest): Call<BaseResponse>
+    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
 
     @POST("/resend_otp")
     fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>

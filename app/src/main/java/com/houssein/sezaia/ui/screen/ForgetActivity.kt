@@ -60,7 +60,7 @@ class ForgetActivity : BaseActivity() {
         sendOtpBtn.setOnClickListener {
             val email = emailInput.text?.toString()?.trim().orEmpty()
             println(email)
-            val request = ResendOtpRequest(email)
+            val request = ForgotPasswordRequest(email)
 
             RetrofitClient.instance.forgotPassword(request)
                 .enqueue(object : Callback<BaseResponse> {

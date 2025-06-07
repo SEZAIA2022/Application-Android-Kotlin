@@ -32,15 +32,17 @@ class VerifyOtpActivity : BaseActivity() {
     private lateinit var verifyButton: Button
     private lateinit var resendOtpButton: TextView
     private var email: String? = null
+    private var previousPage: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_verify_otp)
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-        val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val previousPage = prefs.getString("previous_page", null)
-        val email = prefs.getString("email", null)
-        val newEmail = prefs.getString("new_email", null)
+        email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("email", null) ?: return
+        previousPage = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("previous_page", null) ?: return
+
         initViews()
         setupToolbar()
         setupListeners()
@@ -129,12 +131,10 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun resendOtp() {
-        val email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-            .getString("email", null) ?: return
 
         resendOtpButton.isEnabled = false
 
-        val request = ResendOtpRequest(email)
+        val request = ResendOtpRequest(email.toString(), previousPage.toString())
 
         RetrofitClient.instance.resendOtp(request).enqueue(object : Callback<BaseResponse> {
             override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
@@ -156,8 +156,6 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun verifyOtp() {
-        val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        email = sharedPref.getString("email", null)
 
         if (email.isNullOrEmpty()) {
             Toast.makeText(this, "Aucun email trouvé. Veuillez réessayer.", Toast.LENGTH_SHORT).show()
@@ -193,10 +191,9 @@ class VerifyOtpActivity : BaseActivity() {
 
 
     private fun verifyOtpEmail() {
-        val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val newEmail = prefs.getString("email", "") ?: ""
-        val otp = getOtp()
 
+        val otp = getOtp()
+        val newEmail = email.toString()
         if (newEmail.isEmpty() || otp.isEmpty()) {
             Toast.makeText(this, "Email ou OTP manquant.", Toast.LENGTH_SHORT).show()
             return
