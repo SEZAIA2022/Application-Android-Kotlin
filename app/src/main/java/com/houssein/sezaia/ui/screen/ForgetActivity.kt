@@ -13,7 +13,6 @@ import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.response.BaseResponse
-import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -72,8 +71,11 @@ class ForgetActivity : BaseActivity() {
 
                             // Sauvegarder l'email pour l'étape suivante
                             val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-                            sharedPref.edit().putString("email", email).apply()
-
+                            sharedPref.edit().apply {
+                                putString("previous_page", "ForgetActivity")
+                                putString("email", email)
+                                apply()
+                            }
                             // Aller à VerifyOtpActivity
                             startActivity(Intent(this@ForgetActivity, VerifyOtpActivity::class.java))
                         } else {

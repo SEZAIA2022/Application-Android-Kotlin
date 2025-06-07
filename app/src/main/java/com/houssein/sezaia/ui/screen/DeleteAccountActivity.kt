@@ -10,7 +10,6 @@ import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ChangeEmailRequest
 import com.houssein.sezaia.model.request.DeleteAccountRequest
-import com.houssein.sezaia.model.response.ChangeEmailResponse
 import com.houssein.sezaia.model.response.DeleteAccountResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity

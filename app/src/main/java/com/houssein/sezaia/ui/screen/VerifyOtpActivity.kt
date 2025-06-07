@@ -14,9 +14,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ResendOtpRequest
+import com.houssein.sezaia.model.request.VerifyChangeEmailRequest
 import com.houssein.sezaia.model.request.VerifyForgetRequest
 import com.houssein.sezaia.model.response.BaseResponse
-import com.houssein.sezaia.model.response.ResendOtpResponse
 import com.houssein.sezaia.model.response.VerifyForgetResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -39,7 +39,10 @@ class VerifyOtpActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_verify_otp)
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-
+        val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val previousPage = prefs.getString("previous_page", null)
+        val email = prefs.getString("email", null)
+        val newEmail = prefs.getString("new_email", null)
         initViews()
         setupToolbar()
         setupListeners()
@@ -93,7 +96,15 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun setupListeners() {
-        verifyButton.setOnClickListener { verifyOtp() }
+        val previous_page = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("previous_page", null) ?: return
+        if (previous_page == "ForgetActivity"){
+            verifyButton.setOnClickListener { verifyOtp() }
+        }
+        else {
+            verifyButton.setOnClickListener { verifyOtpEmail() }
+        }
+
         otpFields.forEach { (editText, layout) ->
             editText.addTextChangedListener(UIUtils.inputWatcher(editText, layout))
         }
@@ -174,6 +185,50 @@ class VerifyOtpActivity : BaseActivity() {
             }
         })
     }
+
+
+    private fun verifyOtpEmail() {
+        val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+        val oldEmail = prefs.getString("email", "") ?: ""
+        val newEmail = prefs.getString("new_email", "") ?: ""
+        val otp= getOtp()
+        val request = VerifyChangeEmailRequest(
+            email = oldEmail,           // Ancien email
+            new_email = newEmail,       // Nouveau email
+            otp = otp
+        )
+
+        RetrofitClient.instance.verifyChangeEmail(request).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.status == "success") {
+                        Toast.makeText(this@VerifyOtpActivity, body.message, Toast.LENGTH_SHORT).show()
+                        // ✅ Fermer ou rediriger après succès
+                        finish()
+                    } else {
+                        Toast.makeText(this@VerifyOtpActivity, body?.message ?: "Erreur inconnue", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val errorMsg = try {
+                        response.errorBody()?.string() ?: "Erreur inconnue"
+                    } catch (e: Exception) {
+                        "Erreur lors du traitement de la réponse"
+                    }
+                    Toast.makeText(this@VerifyOtpActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+
+
+
+
 
     private fun getOtp(): String =
         otpFields.joinToString("") { it.first.text?.toString()?.trim().orEmpty() }

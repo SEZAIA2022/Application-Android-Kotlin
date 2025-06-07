@@ -20,17 +20,14 @@ import com.houssein.sezaia.model.request.VerifyForgetRequest
 import com.houssein.sezaia.model.request.VerifyRegisterRequest
 import com.houssein.sezaia.model.response.AskRepairResponse
 import com.houssein.sezaia.model.response.BaseResponse
-import com.houssein.sezaia.model.response.ChangeEmailResponse
 import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.model.response.ChangePasswordResponse
 import com.houssein.sezaia.model.response.ChangeUsernameResponse
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.model.response.DeleteAccountResponse
-import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
-import com.houssein.sezaia.model.response.ResendOtpResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.SignUpResponse
@@ -80,9 +77,6 @@ interface ApiService {
     @POST("/change_password")
     fun changePassword(@Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
-    @POST("/change_email")
-    fun changeEmail(@Body request: ChangeEmailRequest): Call<ChangeEmailResponse>
-
     @POST("/delete_account")
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
 
@@ -96,8 +90,16 @@ interface ApiService {
     @POST("/verify_forget")
     fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
 
+
+
+    @POST("/change_email")
+    fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
+
     @POST("/verify_change_email")
-    fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<VerifyChangeEmailResponse>
+    fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<BaseResponse>
+
+
+
 
     @POST("/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<VerifyDeleteAccountResponse>

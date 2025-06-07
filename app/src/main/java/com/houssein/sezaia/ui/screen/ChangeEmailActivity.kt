@@ -10,7 +10,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ChangeEmailRequest
 import com.houssein.sezaia.model.request.ChangeUsernameRequest
-import com.houssein.sezaia.model.response.ChangeEmailResponse
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.ChangeUsernameResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -78,52 +78,48 @@ class ChangeEmailActivity : BaseActivity() {
         val email = emailEditText.text.toString()
         val newEmail = newEmailEditText.text.toString()
         val password = passwordEditText.text.toString()
-        val changeEmailRequest = ChangeEmailRequest(email, newEmail, password)
+        if (email.isEmpty() || newEmail.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Tous les champs sont requis", Toast.LENGTH_SHORT).show()
+            return
+        }
+        btnChangeEmail.isEnabled = false
+        val request = ChangeEmailRequest(
+            email = email,
+            new_email = newEmail,
+            password = password
+        )
+        RetrofitClient.instance.changeEmail(request).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                btnChangeEmail.isEnabled = true
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null && body.status == "success") {
+                        Toast.makeText(this@ChangeEmailActivity, body.message, Toast.LENGTH_SHORT).show()
+                        // Stockage dans SharedPreferences
+                        val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+                        prefs.edit().apply {
+                            putString("previous_page", "ChangeEmailActivity")
+                            putString("email", email)
+                            putString("new_email", newEmail)
+                            apply()
+                        }
 
-        RetrofitClient.instance.changeEmail(changeEmailRequest).enqueue(object :
-            Callback<ChangeEmailResponse> {
-            override fun onResponse(
-                call: Call<ChangeEmailResponse>,
-                response: Response<ChangeEmailResponse>
-            ) {
-                if (response.isSuccessful&& response.body() != null) {
-                    val token = response.body()?.token
-                    val message = response.body()?.message
-                    Toast.makeText(this@ChangeEmailActivity, message, Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this@ChangeEmailActivity, VerifyOtpActivity::class.java)
-                    intent.putExtra("token", token)
-                    intent.putExtra("previousPage", "ChangeEmailActivity")
-                    intent.putExtra("email", changeEmailRequest. new_email)
-                    startActivity(intent)
-                    finish()
-                }
-                else {
-                    resetInputStyles(R.color.red, clear = true, inputFields)
-                    emailLayout.error = " "
-                    newEmailLayout.error = " "
-                    passwordLayout.error = " "
-
-                    val errorMessage = try {
-                        response.errorBody()?.string()?.let {
-                            JSONObject(it).getString("message")
-                        } ?: "Unknown error"
-                    } catch (e: Exception) {
-                        "Network Error : ${response.code()}"
+                        // Redirection vers VerifyOtpActivity
+                        val intent = Intent(this@ChangeEmailActivity, VerifyOtpActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this@ChangeEmailActivity, body?.message ?: "Erreur inconnue", Toast.LENGTH_SHORT).show()
                     }
-                    showDialog("Email not changed", errorMessage,positiveButtonText = null, // pas de bouton positif
-                        onPositiveClick = null,
-                        negativeButtonText = "OK",
-                        onNegativeClick = { /* rien */ },
-                        cancelable = true)
+                } else {
+                    val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                    Toast.makeText(this@ChangeEmailActivity, errorMsg, Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<ChangeEmailResponse>, t: Throwable) {
-                showDialog("Connection failure", t.localizedMessage ?: "Unknown error", positiveButtonText = null, // pas de bouton positif
-                    onPositiveClick = null,
-                    negativeButtonText = "OK",
-                    onNegativeClick = { /* rien */ },
-                    cancelable = true)
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                btnChangeEmail.isEnabled = true
+                Toast.makeText(this@ChangeEmailActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
             }
         })
     }
