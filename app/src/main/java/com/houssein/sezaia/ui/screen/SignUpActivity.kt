@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
@@ -9,7 +10,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.hbb20.CountryCodePicker
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.SignUpRequest
-import com.houssein.sezaia.model.response.SignUpResponse
+import com.houssein.sezaia.model.response.ApiResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -17,12 +18,13 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.core.content.edit
 
 class SignUpActivity : BaseActivity() {
 
     private lateinit var usernameEditText: TextInputEditText
     private lateinit var emailEditText: TextInputEditText
-    private lateinit var countryCodeEditText: CountryCodePicker
+    private lateinit var countryCode: CountryCodePicker
     private lateinit var numberEditText: TextInputEditText
     private lateinit var addressEditText: TextInputEditText
     private lateinit var cityEditText: TextInputEditText
@@ -77,7 +79,7 @@ class SignUpActivity : BaseActivity() {
     private fun initViews() {
         usernameEditText = findViewById(R.id.username)
         emailEditText = findViewById(R.id.email)
-        countryCodeEditText = findViewById(R.id.countryCodePicker)
+        countryCode = findViewById(R.id.countryCodePicker)
         numberEditText = findViewById(R.id.phone)
         addressEditText = findViewById(R.id.address)
         cityEditText = findViewById(R.id.city)
@@ -121,31 +123,36 @@ class SignUpActivity : BaseActivity() {
     }
     private fun registerUser() {
         val request = SignUpRequest(
-            username = usernameEditText.text.toString().trim(),
-            email = emailEditText.text.toString().trim(),
-            password = passwordEditText.text.toString(),
-            confirm_password = confirmPasswordEditText.text.toString(),
-            number = numberEditText.text.toString().trim(),
-            address = addressEditText.text.toString().trim(),
-            country_code = countryCodeEditText.selectedCountryCodeWithPlus,
-            city = cityEditText.text.toString().trim(),
-            postal_code = postalCodeEditText.text.toString().trim()
+            usernameEditText.text.toString(),
+            emailEditText.text.toString(),
+            passwordEditText.text.toString(),
+            confirmPasswordEditText.text.toString(),
+            numberEditText.text.toString(),
+            addressEditText.text.toString(),
+            countryCode.selectedCountryCodeWithPlus,
+            cityEditText.text.toString(),
+            postalCodeEditText.text.toString(),
+
         )
 
-        RetrofitClient.instance.signUp(request).enqueue(object : Callback<SignUpResponse> {
-            override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
-                if (response.isSuccessful  && response.body() != null) {
-                    val token = response.body()?.token
+        RetrofitClient.instance.registerUser(request).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                if (response.isSuccessful) {
                     val message = response.body()?.message
+                    println("Success: $message")
                     Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_LONG).show()
+                    // Stockage dans SharedPreferences
+                    val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+                    sharedPref.edit().apply {
+                        putString("previous_page", "SignUpActivity")
+                        apply()
+                    }
 
+// Lancement de l’activité sans putExtra
                     val intent = Intent(this@SignUpActivity, VerifyOtpActivity::class.java)
-                    intent.putExtra("token", token)
-                    intent.putExtra("previousPage", "SignUpActivity")
-                    intent.putExtra("email", request.email)
                     startActivity(intent)
                 } else {
-                    resetInputStyles(R.color.red, clear = true, inputFields)
+                    //resetInputStyles(R.color.red, clear = true, inputFields)
                     usernameLayout.error= ""
                     emailLayout.error = ""
                     numberLayout.error = ""
@@ -170,7 +177,7 @@ class SignUpActivity : BaseActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<SignUpResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                 showDialog("Network error", t.localizedMessage ?: "Unknown error",positiveButtonText = null, // pas de bouton positif
                     onPositiveClick = null,
                     negativeButtonText = "OK",

@@ -8,16 +8,16 @@ import com.houssein.sezaia.model.request.ChangeUsernameRequest
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
 import com.houssein.sezaia.model.request.DeleteAccountRequest
 import com.houssein.sezaia.model.request.LoginRequest
-import com.houssein.sezaia.model.request.SignUpRequest
-import com.houssein.sezaia.model.request.ForgotPasswordRequest
 import com.houssein.sezaia.model.request.QrCodeRequest
 import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.request.SaveResponseRequest
 import com.houssein.sezaia.model.request.SendEmailRequest
+import com.houssein.sezaia.model.request.SignUpRequest
 import com.houssein.sezaia.model.request.VerifyChangeEmailRequest
 import com.houssein.sezaia.model.request.VerifyDeleteAccountRequest
 import com.houssein.sezaia.model.request.VerifyForgetRequest
 import com.houssein.sezaia.model.request.VerifyRegisterRequest
+import com.houssein.sezaia.model.response.ApiResponse
 import com.houssein.sezaia.model.response.AskRepairResponse
 import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.ChangeNumberResponse
@@ -30,16 +30,10 @@ import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
-import com.houssein.sezaia.model.response.SignUpResponse
-import com.houssein.sezaia.model.response.VerifyChangeEmailResponse
 import com.houssein.sezaia.model.response.VerifyDeleteAccountResponse
-import com.houssein.sezaia.model.response.VerifyForgetResponse
-import com.houssein.sezaia.model.response.VerifyRegisterResponse
-import com.houssein.sezaia.ui.screen.DeleteAccountActivity
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface ApiService {
@@ -49,9 +43,11 @@ interface ApiService {
     @GET("questions")
     fun getQuestions(): Call<List<Message>>
 
-
     @POST("/register")
-    fun signUp(@Body request: SignUpRequest): Call<SignUpResponse>
+    fun registerUser(@Body registerRequest: SignUpRequest): Call<ApiResponse>
+
+    @POST("/verify_register")
+    fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
 
     @POST("change-password")
     fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<CreateNewPasswordResponse>
@@ -80,7 +76,6 @@ interface ApiService {
     @POST("/delete_account")
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
 
-
     @POST("/forgot_password")
     fun forgotPassword(@Body request: ResendOtpRequest): Call<BaseResponse>
 
@@ -90,8 +85,6 @@ interface ApiService {
     @POST("/verify_forget")
     fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
 
-
-
     @POST("/change_email")
     fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
 
@@ -99,14 +92,7 @@ interface ApiService {
     fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<BaseResponse>
 
 
-
-
     @POST("/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<VerifyDeleteAccountResponse>
-
-    @POST("/verify_register")
-    fun verifyRegister(@Body request: VerifyRegisterRequest): Call<VerifyRegisterResponse>
-
 }
-
 

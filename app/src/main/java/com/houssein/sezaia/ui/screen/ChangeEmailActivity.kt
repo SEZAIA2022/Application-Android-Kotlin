@@ -78,16 +78,20 @@ class ChangeEmailActivity : BaseActivity() {
         val email = emailEditText.text.toString()
         val newEmail = newEmailEditText.text.toString()
         val password = passwordEditText.text.toString()
+
         if (email.isEmpty() || newEmail.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Tous les champs sont requis", Toast.LENGTH_SHORT).show()
             return
         }
+
         btnChangeEmail.isEnabled = false
+
         val request = ChangeEmailRequest(
             email = email,
             new_email = newEmail,
             password = password
         )
+
         RetrofitClient.instance.changeEmail(request).enqueue(object : Callback<BaseResponse> {
             override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
                 btnChangeEmail.isEnabled = true
@@ -95,16 +99,16 @@ class ChangeEmailActivity : BaseActivity() {
                     val body = response.body()
                     if (body != null && body.status == "success") {
                         Toast.makeText(this@ChangeEmailActivity, body.message, Toast.LENGTH_SHORT).show()
-                        // Stockage dans SharedPreferences
+
+                        // Stocker uniquement l'email actuel (clé de stockage OTP) dans SharedPreferences
                         val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                         prefs.edit().apply {
                             putString("previous_page", "ChangeEmailActivity")
                             putString("email", email)
-                            putString("new_email", newEmail)
                             apply()
                         }
 
-                        // Redirection vers VerifyOtpActivity
+                        // Rediriger vers écran de vérification OTP (pas besoin de new_email ici)
                         val intent = Intent(this@ChangeEmailActivity, VerifyOtpActivity::class.java)
                         startActivity(intent)
                         finish()

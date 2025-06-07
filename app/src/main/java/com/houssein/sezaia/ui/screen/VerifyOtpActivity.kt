@@ -4,25 +4,23 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.request.VerifyChangeEmailRequest
 import com.houssein.sezaia.model.request.VerifyForgetRequest
+import com.houssein.sezaia.model.request.VerifyRegisterRequest
+import com.houssein.sezaia.model.response.ApiResponse
 import com.houssein.sezaia.model.response.BaseResponse
-import com.houssein.sezaia.model.response.VerifyForgetResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.SimpleTextWatcher
 import com.houssein.sezaia.ui.utils.UIUtils
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -96,19 +94,26 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun setupListeners() {
-        val previous_page = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val previousPage = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
             .getString("previous_page", null) ?: return
-        if (previous_page == "ForgetActivity"){
-            verifyButton.setOnClickListener { verifyOtp() }
-        }
-        else {
-            verifyButton.setOnClickListener { verifyOtpEmail() }
+        when (previousPage) {
+            "ForgetActivity" -> {
+                verifyButton.setOnClickListener { verifyOtp() }
+            }
+            "ChangeEmailActivity" -> {
+                verifyButton.setOnClickListener { verifyOtpEmail() }
+            }
+            else -> {
+                verifyButton.setOnClickListener { verifySignUp() }
+            }
         }
 
         otpFields.forEach { (editText, layout) ->
             editText.addTextChangedListener(UIUtils.inputWatcher(editText, layout))
         }
     }
+
+
 
     private fun setupClickableResend() {
         val fullText = resendOtpButton.text.toString()
@@ -189,12 +194,16 @@ class VerifyOtpActivity : BaseActivity() {
 
     private fun verifyOtpEmail() {
         val prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
-        val oldEmail = prefs.getString("email", "") ?: ""
-        val newEmail = prefs.getString("new_email", "") ?: ""
-        val otp= getOtp()
+        val newEmail = prefs.getString("email", "") ?: ""
+        val otp = getOtp()
+
+        if (newEmail.isEmpty() || otp.isEmpty()) {
+            Toast.makeText(this, "Email ou OTP manquant.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val request = VerifyChangeEmailRequest(
-            email = oldEmail,           // Ancien email
-            new_email = newEmail,       // Nouveau email
+            email = newEmail,  // Ancien email
             otp = otp
         )
 
@@ -204,7 +213,7 @@ class VerifyOtpActivity : BaseActivity() {
                     val body = response.body()
                     if (body?.status == "success") {
                         Toast.makeText(this@VerifyOtpActivity, body.message, Toast.LENGTH_SHORT).show()
-                        // ✅ Fermer ou rediriger après succès
+                        startActivity(Intent(this@VerifyOtpActivity, SuccessActivity::class.java))
                         finish()
                     } else {
                         Toast.makeText(this@VerifyOtpActivity, body?.message ?: "Erreur inconnue", Toast.LENGTH_SHORT).show()
@@ -226,6 +235,31 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
 
+    private fun verifySignUp() {
+        val email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("email", null) ?: return
+        val otp = getOtp()
+        val verifyRequest = VerifyRegisterRequest(email, otp)
+
+        RetrofitClient.instance.verifyRegister(verifyRequest).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    println("Success: ${apiResponse?.message}")
+                    startActivity(Intent(this@VerifyOtpActivity, SuccessActivity::class.java))
+                    finish()
+                    // Inscription réussie
+                } else {
+                    println("Erreur: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                println("Failure: ${t.message}")
+            }
+        })
+
+    }
 
 
 
