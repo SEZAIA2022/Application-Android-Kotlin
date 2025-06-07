@@ -19,6 +19,7 @@ import com.houssein.sezaia.model.request.VerifyDeleteAccountRequest
 import com.houssein.sezaia.model.request.VerifyForgetRequest
 import com.houssein.sezaia.model.request.VerifyRegisterRequest
 import com.houssein.sezaia.model.response.AskRepairResponse
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.ChangeEmailResponse
 import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.model.response.ChangePasswordResponse
@@ -87,13 +88,13 @@ interface ApiService {
 
 
     @POST("/forgot_password")
-    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<ForgotPasswordResponse>
-
-    @POST("/verify_forget")
-    fun verifyForget(@Body request: VerifyForgetRequest): Call<VerifyForgetResponse>
+    fun forgotPassword(@Body request: ResendOtpRequest): Call<BaseResponse>
 
     @POST("/resend_otp")
-    fun resendOtp(@Body request: ResendOtpRequest): Call<ResendOtpResponse>
+    fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>
+
+    @POST("/verify_forget")
+    fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
 
     @POST("/verify_change_email")
     fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<VerifyChangeEmailResponse>

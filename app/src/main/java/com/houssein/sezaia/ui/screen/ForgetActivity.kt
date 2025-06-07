@@ -1,25 +1,26 @@
 package com.houssein.sezaia.ui.screen
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
+import com.houssein.sezaia.model.request.ResendOtpRequest
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.ForgotPasswordResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import org.json.JSONObject
-import android.content.Context
-import androidx.core.content.edit
-
 
 class ForgetActivity : BaseActivity() {
 
@@ -45,7 +46,7 @@ class ForgetActivity : BaseActivity() {
             getString(R.string.forgot_password),
             actionIconRes = R.drawable.baseline_density_medium_24,
             onBackClick = { finish() },
-            onActionClick = {  startActivity(Intent(this, SettingsActivity::class.java))}
+            onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
     }
 
@@ -59,45 +60,30 @@ class ForgetActivity : BaseActivity() {
     private fun setupListeners() {
         sendOtpBtn.setOnClickListener {
             val email = emailInput.text?.toString()?.trim().orEmpty()
+            println(email)
+            val request = ResendOtpRequest(email)
 
-            // Appel réseau avec modèle typé
-            RetrofitClient.instance.forgotPassword(ForgotPasswordRequest(email))
-                .enqueue(object : Callback<ForgotPasswordResponse> {
-                    override fun onResponse(
-                        call: Call<ForgotPasswordResponse>,
-                        response: Response<ForgotPasswordResponse>
-                    ) {
-                        if (response.isSuccessful && response.body() != null) {
-                            val body = response.body()!!
-                            val token = body.token
-                            val message = body.message
-                            val emailResp = body.email
+            RetrofitClient.instance.forgotPassword(request)
+                .enqueue(object : Callback<BaseResponse> {
+                    override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                        if (response.isSuccessful) {
+                            val body = response.body()
+                            Toast.makeText(this@ForgetActivity, body?.message, Toast.LENGTH_SHORT).show()
 
-                            Toast.makeText(this@ForgetActivity, message, Toast.LENGTH_LONG).show()
-
+                            // Sauvegarder l'email pour l'étape suivante
                             val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-                            sharedPref.edit {
-                                putString("token", token)
-                                putString("previousPage", "ForgetActivity")
-                                putString("email", emailResp)
-                            }
-                            val intent = Intent(this@ForgetActivity, VerifyOtpActivity::class.java)
-                            startActivity(intent)
+                            sharedPref.edit().putString("email", email).apply()
 
+                            // Aller à VerifyOtpActivity
+                            startActivity(Intent(this@ForgetActivity, VerifyOtpActivity::class.java))
                         } else {
-                            val errorMessage = try {
-                                val json = JSONObject(response.errorBody()?.string() ?: "")
-                                json.getString("message")
-                            } catch (e: Exception) {
-                                "Erreur du serveur"
-                            }
-                            resetInputStyles(R.color.red, clear = true, inputFields)
-                            usernameLayout.error = errorMessage
+                            val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                            Toast.makeText(this@ForgetActivity, errorMsg, Toast.LENGTH_SHORT).show()
                         }
                     }
 
-                    override fun onFailure(call: Call<ForgotPasswordResponse>, t: Throwable) {
-                        usernameLayout.error = "Erreur réseau : ${t.localizedMessage}"
+                    override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                        Toast.makeText(this@ForgetActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
                     }
                 })
         }

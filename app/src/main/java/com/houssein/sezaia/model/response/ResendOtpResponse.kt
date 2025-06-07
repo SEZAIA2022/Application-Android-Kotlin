@@ -1,6 +1,9 @@
 package com.houssein.sezaia.model.response
 
+import com.google.gson.annotations.SerializedName
+
 data class ResendOtpResponse(
-    val new_token: String,
-    val message: String
+    @SerializedName("new_token") val newToken: String,
+    val message: String,
+    val status: String
 )

@@ -13,11 +13,12 @@ import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
-import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.request.VerifyForgetRequest
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.ResendOtpResponse
 import com.houssein.sezaia.model.response.VerifyForgetResponse
+import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.SimpleTextWatcher
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -32,8 +33,6 @@ class VerifyOtpActivity : BaseActivity() {
     private lateinit var otpLayout: LinearLayout
     private lateinit var verifyButton: Button
     private lateinit var resendOtpButton: TextView
-    private var token: String? = null
-    private var previousPage: String? = null
     private var email: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,101 +113,66 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
     private fun resendOtp() {
-        val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val savedEmail = sharedPref.getString("email", null) ?: email
-        val savedToken = sharedPref.getString("token", null) ?: token
-
-        if (savedEmail.isNullOrEmpty() || savedToken.isNullOrEmpty()) {
-            Toast.makeText(this, "Token ou email introuvable", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("email", null) ?: return
 
         resendOtpButton.isEnabled = false
 
-        val request = ResendOtpRequest(savedEmail, savedToken)
+        val request = ResendOtpRequest(email)
 
-        RetrofitClient.instance.resendOtp(request).enqueue(object : Callback<ResendOtpResponse> {
-            override fun onResponse(call: Call<ResendOtpResponse>, response: Response<ResendOtpResponse>) {
+        RetrofitClient.instance.resendOtp(request).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
                 resendOtpButton.isEnabled = true
-
                 if (response.isSuccessful) {
-                    val body = response.body()
-                    val newToken = body?.new_token.orEmpty()
-                    val message = body?.message.orEmpty()
-
-                    if (newToken.isNotEmpty()) {
-                        token = newToken
-                        Log.d("VerifyOtpActivity", "token:$token and email:$savedEmail")
-                        sharedPref.edit {
-                            putString("token", newToken)
-                            putString("email", savedEmail)
-                        }
-                    }
-
-                    if (message.isNotEmpty()) {
-                        Toast.makeText(this@VerifyOtpActivity, message, Toast.LENGTH_SHORT).show()
-                    }
-
+                    Toast.makeText(this@VerifyOtpActivity, response.body()?.message, Toast.LENGTH_SHORT).show()
                     otpFields.forEach { it.first.text?.clear() }
                 } else {
-                    val errorMessage = try {
-                        JSONObject(response.errorBody()?.string() ?: "{}")
-                            .optString("message", "Erreur inconnue")
-                    } catch (e: Exception) {
-                        "Erreur inconnue"
-                    }
-                    Toast.makeText(this@VerifyOtpActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                    val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                    Toast.makeText(this@VerifyOtpActivity, errorMsg, Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<ResendOtpResponse>, t: Throwable) {
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
                 resendOtpButton.isEnabled = true
                 Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
-                Log.e("ResendOtp", "Erreur : ", t)
             }
         })
     }
 
     private fun verifyOtp() {
         val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        previousPage = sharedPref.getString("previousPage", null)
-        token = sharedPref.getString("token", null)
         email = sharedPref.getString("email", null)
 
+        if (email.isNullOrEmpty()) {
+            Toast.makeText(this, "Aucun email trouvé. Veuillez réessayer.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val otp = getOtp()
         if (otp.length != 4) {
             Toast.makeText(this, "Veuillez entrer le code complet", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (token.isNullOrEmpty() || email.isNullOrEmpty()) {
-            Toast.makeText(this, "Token ou email manquant, veuillez renvoyer le code.", Toast.LENGTH_SHORT).show()
-            Log.d("VerifyOtpActivity", "token:$token and email:$email")
-            return
-        }
+        val email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("email", null) ?: return
 
-        val request = VerifyForgetRequest(otp, token!!, email!!)
+        val request = VerifyForgetRequest(email = email, otp = otp)
 
-        RetrofitClient.instance.verifyForget(request)
-            .enqueue(object : Callback<VerifyForgetResponse> {
-                override fun onResponse(call: Call<VerifyForgetResponse>, response: Response<VerifyForgetResponse>) {
-                    if (response.isSuccessful) {
-                        startActivity(Intent(this@VerifyOtpActivity, CreatePasswordActivity::class.java))
-                        finish()
-                    } else {
-                        val errorMessage = try {
-                            JSONObject(response.errorBody()?.string() ?: "{}").optString("message", "Erreur inconnue")
-                        } catch (e: Exception) {
-                            "Erreur inconnue"
-                        }
-                        Toast.makeText(this@VerifyOtpActivity, errorMessage, Toast.LENGTH_SHORT).show()
-                    }
+        RetrofitClient.instance.verifyForget(request).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                if (response.isSuccessful) {
+                    startActivity(Intent(this@VerifyOtpActivity, CreatePasswordActivity::class.java))
+                    finish()
+                } else {
+                    val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                    Toast.makeText(this@VerifyOtpActivity, errorMsg, Toast.LENGTH_SHORT).show()
                 }
+            }
 
-                override fun onFailure(call: Call<VerifyForgetResponse>, t: Throwable) {
-                    Toast.makeText(this@VerifyOtpActivity, "Erreur : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
-                }
-            })
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun getOtp(): String =
