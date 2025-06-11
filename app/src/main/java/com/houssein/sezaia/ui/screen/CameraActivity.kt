@@ -5,10 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.RectF
+import android.media.Image
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Size
+import android.view.ScaleGestureDetector
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
@@ -30,6 +33,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
+import androidx.core.content.edit
+import androidx.core.graphics.ColorUtils.calculateLuminance
 
 class CameraActivity : BaseActivity() {
 
@@ -38,11 +43,24 @@ class CameraActivity : BaseActivity() {
     private val executor = Executors.newSingleThreadExecutor()
     private val CAMERA_PERMISSION_CODE = 1001
     private var isQrCodeProcessed = false
+    private var currentFlashMode = FlashMode.OFF
+    private lateinit var flashButton: ImageButton
+    private var isAutoFlashEnabled = false
+    private lateinit var camera: Camera
+    private lateinit var scaleGestureDetector: ScaleGestureDetector
+    private var currentZoomRatio = 1f
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_camera)
+        flashButton = findViewById(R.id.flashButton)
+        flashButton.setOnClickListener {
+            toggleFlash()
+        }
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
 
@@ -53,8 +71,33 @@ class CameraActivity : BaseActivity() {
 
         previewView = findViewById(R.id.previewView)
         overlayView = findViewById(R.id.overlayView)
+        scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                if (!::camera.isInitialized) return false
+
+                val scale = detector.scaleFactor
+                currentZoomRatio = (currentZoomRatio * scale).coerceIn(
+                    camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f,
+                    camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 10f
+                )
+                camera.cameraControl.setZoomRatio(currentZoomRatio)
+                return true
+            }
+        })
+
 
         requestCameraPermission()
+    }
+
+    override fun onTouchEvent(event: android.view.MotionEvent?): Boolean {
+        event?.let {
+            scaleGestureDetector.onTouchEvent(it)
+        }
+        return super.onTouchEvent(event)
+    }
+
+    enum class FlashMode {
+        OFF, ON, AUTO
     }
 
     private fun requestCameraPermission() {
@@ -87,18 +130,68 @@ class CameraActivity : BaseActivity() {
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
+                // Affecter la caméra ici !
+                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
             } catch (exc: Exception) {
                 Toast.makeText(this, "Échec de la liaison de la caméra", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
+    private fun toggleFlash() {
+        if (!::camera.isInitialized || !camera.cameraInfo.hasFlashUnit()) {
+            Toast.makeText(this, "La torche n'est pas disponible sur cet appareil", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        currentFlashMode = when (currentFlashMode) {
+            FlashMode.OFF -> {
+                camera.cameraControl.enableTorch(true)
+                flashButton.setImageResource(R.drawable.baseline_flash_on_24) // icône flash ON
+                isAutoFlashEnabled = false
+                FlashMode.ON
+            }
+
+            FlashMode.ON -> {
+                camera.cameraControl.enableTorch(false)
+                flashButton.setImageResource(R.drawable.baseline_flash_auto_24) // icône flash AUTO
+                isAutoFlashEnabled = true
+                FlashMode.AUTO
+            }
+
+            FlashMode.AUTO -> {
+                camera.cameraControl.enableTorch(false)
+                flashButton.setImageResource(R.drawable.baseline_flash_off_24) // icône flash OFF
+                isAutoFlashEnabled = false
+                FlashMode.OFF
+            }
+        }
+    }
+    private fun calculateLuminance(image: Image): Double {
+        val buffer = image.planes[0].buffer
+        var sum = 0
+        while (buffer.hasRemaining()) {
+            sum += buffer.get().toInt() and 0xFF
+        }
+        return sum.toDouble() / buffer.capacity()
+    }
+
     @OptIn(ExperimentalGetImage::class)
     private fun processImageProxy(scanner: com.google.mlkit.vision.barcode.BarcodeScanner, imageProxy: ImageProxy) {
+
+
         val mediaImage = imageProxy.image ?: run {
             imageProxy.close()
             return
+        }
+
+        val luminance = calculateLuminance(mediaImage)
+
+        if (isAutoFlashEnabled) {
+            val lowLight = luminance < 50  // seuil ajustable
+            if (::camera.isInitialized && camera.cameraInfo.hasFlashUnit()) {
+                camera.cameraControl.enableTorch(lowLight)
+            }
         }
 
         if (isQrCodeProcessed) {
@@ -163,9 +256,9 @@ class CameraActivity : BaseActivity() {
                     if (response.isSuccessful && response.body()?.status == "success") {
                         val intent = Intent(this@CameraActivity, WelcomeChatbotActivity::class.java)
                         getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                            .edit()
-                            .putString("qrData", qrCode)
-                            .apply()
+                            .edit {
+                                putString("qrData", qrCode)
+                            }
                         startActivity(intent)
                     } else {
                         val message = response.body()?.message ?: "QR Code don't valid."
@@ -194,9 +287,9 @@ class CameraActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .edit()
-            .putBoolean("showCardsInSettings", true)
-            .apply()
+            .edit {
+                putBoolean("showCardsInSettings", true)
+            }
     }
     override fun onResume() {
         super.onResume()

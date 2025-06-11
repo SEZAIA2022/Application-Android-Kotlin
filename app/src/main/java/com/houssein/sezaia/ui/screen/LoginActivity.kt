@@ -17,6 +17,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import org.json.JSONObject
+import androidx.core.content.edit
 
 class LoginActivity : BaseActivity() {
 
@@ -84,9 +85,9 @@ class LoginActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .edit()
-            .putBoolean("showCardsInSettings", false)
-            .apply()
+            .edit {
+                putBoolean("showCardsInSettings", false)
+            }
         resetInputStyles(R.color.gray, clear = true, inputFields)
     }
 

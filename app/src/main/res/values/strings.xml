@@ -90,8 +90,7 @@
     <string name="return_to_login">Return to login</string>
     <string name="error_invalid_otp">error invalid otp</string>
     <string name="current_email">Current email</string>
-
-
+    <string name="flashlight">"Flash button "</string>
 
 
 </resources>
