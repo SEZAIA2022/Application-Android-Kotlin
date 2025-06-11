@@ -63,7 +63,9 @@ dependencies {
     implementation (libs.camera.view)
     implementation (libs.barcode.scanning)
     implementation (libs.ccp)
-    implementation (libs.logging.interceptor)
+    implementation (libs.logging.interceptor) // ou version plus récente
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
 
 
 

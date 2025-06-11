@@ -29,9 +29,12 @@ class SuccessActivity : AppCompatActivity() {
     }
 
     private fun initViews(){
-        val newTitle = intent.getStringExtra("title")
-        val newMessage = intent.getStringExtra("content")
-        val newButton = intent.getStringExtra("button")
+        val sharedPreferences = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+
+        val newTitle = sharedPreferences.getString("title", null)
+        val newMessage = sharedPreferences.getString("content", null)
+        val newButton = sharedPreferences.getString("button", null)
+
         btnContinueLogin = findViewById(R.id.btnContinueLogin)
         title = findViewById(R.id.textView3)
         message = findViewById((R.id.textView2))

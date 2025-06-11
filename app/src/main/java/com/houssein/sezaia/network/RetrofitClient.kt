@@ -7,24 +7,24 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://172.20.10.5:5000/"
+    private const val BASE_URL = "http://192.168.100.164:5000/"
 
-    private val logging: HttpLoggingInterceptor by lazy {
+    private val loggingInterceptor: HttpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
     }
 
-    private val client: OkHttpClient by lazy {
+    private val httpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .addInterceptor(logging)
+            .addInterceptor(loggingInterceptor)
             .build()
     }
 
     val instance: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client)
+            .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

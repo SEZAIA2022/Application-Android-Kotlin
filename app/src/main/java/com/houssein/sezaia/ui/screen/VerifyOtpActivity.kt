@@ -8,11 +8,13 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.request.VerifyChangeEmailRequest
+import com.houssein.sezaia.model.request.VerifyDeleteAccountRequest
 import com.houssein.sezaia.model.request.VerifyForgetRequest
 import com.houssein.sezaia.model.request.VerifyRegisterRequest
 import com.houssein.sezaia.model.response.ApiResponse
@@ -105,9 +107,15 @@ class VerifyOtpActivity : BaseActivity() {
             "ChangeEmailActivity" -> {
                 verifyButton.setOnClickListener { verifyOtpEmail() }
             }
-            else -> {
+            "SignUpActivity" -> {
                 verifyButton.setOnClickListener { verifySignUp() }
             }
+            "DeleteAccountActivity" -> {
+                verifyButton.setOnClickListener { verifyOtpDelete() }
+            }
+//            else -> {
+//                verifyButton.setOnClickListener { verifySignUp() }
+//            }
         }
 
         otpFields.forEach { (editText, layout) ->
@@ -115,7 +123,18 @@ class VerifyOtpActivity : BaseActivity() {
         }
     }
 
+    fun moveFocus(currentField: TextInputEditText, nextField: TextInputEditText?, prevField: TextInputEditText?) {
+        val text = currentField.text.toString()
+        if (text.length > 1) {
+            currentField.setText(text[0].toString())
+            currentField.setSelection(1)
+        }
 
+        when {
+            text.length == 1 -> nextField?.requestFocus()
+            text.isEmpty() -> prevField?.requestFocus()
+        }
+    }
 
     private fun setupClickableResend() {
         val fullText = resendOtpButton.text.toString()
@@ -189,13 +208,12 @@ class VerifyOtpActivity : BaseActivity() {
         })
     }
 
-
     private fun verifyOtpEmail() {
 
         val otp = getOtp()
         val newEmail = email.toString()
         if (newEmail.isEmpty() || otp.isEmpty()) {
-            Toast.makeText(this, "Email ou OTP manquant.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Email ou OTP required.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -210,6 +228,101 @@ class VerifyOtpActivity : BaseActivity() {
                     val body = response.body()
                     if (body?.status == "success") {
                         Toast.makeText(this@VerifyOtpActivity, body.message, Toast.LENGTH_SHORT).show()
+
+                        val sharedPref = getSharedPreferences("MySuccessPrefs", Context.MODE_PRIVATE)
+                        sharedPref.edit().apply {
+                            putString("title", "Email modified")
+                            putString("content", "Your email has been successfully modified, and you should be able to access it now.")
+                            putString("button", getString(R.string.return_to_login))
+                            apply()
+                        }
+
+                        startActivity(Intent(this@VerifyOtpActivity, SuccessActivity::class.java))
+                        finish()
+                    } else {
+                        Toast.makeText(this@VerifyOtpActivity, body?.message ?: "Erreur inconnue", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val errorMsg = try {
+                        response.errorBody()?.string() ?: "Erreur inconnue"
+                    } catch (e: Exception) {
+                        "Erreur lors du traitement de la réponse"
+                    }
+                    Toast.makeText(this@VerifyOtpActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                Toast.makeText(this@VerifyOtpActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun verifySignUp() {
+        val email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("email", null) ?: return
+        val otp = getOtp()
+        val verifyRequest = VerifyRegisterRequest(email, otp)
+
+        RetrofitClient.instance.verifyRegister(verifyRequest).enqueue(object : Callback<ApiResponse> {
+            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    println("Success: ${apiResponse?.message}")
+
+                    val sharedPref = getSharedPreferences("MySuccessPrefs", Context.MODE_PRIVATE)
+                    sharedPref.edit().apply {
+                        putString("title", "Created account")
+                        putString("content", "Your account has been successfully created.")
+                        putString("button", getString(R.string.return_to_login))
+                        apply()
+                    }
+
+                    startActivity(Intent(this@VerifyOtpActivity, SuccessActivity::class.java))
+                    finish()
+                    // Inscription réussie
+                } else {
+                    println("Erreur: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                println("Failure: ${t.message}")
+            }
+        })
+
+    }
+
+    private fun getOtp(): String =
+        otpFields.joinToString("") { it.first.text?.toString()?.trim().orEmpty() }
+
+    private fun verifyOtpDelete(){
+        val otp = getOtp()
+        val email = email.toString()
+        val request = VerifyDeleteAccountRequest(
+            otp = otp,
+            email = email
+        )
+
+        RetrofitClient.instance.verifyDeleteAccount(request).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.status == "success") {
+                        Toast.makeText(this@VerifyOtpActivity, body.message, Toast.LENGTH_SHORT).show()
+
+                        val sharedPref = getSharedPreferences("MySuccessPrefs", Context.MODE_PRIVATE)
+                        sharedPref.edit().apply {
+                            putString("title", "Account deleted")
+                            putString("content", "Your account has been successfully deleted, and you will no longer be able to access it.")
+                            putString("button", getString(R.string.return_to_login))
+                            apply()
+                        }
+                        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+                        prefs.edit {
+                            putBoolean("isLoggedIn", false)
+                                .remove("userRole")
+                        }
                         startActivity(Intent(this@VerifyOtpActivity, SuccessActivity::class.java))
                         finish()
                     } else {
@@ -232,48 +345,4 @@ class VerifyOtpActivity : BaseActivity() {
     }
 
 
-    private fun verifySignUp() {
-        val email = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-            .getString("email", null) ?: return
-        val otp = getOtp()
-        val verifyRequest = VerifyRegisterRequest(email, otp)
-
-        RetrofitClient.instance.verifyRegister(verifyRequest).enqueue(object : Callback<ApiResponse> {
-            override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
-                if (response.isSuccessful) {
-                    val apiResponse = response.body()
-                    println("Success: ${apiResponse?.message}")
-                    startActivity(Intent(this@VerifyOtpActivity, SuccessActivity::class.java))
-                    finish()
-                    // Inscription réussie
-                } else {
-                    println("Erreur: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                println("Failure: ${t.message}")
-            }
-        })
-
-    }
-
-
-
-
-    private fun getOtp(): String =
-        otpFields.joinToString("") { it.first.text?.toString()?.trim().orEmpty() }
-
-    fun moveFocus(currentField: TextInputEditText, nextField: TextInputEditText?, prevField: TextInputEditText?) {
-        val text = currentField.text.toString()
-        if (text.length > 1) {
-            currentField.setText(text[0].toString())
-            currentField.setSelection(1)
-        }
-
-        when {
-            text.length == 1 -> nextField?.requestFocus()
-            text.isEmpty() -> prevField?.requestFocus()
-        }
-    }
 }

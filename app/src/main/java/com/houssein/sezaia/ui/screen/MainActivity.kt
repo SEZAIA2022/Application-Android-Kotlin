@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
+import androidx.core.content.edit
 
 class MainActivity : BaseActivity() {
 
@@ -90,8 +91,8 @@ class MainActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .edit()
-            .putBoolean("showCardsInSettings", false)
-            .apply()
+            .edit {
+                putBoolean("showCardsInSettings", false)
+            }
     }
 }

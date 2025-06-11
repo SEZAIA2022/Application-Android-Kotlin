@@ -10,6 +10,7 @@ import com.google.android.material.card.MaterialCardView
 import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
+import androidx.core.content.edit
 
 class SettingsActivity : BaseActivity() {
 
@@ -74,10 +75,10 @@ class SettingsActivity : BaseActivity() {
 
     private fun logoutAction() {
         val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
-        prefs.edit()
-            .putBoolean("isLoggedIn", false)
-            .remove("userRole")  // Supprime le rôle
-            .apply()
+        prefs.edit {
+            putBoolean("isLoggedIn", false)
+                .remove("userRole")  // Supprime le rôle
+        }
 
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

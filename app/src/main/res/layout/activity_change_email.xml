@@ -30,7 +30,7 @@
             android:id="@+id/email"
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_mail_24"
-            android:hint="@string/email"
+            android:hint="@string/current_email"
             tools:layout_editor_absoluteX="30dp"
             tools:layout_editor_absoluteY="113dp" />
     </com.google.android.material.textfield.TextInputLayout>

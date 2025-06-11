@@ -25,7 +25,6 @@ import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.model.response.ChangePasswordResponse
 import com.houssein.sezaia.model.response.ChangeUsernameResponse
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
-import com.houssein.sezaia.model.response.DeleteAccountResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
@@ -75,7 +74,7 @@ interface ApiService {
     fun changePassword(@Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
     @POST("/delete_account")
-    fun deleteAccount(@Body request: DeleteAccountRequest): Call<DeleteAccountResponse>
+    fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
     @POST("/forgot_password")
     fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
@@ -92,8 +91,7 @@ interface ApiService {
     @POST("/verify_change_email")
     fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<BaseResponse>
 
-
     @POST("/verify_delete_account")
-    fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<VerifyDeleteAccountResponse>
+    fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
 }
 

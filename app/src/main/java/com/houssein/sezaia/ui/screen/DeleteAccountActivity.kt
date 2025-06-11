@@ -2,6 +2,7 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -10,7 +11,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.ChangeEmailRequest
 import com.houssein.sezaia.model.request.DeleteAccountRequest
-import com.houssein.sezaia.model.response.DeleteAccountResponse
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -74,60 +75,91 @@ class DeleteAccountActivity : BaseActivity() {
     private fun deleteAccount() {
         val email = emailEditText.text.toString()
         val password = passwordEditText.text.toString()
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val deleteAccountRequest = DeleteAccountRequest(email, password)
+        Log.d("DeleteAccount", "Tentative de suppression avec email: $email") // Log de débogage
+        RetrofitClient.instance.deleteAccount(deleteAccountRequest).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                Log.d("DeleteAccount", "Réponse reçue: ${response.code()}")
 
-        RetrofitClient.instance.deleteAccount(deleteAccountRequest).enqueue(object :
-            Callback<DeleteAccountResponse> {
-            override fun onResponse(
-                call: Call<DeleteAccountResponse>,
-                response: Response<DeleteAccountResponse>
-            ) {
-                if (response.isSuccessful && response.body() != null) {
-                    val token = response.body()?.token
-                    val message = response.body()?.message
-                    Toast.makeText(this@DeleteAccountActivity, message, Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this@DeleteAccountActivity, VerifyOtpActivity::class.java)
-                    intent.putExtra("token", token)
-                    intent.putExtra("previousPage", "DeleteAccountActivity")
-                    intent.putExtra("email", deleteAccountRequest.email)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    resetInputStyles(R.color.red, clear = true, inputFields)
-                    emailLayout.error = " "
-                    confirmPasswordLayout.error = " "
-                    passwordLayout.error = " "
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    Log.d("DeleteAccount", "Body reçu: ${body?.toString()}")
 
-                    val errorMessage = try {
-                        response.errorBody()?.string()?.let {
-                            JSONObject(it).getString("message")
-                        } ?: "Unknown error"
-                    } catch (e: Exception) {
-                        "Network Error : ${response.code()}"
+                    if (body != null && body.status == "success") {
+                        // Sauvegarder les informations avant la redirection
+                        getSharedPreferences("MyAppPrefs", MODE_PRIVATE).edit().apply {
+                            putString("email", email)
+                            putString("previous_page", "DeleteAccountActivity") // Correction: devrait être DeleteAccountActivity
+                            apply()
+                        }
+                        Log.d("DeleteAccount", "Redirection vers VerifyOtpActivity") // Log de débog
+
+                        // Redirection vers VerifyOtpActivity
+                        val intent = Intent(this@DeleteAccountActivity, VerifyOtpActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(intent)
+                        finish() // Ferme l'activité actuelle
+
+                    } else {
+                        Log.e("DeleteAccount", "Erreur dans la réponse: ${body?.message}")
+                        Toast.makeText(
+                            this@DeleteAccountActivity,
+                            body?.message ?: "Erreur inconnue",
+                            Toast.LENGTH_LONG // Changé à LONG pour mieux voir le message
+                        ).show()
                     }
-                    showDialog(
-                        "Account not Deleted",
-                        errorMessage,
-                        positiveButtonText = null, // pas de bouton positif
-                        onPositiveClick = null,
-                        negativeButtonText = "OK",
-                        onNegativeClick = { /* rien */ },
-                        cancelable = true
-                    )
+                } else {
+                    Log.e("DeleteAccount", "Réponse non successful: ${response.errorBody()?.string()}") // Log de débogage
+                    handleErrorResponse(response)
                 }
             }
 
-            override fun onFailure(call: Call<DeleteAccountResponse>, t: Throwable) {
-                showDialog(
-                    "Connection failure",
-                    t.localizedMessage ?: "Unknown error",
-                    positiveButtonText = null, // pas de bouton positif
-                    onPositiveClick = null,
-                    negativeButtonText = "OK",
-                    onNegativeClick = { /* rien */ },
-                    cancelable = true
-                )
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                handleNetworkFailure(t)
             }
         })
+    }
+
+    private fun handleErrorResponse(response: Response<BaseResponse>) {
+        emailLayout.error = " "
+        confirmPasswordLayout.error = " "
+        passwordLayout.error = " "
+
+        val errorMessage = try {
+            response.errorBody()?.string()?.let {
+                JSONObject(it).getString("message")
+            } ?: "Unknown error"
+        } catch (e: Exception) {
+            "Network Error : ${response.code()}"
+        }
+
+        showDialog(
+            "Account not Deleted",
+            errorMessage,
+            positiveButtonText = null,
+            onPositiveClick = null,
+            negativeButtonText = "OK",
+            onNegativeClick = { /* rien */ },
+            cancelable = true
+        )
+    }
+
+    private fun handleNetworkFailure(t: Throwable) {
+        showDialog(
+            "Connection failure",
+            t.localizedMessage ?: "Unknown error",
+            positiveButtonText = null,
+            onPositiveClick = null,
+            negativeButtonText = "OK",
+            onNegativeClick = { /* rien */ },
+            cancelable = true
+        )
     }
 }
