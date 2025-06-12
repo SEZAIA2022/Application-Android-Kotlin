@@ -91,6 +91,8 @@
     <string name="error_invalid_otp">error invalid otp</string>
     <string name="current_email">Current email</string>
     <string name="flashlight">"Flash button "</string>
+    <string name="location">Location</string>
+    <string name="add_qrcode">Active Qr code</string>
 
 
 </resources>

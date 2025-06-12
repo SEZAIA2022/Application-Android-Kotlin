@@ -35,6 +35,8 @@ import retrofit2.Response
 import java.util.concurrent.Executors
 import androidx.core.content.edit
 import androidx.core.graphics.ColorUtils.calculateLuminance
+import com.houssein.sezaia.model.request.AddQrRequest
+import com.houssein.sezaia.model.response.BaseResponse
 
 class CameraActivity : BaseActivity() {
 
@@ -178,15 +180,11 @@ class CameraActivity : BaseActivity() {
 
     @OptIn(ExperimentalGetImage::class)
     private fun processImageProxy(scanner: com.google.mlkit.vision.barcode.BarcodeScanner, imageProxy: ImageProxy) {
-
-
         val mediaImage = imageProxy.image ?: run {
             imageProxy.close()
             return
         }
-
         val luminance = calculateLuminance(mediaImage)
-
         if (isAutoFlashEnabled) {
             val lowLight = luminance < 50  // seuil ajustable
             if (::camera.isInitialized && camera.cameraInfo.hasFlashUnit()) {
@@ -254,12 +252,37 @@ class CameraActivity : BaseActivity() {
             .enqueue(object : Callback<QrCodeResponse> {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                     if (response.isSuccessful && response.body()?.status == "success") {
-                        val intent = Intent(this@CameraActivity, WelcomeChatbotActivity::class.java)
-                        getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                            .edit {
-                                putString("qrData", qrCode)
+                        val body = response.body()
+                        if (body != null) {
+                            when {
+                                body.is_active == true -> {
+                                    println("QR code is active")
+                                    Toast.makeText(this@CameraActivity, "QR code is active", Toast.LENGTH_SHORT).show()
+                                    val intent = Intent(this@CameraActivity, WelcomeChatbotActivity::class.java)
+                                    getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                                        .edit {
+                                            putString("qrData", qrCode)
+                                        }
+                                    startActivity(intent)
+                                }
+                                body.is_active == false -> {
+                                    println("QR code is not active")
+                                    Toast.makeText(
+                                        this@CameraActivity,
+                                        "QR code is not active",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    val intent = Intent(this@CameraActivity, ActivateQrCodeActivity::class.java)
+                                    getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                                        .edit {
+                                            putString("qrData", qrCode)
+                                        }
+                                    startActivity(intent)
+                                }
+                                else -> println("QR code does not exist or unknown state")
                             }
-                        startActivity(intent)
+                        }
+
                     } else {
                         val message = response.body()?.message ?: "QR Code don't valid."
                         Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()

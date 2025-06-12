@@ -113,10 +113,10 @@ class ChangeEmailActivity : BaseActivity() {
                         startActivity(intent)
                         finish()
                     } else {
-                        Toast.makeText(this@ChangeEmailActivity, body?.message ?: "Erreur inconnue", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ChangeEmailActivity, body?.message ?: "Unknown Error", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                    val errorMsg = response.errorBody()?.string() ?: "Unknown Error"
                     Toast.makeText(this@ChangeEmailActivity, errorMsg, Toast.LENGTH_SHORT).show()
                 }
             }

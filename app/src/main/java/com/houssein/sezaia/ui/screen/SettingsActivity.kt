@@ -20,6 +20,7 @@ class SettingsActivity : BaseActivity() {
     private lateinit var cardLanguage: MaterialCardView
     private lateinit var cardProfile: MaterialCardView
     private lateinit var cardLogout: MaterialCardView
+    private lateinit var cardHistory: MaterialCardView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +52,7 @@ class SettingsActivity : BaseActivity() {
         cardLanguage = findViewById(R.id.cardLanguage)
         cardProfile = findViewById(R.id.cardProfile)
         cardLogout = findViewById(R.id.cardLogout)
+        cardHistory = findViewById(R.id.cardHistory)
 
         val cardClickListener = View.OnClickListener { view ->
             when (view.id) {
@@ -60,6 +62,7 @@ class SettingsActivity : BaseActivity() {
                 R.id.cardLanguage -> openLanguageSelection()
                 R.id.cardProfile -> openProfilePage()
                 R.id.cardLogout -> logoutAction()
+                R.id.cardHistory -> historyPage()
 
             }
         }
@@ -71,6 +74,11 @@ class SettingsActivity : BaseActivity() {
         cardLanguage.setOnClickListener(cardClickListener)
         cardProfile.setOnClickListener(cardClickListener)
         cardLogout.setOnClickListener(cardClickListener)
+        cardHistory.setOnClickListener(cardClickListener)
+    }
+
+    private fun historyPage() {
+        startActivity(Intent(this, HistoryActivity::class.java))
     }
 
     private fun logoutAction() {
@@ -98,9 +106,11 @@ class SettingsActivity : BaseActivity() {
 
         val profileCard = findViewById<CardView>(R.id.cardProfile)
         val logoutCard = findViewById<CardView>(R.id.cardLogout)
+        val historyCard = findViewById<CardView>(R.id.cardHistory)
 
         profileCard.visibility = if (showCards) View.VISIBLE else View.GONE
         logoutCard.visibility = if (showCards) View.VISIBLE else View.GONE
+        historyCard.visibility = if (showCards) View.VISIBLE else View.GONE
     }
 
     // Méthodes pour ouvrir les pages respectives (à implémenter)

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.screen.ActivateQrCodeActivity">
+
+    <!-- Toolbar -->
+    <include
+        android:id="@+id/custom_toolbar"
+        layout="@layout/toolbar_layout"
+        android:layout_width="0dp"
+        android:layout_height="65dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/userLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/user"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_group_24"
+            android:hint="@string/username"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="113dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/locationLayout"
+        style="@style/CustomTextInputLayout"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/userLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/location"
+            style="@style/CustomTextInputEditText"
+            android:drawableEnd="@drawable/baseline_room_24"
+            android:hint="@string/location"
+            tools:layout_editor_absoluteX="30dp"
+            tools:layout_editor_absoluteY="169dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAddQrcode"
+        style="@style/MyCustomButtonBlue"
+        android:layout_marginBottom="284dp"
+        android:text="@string/add_qrcode"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationLayout"
+        app:layout_constraintVertical_bias="0.15" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

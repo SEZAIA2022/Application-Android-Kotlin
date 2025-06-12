@@ -1,5 +1,6 @@
 package com.houssein.sezaia.network
 
+import com.houssein.sezaia.model.request.AddQrRequest
 import com.houssein.sezaia.model.request.AskRepairRequest
 import com.houssein.sezaia.model.request.ChangeEmailRequest
 import com.houssein.sezaia.model.request.ChangeNumberRequest
@@ -93,5 +94,8 @@ interface ApiService {
 
     @POST("/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
+
+    @POST("add_qr")
+    fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 }
 

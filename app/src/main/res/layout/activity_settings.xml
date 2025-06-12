@@ -28,7 +28,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <!-- Exemple d'une carte -->
+        <!-- Profile -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardProfile"
             android:visibility="gone"
@@ -61,7 +61,40 @@
         </com.google.android.material.card.MaterialCardView>
 
 
-        <!-- Exemple d'une carte -->
+        <!-- History -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardHistory"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_history_24" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="History"
+                    android:textAppearance="?attr/textAppearanceBody1" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- AboutUs -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardAboutUs"
             android:layout_width="match_parent"
