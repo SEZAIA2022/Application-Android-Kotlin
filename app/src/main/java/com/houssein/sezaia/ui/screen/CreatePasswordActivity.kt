@@ -114,11 +114,17 @@ class CreatePasswordActivity : BaseActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val message = response.body()?.message ?: getString(R.string.password_changed)
                     Toast.makeText(this@CreatePasswordActivity, message, Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@CreatePasswordActivity, SuccessActivity::class.java).apply {
-                        putExtra("title", getString(R.string.password_changed))
-                        putExtra("content", getString(R.string.password_changed_successfully))
-                        putExtra("button", getString(R.string.return_to_login))
+                    val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+                    prefs.edit().apply {
+                        putString("title", getString(R.string.password_changed))
+                        putString("content", getString(R.string.password_changed_successfully))
+                        putString("button", getString(R.string.return_to_login))
+                        apply()
                     }
+
+                    val intent = Intent(this@CreatePasswordActivity, SuccessActivity::class.java)
+                    startActivity(intent)
+
                     startActivity(intent)
                 } else {
                     val errorMessage = try {

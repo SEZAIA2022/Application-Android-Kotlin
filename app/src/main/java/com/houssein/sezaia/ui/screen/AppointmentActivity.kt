@@ -83,18 +83,14 @@ class AppointmentActivity : AppCompatActivity() {
             if (selectedDayLabel != null && selectedTimeSlot != null && commentText.isNotBlank()) {
                 val username = loggedUser ?: return@setOnClickListener
                 val qrCode = qrData ?: return@setOnClickListener
-
-
                 val inputFormat = SimpleDateFormat("EEEE dd MMMM", Locale.ENGLISH)
                 val parsedDate = inputFormat.parse(selectedDayLabel!!)
-
                 val dayNameFormat = SimpleDateFormat("EEEE, dd MMMM", Locale.ENGLISH)
                 val dayWithName = dayNameFormat.format(parsedDate)
                 val formattedDate = "$dayWithName $selectedTimeSlot"  // ex: "Tuesday, 03 June 16:00"
                 val toEmail =  loggedEmail
                 println(toEmail.toString())
                 val message = "Appointment confirmed for $formattedDate\nComment: $commentText"
-
 
                 responseList.forEach { qa ->
                     sendResponseWithRetrofit(
@@ -114,11 +110,15 @@ class AppointmentActivity : AppCompatActivity() {
 
                 sendEmail(toEmail.toString(), message)
 
-                val intent = Intent(this@AppointmentActivity, SuccessActivity::class.java).apply {
-                    putExtra("title", getString(R.string.request_sent))
-                    putExtra("content", getString(R.string.request_message_sent))
-                    putExtra("button", getString(R.string.return_to_camera))
+                val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+                prefs.edit().apply {
+                    putString("title", getString(R.string.request_sent))
+                    putString("content", getString(R.string.request_message_sent))
+                    putString("button", getString(R.string.show_history))
+                    apply()
                 }
+
+                val intent = Intent(this@AppointmentActivity, SuccessActivity::class.java)
                 startActivity(intent)
 
             } else {
