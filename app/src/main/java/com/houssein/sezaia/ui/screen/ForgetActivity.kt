@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -27,6 +28,7 @@ class ForgetActivity : BaseActivity() {
     private lateinit var sendOtpBtn: Button
     private lateinit var usernameLayout: TextInputLayout
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
+    private lateinit var textView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +52,40 @@ class ForgetActivity : BaseActivity() {
     }
 
     private fun initViews() {
-        emailInput = findViewById(R.id.username)
+        emailInput = findViewById(R.id.username) // C'est un TextInputEditText
         sendOtpBtn = findViewById(R.id.btnForget)
-        usernameLayout = findViewById(R.id.usernameLayout)
+        usernameLayout = findViewById(R.id.usernameLayout) // C'est un TextInputLayout
+        textView = findViewById(R.id.textView2)
         inputFields = listOf(emailInput to usernameLayout)
+
+        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
+        val methode = sharedPref.getString("methode", null)
+
+        if (methode == "Phone") {
+            usernameLayout.hint = getString(R.string.phone_number)
+            val drawableEnd = ContextCompat.getDrawable(this, R.drawable.baseline_local_phone_24)
+
+            emailInput.setCompoundDrawablesWithIntrinsicBounds(
+                null,      // drawableStart
+                null,      // drawableTop
+                drawableEnd, // drawableEnd (à droite)
+                null       // drawableBottom
+            )
+
+            textView.text = getString(R.string.forget_phone_message)
+
+        } else if (methode == "Email") {
+            usernameLayout.hint = getString(R.string.username_or_email)
+
+            val drawableEnd = ContextCompat.getDrawable(this, R.drawable.baseline_group_24)
+            emailInput.setCompoundDrawablesWithIntrinsicBounds(
+                null, null, drawableEnd, null
+            )
+
+            textView.text = getString(R.string.forget_message)
+        }
     }
+
 
     private fun setupListeners() {
         sendOtpBtn.setOnClickListener {

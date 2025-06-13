@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
@@ -65,7 +66,29 @@ class LoginActivity : BaseActivity() {
         findViewById<TextView>(R.id.forgotPassword).apply {
             paint.isUnderlineText = true
             setOnClickListener {
-                startActivity(Intent(context, ForgetActivity::class.java))
+                showDialog(
+                    title = "Forget password",
+                    message = "Select the method to reset your password.",
+                    positiveButtonText = "Phone",
+                    onPositiveClick = {
+                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
+                        sharedPref.edit().apply {
+                            putString("methode", "Phone")
+                            apply()
+                        }
+                        startActivity(Intent(context, ForgetActivity::class.java))
+                    },
+                    negativeButtonText = "Email",
+                    onNegativeClick = {
+                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
+                        sharedPref.edit().apply {
+                            putString("methode", "Email")
+                            apply()
+                        }
+                        startActivity(Intent(context, ForgetActivity::class.java))
+                    }
+                )
+
             }
         }
 
@@ -124,16 +147,16 @@ class LoginActivity : BaseActivity() {
                             }
                         }
                         getSharedPreferences("LoginData", MODE_PRIVATE)
-                            .edit()
-                            .putString("loggedUsername", user)
-                            .putString("LoggedEmail", email)
-                            .putBoolean("isLoggedIn", true)
-                            .putString("userRole", role)
-                            .apply()
+                            .edit {
+                                putString("loggedUsername", user)
+                                    .putString("LoggedEmail", email)
+                                    .putBoolean("isLoggedIn", true)
+                                    .putString("userRole", role)
+                            }
                         getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                            .edit()
-                            .putBoolean("showCardsInSettings", true)
-                            .apply()
+                            .edit {
+                                putBoolean("showCardsInSettings", true)
+                            }
 
                         startActivity(Intent(this@LoginActivity, targetActivity))
                     } ?: showDialog("Error", "Empty response from the server.", positiveButtonText = null, // pas de bouton positif

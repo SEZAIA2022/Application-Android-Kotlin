@@ -20,6 +20,8 @@
     <string name="Continue">Continue</string>
     <string name="remember_pass">Did you remember your password? Login</string>
     <string name="forget_message">Don\'t worry! It occurs. Please enter the email address linked with your account.</string>
+    <string name="forget_phone_message">Don\'t worry! It occurs. Please enter the phone number linked with your account.</string>
+
     <string name="hello_register">Hello! Register to get started</string>
     <string name="username">Username</string>
     <string name="email">Email</string>

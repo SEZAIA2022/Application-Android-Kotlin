@@ -112,7 +112,7 @@ class HistoryActivity : BaseActivity() {
                 title = "Repair details",
                 message = message,
                 positiveButtonText = "OK",
-                onPositiveClick = {},
+                onPositiveClick = {}
             )
         }
 
