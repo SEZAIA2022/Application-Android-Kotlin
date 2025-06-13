@@ -12,7 +12,7 @@ import com.houssein.sezaia.model.data.DayItem
 
 class DaysAdapter(
     private val days: List<DayItem>,
-    private val onTimeSlotSelected: (String, String) -> Unit
+    private val onTimeSlotSelected: (DayItem, String) -> Unit
 ) : RecyclerView.Adapter<DaysAdapter.DayViewHolder>() {
 
     private var selectedDayPosition: Int = RecyclerView.NO_POSITION
@@ -35,15 +35,14 @@ class DaysAdapter(
 
         holder.timeSlotRecyclerView.layoutManager = GridLayoutManager(holder.itemView.context, 3)
 
-        // Afficher les créneaux seulement si ce jour est sélectionné
         if (position == selectedDayPosition) {
             holder.timeSlotRecyclerView.adapter = TimeSlotAdapter(
                 day.label,
                 day.timeSlots,
                 selectedTimeSlot
-            ) { selectedDay, selectedTime ->
+            ) { _, selectedTime ->    // Le jour est déjà dans `day`
                 selectedTimeSlot = selectedTime
-                onTimeSlotSelected(selectedDay, selectedTime)
+                onTimeSlotSelected(day, selectedTime)
                 notifyDataSetChanged()
             }
             holder.timeSlotRecyclerView.visibility = View.VISIBLE

@@ -111,12 +111,14 @@ class HistoryActivity : BaseActivity() {
             showDialog(
                 title = "Repair details",
                 message = message,
-                positiveButtonText = "OK"
+                positiveButtonText = "OK",
+                onPositiveClick = {},
             )
         }
 
         recyclerView.adapter = adapter
     }
+
 
 
     // Fonction pour parser date + heure en Date Java
