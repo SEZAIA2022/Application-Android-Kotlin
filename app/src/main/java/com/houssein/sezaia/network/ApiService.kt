@@ -29,6 +29,7 @@ import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.QrCodeResponse
+import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.VerifyDeleteAccountResponse
@@ -97,5 +98,8 @@ interface ApiService {
 
     @POST("add_qr")
     fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
+
+    @GET("ask_repair")
+    suspend fun getRepairs(): List<Repair>
 }
 

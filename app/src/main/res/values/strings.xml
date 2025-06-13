@@ -93,6 +93,9 @@
     <string name="flashlight">"Flash button "</string>
     <string name="location">Location</string>
     <string name="add_qrcode">Active Qr code</string>
+    <string name="history">History</string>
+    <string name="details">Details</string>
+
 
 
 </resources>
