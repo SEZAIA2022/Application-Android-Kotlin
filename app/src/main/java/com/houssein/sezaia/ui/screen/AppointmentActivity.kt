@@ -19,6 +19,7 @@ import com.houssein.sezaia.model.request.SendEmailRequest
 import com.houssein.sezaia.model.response.AskRepairResponse
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
+import com.houssein.sezaia.model.response.TakenSlotsResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.utils.UIUtils
 import retrofit2.Call
@@ -43,13 +44,17 @@ class AppointmentActivity : AppCompatActivity() {
 
     private lateinit var responseList: List<QuestionAnswer>
 
+    // Map des créneaux déjà pris : clé = date (yyyy-MM-dd), valeur = liste des heures ("HH:mm")
+    private var takenSlotsMap: Map<String, List<String>> = emptyMap()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_appointment)
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         UIUtils.initToolbar(
-            this,getString(R.string.appointment),actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
+            this, getString(R.string.appointment), actionIconRes = R.drawable.baseline_density_medium_24,
+            onBackClick = { finish() },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
@@ -72,7 +77,10 @@ class AppointmentActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        setupDaysRecyclerView()
+        // Charger les créneaux pris avant de configurer la RecyclerView
+        fetchTakenSlots {
+            setupDaysRecyclerView()
+        }
 
         val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
         val loggedUser = sharedPref.getString("loggedUsername", null)
@@ -131,6 +139,24 @@ class AppointmentActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please select a date, a time slot and fill in the comments.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun fetchTakenSlots(onComplete: () -> Unit) {
+        RetrofitClient.instance.getTakenSlots().enqueue(object : Callback<TakenSlotsResponse> {
+            override fun onResponse(call: Call<TakenSlotsResponse>, response: Response<TakenSlotsResponse>) {
+                if (response.isSuccessful && response.body()?.status == "success") {
+                    takenSlotsMap = response.body()?.taken_slots ?: emptyMap()
+                } else {
+                    Toast.makeText(this@AppointmentActivity, "Erreur lors du chargement des créneaux pris.", Toast.LENGTH_SHORT).show()
+                }
+                onComplete()
+            }
+
+            override fun onFailure(call: Call<TakenSlotsResponse>, t: Throwable) {
+                Toast.makeText(this@AppointmentActivity, "Échec de la connexion : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                onComplete()
+            }
+        })
     }
 
     private fun setupDaysRecyclerView() {
@@ -224,8 +250,15 @@ class AppointmentActivity : AppCompatActivity() {
         val slots = mutableListOf<String>()
         calendar.set(Calendar.HOUR_OF_DAY, 8)
         calendar.set(Calendar.MINUTE, 0)
+
+        val dateKey = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+        val takenSlotsForDate = takenSlotsMap[dateKey] ?: emptyList()
+
         while (calendar.get(Calendar.HOUR_OF_DAY) <= 18) {
-            slots.add(timeFormat.format(calendar.time))
+            val slot = timeFormat.format(calendar.time)
+            if (!takenSlotsForDate.contains(slot)) {
+                slots.add(slot)
+            }
             calendar.add(Calendar.HOUR_OF_DAY, 2)
         }
         return slots
@@ -233,61 +266,55 @@ class AppointmentActivity : AppCompatActivity() {
 
     private fun sendResponseWithRetrofit(
         questionId: String,
-        responseText: String,
+        answer: String,
         username: String,
         qrCode: String
     ) {
-        val request = SaveResponseRequest(
-            question_id = questionId,
-            response = responseText,
-            username = username,
-            qr_code = qrCode
-        )
-
+        val request = SaveResponseRequest(questionId, answer, username, qrCode)
         RetrofitClient.instance.saveResponse(request).enqueue(object : Callback<SaveResponseResponse> {
             override fun onResponse(call: Call<SaveResponseResponse>, response: Response<SaveResponseResponse>) {
                 if (!response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "${getString(R.string.error)} : ${response.message()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentActivity, "Erreur lors de l'enregistrement de la réponse.", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<SaveResponseResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "${getString(R.string.failed)} : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AppointmentActivity, "Échec de connexion pour enregistrer la réponse.", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
     private fun sendAskRepair(
         username: String,
-        date: String,
+        dateTime: String,
         comment: String,
         qrCode: String
     ) {
-        val request = AskRepairRequest(username, date, comment, qrCode)
+        val request = AskRepairRequest(username, dateTime, comment, qrCode)
         RetrofitClient.instance.sendAsk(request).enqueue(object : Callback<AskRepairResponse> {
             override fun onResponse(call: Call<AskRepairResponse>, response: Response<AskRepairResponse>) {
                 if (!response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, getString(R.string.error), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentActivity, "Erreur lors de la demande de réparation.", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<AskRepairResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, getString(R.string.failed), Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AppointmentActivity, "Échec de connexion pour la demande de réparation.", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun sendEmail(to: String, message: String) {
-        val request = SendEmailRequest(to, message)
+    private fun sendEmail(toEmail: String, message: String) {
+        val request = SendEmailRequest(toEmail, message)
         RetrofitClient.instance.sendEmail(request).enqueue(object : Callback<SendEmailResponse> {
             override fun onResponse(call: Call<SendEmailResponse>, response: Response<SendEmailResponse>) {
                 if (!response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, getString(R.string.error), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentActivity, "Erreur lors de l'envoi de l'email.", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<SendEmailResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, getString(R.string.failed), Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AppointmentActivity, "Échec de connexion pour l'envoi d'email.", Toast.LENGTH_SHORT).show()
             }
         })
     }

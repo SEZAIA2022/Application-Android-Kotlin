@@ -32,6 +32,7 @@ import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.model.response.SaveResponseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
+import com.houssein.sezaia.model.response.TakenSlotsResponse
 import com.houssein.sezaia.model.response.VerifyDeleteAccountResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -101,5 +102,8 @@ interface ApiService {
 
     @GET("ask_repair")
     suspend fun getRepairs(): List<Repair>
+
+    @GET("/taken_slots")
+    fun getTakenSlots(): Call<TakenSlotsResponse>
 }
 
