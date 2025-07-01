@@ -1,109 +1,76 @@
 package com.houssein.sezaia.network
 
-import com.houssein.sezaia.model.request.AddQrRequest
-import com.houssein.sezaia.model.request.AskRepairRequest
-import com.houssein.sezaia.model.request.ChangeEmailRequest
-import com.houssein.sezaia.model.request.ChangeNumberRequest
-import com.houssein.sezaia.model.request.ChangePasswordRequest
-import com.houssein.sezaia.model.request.ChangeUsernameRequest
-import com.houssein.sezaia.model.request.CreateNewPasswordRequest
-import com.houssein.sezaia.model.request.DeleteAccountRequest
-import com.houssein.sezaia.model.request.ForgotPasswordRequest
-import com.houssein.sezaia.model.request.LoginRequest
-import com.houssein.sezaia.model.request.QrCodeRequest
-import com.houssein.sezaia.model.request.ResendOtpRequest
-import com.houssein.sezaia.model.request.SaveResponseRequest
-import com.houssein.sezaia.model.request.SendEmailRequest
-import com.houssein.sezaia.model.request.SignUpRequest
-import com.houssein.sezaia.model.request.VerifyChangeEmailRequest
-import com.houssein.sezaia.model.request.VerifyDeleteAccountRequest
-import com.houssein.sezaia.model.request.VerifyForgetRequest
-import com.houssein.sezaia.model.request.VerifyRegisterRequest
-import com.houssein.sezaia.model.response.ApiResponse
-import com.houssein.sezaia.model.response.AskRepairResponse
-import com.houssein.sezaia.model.response.BaseResponse
-import com.houssein.sezaia.model.response.ChangeNumberResponse
-import com.houssein.sezaia.model.response.ChangePasswordResponse
-import com.houssein.sezaia.model.response.ChangeUsernameResponse
-import com.houssein.sezaia.model.response.CreateNewPasswordResponse
-import com.houssein.sezaia.model.response.LoginResponse
-import com.houssein.sezaia.model.response.Message
-import com.houssein.sezaia.model.response.QrCodeResponse
-import com.houssein.sezaia.model.response.Repair
-import com.houssein.sezaia.model.response.SaveResponseResponse
-import com.houssein.sezaia.model.response.SendEmailResponse
-import com.houssein.sezaia.model.response.TakenSlotsResponse
-import com.houssein.sezaia.model.response.VerifyDeleteAccountResponse
+import com.houssein.sezaia.model.request.*
+import com.houssein.sezaia.model.response.*
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface ApiService {
-    @POST("login")
+    @POST("api/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
-    @GET("questions")
+    @GET("api/questions")
     fun getQuestions(): Call<List<Message>>
 
-    @POST("/register")
+    @POST("api/register")
     fun registerUser(@Body registerRequest: SignUpRequest): Call<ApiResponse>
 
-    @POST("/verify_register")
+    @POST("api/verify_register")
     fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
 
-    @POST("change-password")
+    @POST("api/change-password")
     fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<CreateNewPasswordResponse>
 
-    @POST("/exist_qr")
+    @POST("api/exist_qr")
     fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
 
-    @POST("/save_response")
+    @POST("api/save_response")
     fun saveResponse(@Body request: SaveResponseRequest): Call<SaveResponseResponse>
 
-    @POST("/send_ask")
+    @POST("api/send_ask")
     fun sendAsk(@Body askRepairRequest: AskRepairRequest): Call<AskRepairResponse>
 
-    @POST("send_email")
+    @POST("api/send_email")
     fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>
 
-    @POST("/change_username")
+    @POST("api/change_username")
     fun changeUsername(@Body request: ChangeUsernameRequest): Call<ChangeUsernameResponse>
 
-    @POST("/change_number")
+    @POST("api/change_number")
     fun changeNumber(@Body request: ChangeNumberRequest): Call<ChangeNumberResponse>
 
-    @POST("/change_password")
+    @POST("api/change_password")
     fun changePassword(@Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
-    @POST("/delete_account")
+    @POST("api/delete_account")
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
-    @POST("/forgot_password")
+    @POST("api/forgot_password")
     fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
 
-    @POST("/resend_otp")
+    @POST("api/resend_otp")
     fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>
 
-    @POST("/verify_forget")
+    @POST("api/verify_forget")
     fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
 
-    @POST("/change_email")
+    @POST("api/change_email")
     fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
 
-    @POST("/verify_change_email")
+    @POST("api/verify_change_email")
     fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<BaseResponse>
 
-    @POST("/verify_delete_account")
+    @POST("api/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
 
-    @POST("add_qr")
+    @POST("api/add_qr")
     fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 
-    @GET("ask_repair")
+    @GET("api/ask_repair")
     suspend fun getRepairs(): List<Repair>
 
-    @GET("/taken_slots")
+    @GET("api/taken_slots")
     fun getTakenSlots(): Call<TakenSlotsResponse>
 }
-
