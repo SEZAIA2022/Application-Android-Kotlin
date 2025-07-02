@@ -112,13 +112,18 @@ class HistoryActivity : BaseActivity() {
                 title = "Repair details",
                 message = message,
                 positiveButtonText = "OK",
-                onPositiveClick = {}
+                negativeButtonText = "Cancel appointment",
+                onPositiveClick = {},
+                onNegativeClick = {cancelAppointement()}
             )
         }
 
         recyclerView.adapter = adapter
     }
 
+    private fun cancelAppointement() {
+        TODO("Not yet implemented")
+    }
 
 
     // Fonction pour parser date + heure en Date Java
