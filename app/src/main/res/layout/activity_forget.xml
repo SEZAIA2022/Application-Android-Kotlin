@@ -69,8 +69,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/username"
             style="@style/CustomTextInputEditText"
-            android:drawableEnd="@drawable/baseline_group_24"
-            android:hint="@string/username_or_email" />
+            android:drawableEnd="@drawable/baseline_mail_24"
+            android:hint="@string/email" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
