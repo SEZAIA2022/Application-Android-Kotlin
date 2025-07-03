@@ -185,6 +185,20 @@ class AppointmentActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val formatter = java.text.SimpleDateFormat("EEEE dd MMMM", Locale.ENGLISH)
 
+        // Fonction interne pour générer tous les créneaux possibles d'un jour
+        fun allPossibleSlots(date: Date): List<String> {
+            val calendar = Calendar.getInstance().apply { time = date }
+            val timeFormat = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
+            val slots = mutableListOf<String>()
+            calendar.set(Calendar.HOUR_OF_DAY, 8)
+            calendar.set(Calendar.MINUTE, 0)
+            while (calendar.get(Calendar.HOUR_OF_DAY) <= 18) {
+                slots.add(timeFormat.format(calendar.time))
+                calendar.add(Calendar.HOUR_OF_DAY, 2)
+            }
+            return slots
+        }
+
         while (list.size < count) {
             val date = calendar.time
             val localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
@@ -194,15 +208,47 @@ class AppointmentActivity : AppCompatActivity() {
             val isHoliday = isPublicHoliday(localDate)
 
             if (!isWeekend && !isHoliday) {
-                val label = formatter.format(date)
-                list.add(DayItem(label, generateTimeSlots(date), localDate))
+                val dateKey = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                val takenSlotsForDate = takenSlotsMap[dateKey] ?: emptyList()
+
+                val allSlots = allPossibleSlots(date)
+
+                // Vérifier si tous les créneaux sont pris
+                if (takenSlotsForDate.size < allSlots.size) {
+                    val label = formatter.format(date)
+                    list.add(DayItem(label, generateTimeSlots(date), localDate))
+                }
+                // Sinon on ne l'ajoute pas
             }
 
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
+        // Ajouter un jour supplémentaire à la fin (même logique que pour les autres jours)
+        while (true) {
+            val date = calendar.time
+            val localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val dayOfWeek = localDate.dayOfWeek
+            val isWeekend = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
+            val isHoliday = isPublicHoliday(localDate)
+
+            if (!isWeekend && !isHoliday) {
+                val dateKey = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+                val takenSlotsForDate = takenSlotsMap[dateKey] ?: emptyList()
+                val allSlots = allPossibleSlots(date)
+
+                if (takenSlotsForDate.size < allSlots.size) {
+                    val label = formatter.format(date)
+                    list.add(DayItem(label, generateTimeSlots(date), localDate))
+                    break
+                }
+            }
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
         return list
     }
+
 
     private fun isPublicHoliday(date: LocalDate): Boolean {
         val fixedHolidays = setOf(
