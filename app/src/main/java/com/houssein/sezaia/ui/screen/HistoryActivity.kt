@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.request.CancelAppointmentRequest
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -118,16 +119,31 @@ class HistoryActivity : BaseActivity() {
                 positiveButtonText = "OK",
                 negativeButtonText = "Cancel appointment",
                 onPositiveClick = {},
-                onNegativeClick = { cancelAppointement() }
+                onNegativeClick = { cancelAppointement(repair.id) }
             )
         }
 
         recyclerView.adapter = adapter
     }
 
-    private fun cancelAppointement() {
-        TODO("Not yet implemented")
+    private fun cancelAppointement(repairId: Int) {
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.instance.cancelAppointment(CancelAppointmentRequest(repairId))
+                Toast.makeText(this@HistoryActivity, response.message, Toast.LENGTH_LONG).show()
+                if (response.status == "success") {
+                    // Recharge la liste après annulation
+                    val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
+                    val loggedUsername = sharedPref.getString("loggedUsername", "") ?: ""
+                    allRepairs = RetrofitClient.instance.getRepairs(loggedUsername)
+                    updateFilteredList()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@HistoryActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
+
 
     // Fonction pour parser date + heure en Date Java
     private fun parseDate(dateStr: String): Date? {

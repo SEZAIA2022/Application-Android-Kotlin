@@ -72,7 +72,12 @@ interface ApiService {
     @GET("api/ask_repair")
     suspend fun getRepairs(@Query("username") username: String): List<Repair>
 
-
     @GET("api/taken_slots")
     fun getTakenSlots(): Call<TakenSlotsResponse>
+
+
+
+    @POST("api/cancel_appointment")
+    suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse
+
 }
