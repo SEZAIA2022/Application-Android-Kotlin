@@ -1,5 +1,6 @@
 package com.houssein.sezaia.model.request
 
 data class QrCodeRequest(
-    val qr_code: String
+    val qr_code: String,
+    val username: String
 )

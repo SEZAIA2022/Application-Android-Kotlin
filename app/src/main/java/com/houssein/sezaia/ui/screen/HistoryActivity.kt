@@ -51,9 +51,13 @@ class HistoryActivity : BaseActivity() {
 
         setupSpinners()
 
+        // Récupération du username depuis SharedPreferences
+        val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val loggedUsername = sharedPref.getString("loggedUsername", "") ?: ""
+
         lifecycleScope.launch {
             try {
-                allRepairs = RetrofitClient.instance.getRepairs()
+                allRepairs = RetrofitClient.instance.getRepairs(loggedUsername)
                 updateFilteredList()
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -114,7 +118,7 @@ class HistoryActivity : BaseActivity() {
                 positiveButtonText = "OK",
                 negativeButtonText = "Cancel appointment",
                 onPositiveClick = {},
-                onNegativeClick = {cancelAppointement()}
+                onNegativeClick = { cancelAppointement() }
             )
         }
 
@@ -125,15 +129,13 @@ class HistoryActivity : BaseActivity() {
         TODO("Not yet implemented")
     }
 
-
     // Fonction pour parser date + heure en Date Java
     private fun parseDate(dateStr: String): Date? {
         return try {
-            val format = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.ENGLISH)
+            val format = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault())
             format.parse(dateStr)
         } catch (e: ParseException) {
             null
         }
     }
-
 }

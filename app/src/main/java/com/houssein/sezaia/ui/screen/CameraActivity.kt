@@ -198,13 +198,14 @@ class CameraActivity : BaseActivity() {
         }
 
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val username = prefs.getString("loggedUsername", null)
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
                 barcodes.forEach { barcode ->
                     barcode.rawValue?.let { value ->
                         barcode.boundingBox?.let { box ->
-                            processBoundingBox(box, imageProxy, value)
+                            processBoundingBox(box, imageProxy, value, username.toString())
                         }
                     }
                 }
@@ -219,7 +220,7 @@ class CameraActivity : BaseActivity() {
     }
 
     @OptIn(ExperimentalGetImage::class)
-    private fun processBoundingBox(box: Rect, imageProxy: ImageProxy, value: String) {
+    private fun processBoundingBox(box: Rect, imageProxy: ImageProxy, value: String, username: String) {
         val previewWidth = previewView.width.toFloat()
         val previewHeight = previewView.height.toFloat()
         val imageWidth = imageProxy.image?.width?.toFloat() ?: 0f
@@ -243,12 +244,12 @@ class CameraActivity : BaseActivity() {
 
         if (!isQrCodeProcessed) {
             isQrCodeProcessed = true
-            verifyQrCodeWithServer(value)
+            verifyQrCodeWithServer(value, username)
         }
     }
 
-    private fun verifyQrCodeWithServer(qrCode: String) {
-        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode))
+    private fun verifyQrCodeWithServer(qrCode: String, username: String) {
+        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode, username))
             .enqueue(object : Callback<QrCodeResponse> {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                     if (response.isSuccessful && response.body()?.status == "success") {
