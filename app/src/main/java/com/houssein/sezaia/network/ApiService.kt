@@ -75,7 +75,14 @@ interface ApiService {
     @GET("api/taken_slots")
     fun getTakenSlots(): Call<TakenSlotsResponse>
 
+    @GET("api/about_us")
+    fun getAboutUs(): Call<AboutUsResponse>
 
+    @GET("api/term_of_use")
+    fun getTermsOfUse(): Call<TermsOfUseResponse>
+
+    @GET("api/privacy_policy")
+    fun getPrivacyPolicy(): Call<PrivacyPolicyResponse>
 
     @POST("api/cancel_appointment")
     suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse

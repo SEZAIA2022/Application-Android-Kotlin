@@ -98,6 +98,7 @@
     <string name="history">History</string>
     <string name="details">Details</string>
     <string name="close_application">Close application</string>
+    <string name="data_not_found">data not found</string>
 
 
 </resources>
