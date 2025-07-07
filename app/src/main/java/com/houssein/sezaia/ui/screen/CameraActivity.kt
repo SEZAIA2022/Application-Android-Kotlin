@@ -9,6 +9,7 @@ import android.media.Image
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.util.Size
 import android.view.ScaleGestureDetector
 import android.widget.ImageButton
@@ -200,12 +201,13 @@ class CameraActivity : BaseActivity() {
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
         val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
         val username = prefs.getString("loggedUsername", null)
+        val role = prefs.getString("userRole", null)
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
                 barcodes.forEach { barcode ->
                     barcode.rawValue?.let { value ->
                         barcode.boundingBox?.let { box ->
-                            processBoundingBox(box, imageProxy, value, username.toString())
+                            processBoundingBox(box, imageProxy, value, username.toString(), role.toString())
                         }
                     }
                 }
@@ -220,7 +222,7 @@ class CameraActivity : BaseActivity() {
     }
 
     @OptIn(ExperimentalGetImage::class)
-    private fun processBoundingBox(box: Rect, imageProxy: ImageProxy, value: String, username: String) {
+    private fun processBoundingBox(box: Rect, imageProxy: ImageProxy, value: String, username: String, role: String) {
         val previewWidth = previewView.width.toFloat()
         val previewHeight = previewView.height.toFloat()
         val imageWidth = imageProxy.image?.width?.toFloat() ?: 0f
@@ -244,77 +246,74 @@ class CameraActivity : BaseActivity() {
 
         if (!isQrCodeProcessed) {
             isQrCodeProcessed = true
-            verifyQrCodeWithServer(value, username)
+            verifyQrCodeWithServer(value, username, role)
         }
     }
 
-    private fun verifyQrCodeWithServer(qrCode: String, username: String) {
-        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode, username))
+    private fun verifyQrCodeWithServer(qrCode: String, username: String, role: String) {
+        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode, username, role))
             .enqueue(object : Callback<QrCodeResponse> {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
-                    if (response.isSuccessful && response.body()?.status == "success") {
-                        val body = response.body()
-                        if (body != null) {
-                            when {
-                                body.is_active == true -> {
-                                    println("QR code is active")
-                                    Toast.makeText(this@CameraActivity, "QR code is active", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this@CameraActivity, WelcomeChatbotActivity::class.java)
-                                    getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                                        .edit {
-                                            putString("qrData", qrCode)
-                                        }
-                                    startActivity(intent)
-                                }
-                                body.is_active == false -> {
-                                    println("QR code is not active")
-                                    Toast.makeText(
-                                        this@CameraActivity,
-                                        "QR code is not active",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    val intent = Intent(this@CameraActivity, ActivateQrCodeActivity::class.java)
-                                    getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                                        .edit {
-                                            putString("qrData", qrCode)
-                                        }
-                                    startActivity(intent)
-                                }
-                                else -> println("QR code does not exist or unknown state")
+                    val body = response.body()
+
+                    if (response.isSuccessful && body?.status == "success") {
+                        when (body.is_active) {
+                            true -> handleActiveQrCode(qrCode, role)
+                            false -> handleInactiveQrCode(qrCode)
+                            else -> {
+                                Log.w("QRCode", "QR code unknown state or null")
+                                Toast.makeText(this@CameraActivity, "QR code unknown state", Toast.LENGTH_SHORT).show()
                             }
                         }
-
                     } else {
-                        val message = response.body()?.message ?: "QR Code don't valid."
-                        Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
-
-                        // Délai de 3 secondes avant de réactiver le scan
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            isQrCodeProcessed = false
-                            overlayView.clearBox()
-                        }, 3000)
+                        val errorMessage = body?.message ?: "QR code is not valid."
+                        Toast.makeText(this@CameraActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                        resetScannerWithDelay()
                     }
                 }
 
                 override fun onFailure(call: Call<QrCodeResponse>, t: Throwable) {
-                    Toast.makeText(this@CameraActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
-
-                    // Délai de 3 secondes avant de réactiver le scan
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        isQrCodeProcessed = false
-                        overlayView.clearBox()
-                    }, 3000)
+                    Toast.makeText(this@CameraActivity, "Network error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    resetScannerWithDelay()
                 }
             })
     }
 
-    override fun onStart() {
-        super.onStart()
-        getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .edit {
-                putBoolean("showCardsInSettings", true)
-            }
+    // Gère les QR codes actifs
+    private fun handleActiveQrCode(qrCode: String, role: String) {
+        Toast.makeText(this@CameraActivity, "QR code is active", Toast.LENGTH_SHORT).show()
+
+        if (role == "admin") {
+            Toast.makeText(this@CameraActivity, "Welcome admin", Toast.LENGTH_SHORT).show()
+        } else {
+            saveQrCode(qrCode)
+            startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))
+        }
     }
+
+    // Gère les QR codes inactifs
+    private fun handleInactiveQrCode(qrCode: String) {
+        Toast.makeText(this@CameraActivity, "QR code is not active", Toast.LENGTH_SHORT).show()
+        saveQrCode(qrCode)
+        startActivity(Intent(this@CameraActivity, ActivateQrCodeActivity::class.java))
+    }
+
+    // Sauvegarde des données dans SharedPreferences
+    private fun saveQrCode(qrCode: String) {
+        getSharedPreferences("MyPrefs", MODE_PRIVATE).edit().apply {
+            putString("qrData", qrCode)
+            apply()
+        }
+    }
+
+    // Réinitialisation du scanner après 3 secondes
+    private fun resetScannerWithDelay() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            isQrCodeProcessed = false
+            overlayView.clearBox()
+        }, 3000)
+    }
+
     override fun onResume() {
         super.onResume()
         isQrCodeProcessed = false

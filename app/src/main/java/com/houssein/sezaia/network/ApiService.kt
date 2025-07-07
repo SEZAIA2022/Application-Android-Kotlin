@@ -87,4 +87,8 @@ interface ApiService {
     @POST("api/cancel_appointment")
     suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse
 
+    @GET("api/help_tasks") // Assure-toi que ce chemin correspond bien à l'URL Flask
+    fun getHelpTasks(): Call<HelpTasksResponse>
+
+
 }

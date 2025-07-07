@@ -101,16 +101,22 @@ class SettingsActivity : BaseActivity() {
 
     // Méthode pour mettre à jour l'UI en fonction des préférences
     private fun updateUIBasedOnPreferences() {
-        val prefs = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-        val showCards = prefs.getBoolean("showCardsInSettings", false) // true par défaut
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val isLoggged = prefs.getBoolean("isLoggedIn", false)
+        val role = prefs.getString("userRole", null)
 
-        val profileCard = findViewById<CardView>(R.id.cardProfile)
-        val logoutCard = findViewById<CardView>(R.id.cardLogout)
-        val historyCard = findViewById<CardView>(R.id.cardHistory)
-
-        profileCard.visibility = if (showCards) View.VISIBLE else View.GONE
-        logoutCard.visibility = if (showCards) View.VISIBLE else View.GONE
-        historyCard.visibility = if (showCards) View.VISIBLE else View.GONE
+        val profileCard : CardView = findViewById(R.id.cardProfile)
+        val logoutCard : CardView = findViewById(R.id.cardLogout)
+        val historyCard : CardView = findViewById(R.id.cardHistory)
+        val repairCard : CardView = findViewById(R.id.cardRepair)
+        val helpCard : CardView = findViewById(R.id.cardHelp)
+        if (role == "admin"){
+            repairCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            helpCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+        }
+        profileCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+        logoutCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+        historyCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
     }
 
     // Méthodes pour ouvrir les pages respectives (à implémenter)

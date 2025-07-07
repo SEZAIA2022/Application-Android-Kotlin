@@ -107,10 +107,6 @@ class LoginActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .edit {
-                putBoolean("showCardsInSettings", false)
-            }
         resetInputStyles(R.color.gray, clear = true, inputFields)
     }
 
@@ -136,7 +132,7 @@ class LoginActivity : BaseActivity() {
                         val email = responseBody.email
                         val targetActivity = when (role) {
                             "user" -> CameraActivity::class.java
-                            "admin" -> WelcomeAdminActivity::class.java
+                            "admin" -> CameraActivity::class.java
                             else -> {
                                 showDialog("Error", "Role unknown : $role",positiveButtonText = null, // pas de bouton positif
                                     onPositiveClick = null,
@@ -152,10 +148,6 @@ class LoginActivity : BaseActivity() {
                                     .putString("LoggedEmail", email)
                                     .putBoolean("isLoggedIn", true)
                                     .putString("userRole", role)
-                            }
-                        getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                            .edit {
-                                putBoolean("showCardsInSettings", true)
                             }
 
                         startActivity(Intent(this@LoginActivity, targetActivity))

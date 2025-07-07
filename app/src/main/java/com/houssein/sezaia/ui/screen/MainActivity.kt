@@ -13,6 +13,7 @@ import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
 import androidx.core.content.edit
+import java.util.Locale
 
 class MainActivity : BaseActivity() {
 
@@ -32,11 +33,15 @@ class MainActivity : BaseActivity() {
         val userRole = prefs.getString("userRole", null)
 
         if (isLoggedIn && userRole != null) {
-            val targetActivity = when(userRole) {
-                "user" -> CameraActivity::class.java
-                "admin" -> WelcomeAdminActivity::class.java
-                else -> MainActivity::class.java
+            val targetActivity = when (userRole) {
+                "user", "admin" -> {
+                    CameraActivity::class.java
+                }
+                else -> {
+                    MainActivity::class.java
+                }
             }
+
             startActivity(Intent(this, targetActivity))
         }
 //        else {
@@ -88,11 +93,4 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        getSharedPreferences("MyPrefs", MODE_PRIVATE)
-            .edit {
-                putBoolean("showCardsInSettings", false)
-            }
-    }
 }
