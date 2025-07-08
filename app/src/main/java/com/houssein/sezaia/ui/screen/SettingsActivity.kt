@@ -19,6 +19,7 @@ class SettingsActivity : BaseActivity() {
     private lateinit var cardTermsOfUse: MaterialCardView
     private lateinit var cardLanguage: MaterialCardView
     private lateinit var cardProfile: MaterialCardView
+    private lateinit var cardHelp: MaterialCardView
     private lateinit var cardLogout: MaterialCardView
     private lateinit var cardHistory: MaterialCardView
 
@@ -53,6 +54,7 @@ class SettingsActivity : BaseActivity() {
         cardProfile = findViewById(R.id.cardProfile)
         cardLogout = findViewById(R.id.cardLogout)
         cardHistory = findViewById(R.id.cardHistory)
+        cardHelp = findViewById(R.id.cardHelp)
 
         val cardClickListener = View.OnClickListener { view ->
             when (view.id) {
@@ -63,6 +65,7 @@ class SettingsActivity : BaseActivity() {
                 R.id.cardProfile -> openProfilePage()
                 R.id.cardLogout -> logoutAction()
                 R.id.cardHistory -> historyPage()
+                R.id.cardHelp -> HelpPage()
 
             }
         }
@@ -75,6 +78,11 @@ class SettingsActivity : BaseActivity() {
         cardProfile.setOnClickListener(cardClickListener)
         cardLogout.setOnClickListener(cardClickListener)
         cardHistory.setOnClickListener(cardClickListener)
+        cardHelp.setOnClickListener(cardClickListener)
+    }
+
+    private fun HelpPage() {
+        startActivity((Intent(this, HelpActivity::class.java)))
     }
 
     private fun historyPage() {

@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://66e5-90-102-17-161.ngrok-free.app "
+    private const val BASE_URL = "http://192.168.100.179:5000"
 
     private val loggingInterceptor: HttpLoggingInterceptor by lazy {
         HttpLoggingInterceptor().apply {

@@ -35,7 +35,7 @@ class HistoryActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
-
+        UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         UIUtils.initToolbar(
             this,
             getString(R.string.history),
