@@ -100,6 +100,8 @@
     <string name="close_application">Close application</string>
     <string name="data_not_found">data not found</string>
     <string name="help_center">Help center</string>
+    <string name="qr_code_history">Qrcode history</string>
+    <string name="qr_code_details">Qrcode details</string>
 
 
 </resources>

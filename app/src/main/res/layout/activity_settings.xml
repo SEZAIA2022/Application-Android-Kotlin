@@ -253,7 +253,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!--repair request-->
+        <!--repair history-->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardRepair"
             android:visibility="gone"
@@ -280,7 +280,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Repair request"
+                    android:text="Repair history"
                     android:textAppearance="?attr/textAppearanceBody1" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

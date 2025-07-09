@@ -87,4 +87,6 @@ interface ApiService {
     @POST("api/cancel_appointment")
     suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse
 
+    @GET("api/get_qrcodes")
+    fun getQRCodes(): Call<QrCodeResponse>
 }

@@ -22,6 +22,7 @@ class SettingsActivity : BaseActivity() {
     private lateinit var cardHelp: MaterialCardView
     private lateinit var cardLogout: MaterialCardView
     private lateinit var cardHistory: MaterialCardView
+    private lateinit var cardRepair: MaterialCardView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,7 @@ class SettingsActivity : BaseActivity() {
         cardProfile = findViewById(R.id.cardProfile)
         cardLogout = findViewById(R.id.cardLogout)
         cardHistory = findViewById(R.id.cardHistory)
+        cardRepair = findViewById(R.id.cardRepair)
         cardHelp = findViewById(R.id.cardHelp)
 
         val cardClickListener = View.OnClickListener { view ->
@@ -66,6 +68,7 @@ class SettingsActivity : BaseActivity() {
                 R.id.cardLogout -> logoutAction()
                 R.id.cardHistory -> historyPage()
                 R.id.cardHelp -> HelpPage()
+                R.id.cardRepair -> QrCodePage()
 
             }
         }
@@ -79,6 +82,11 @@ class SettingsActivity : BaseActivity() {
         cardLogout.setOnClickListener(cardClickListener)
         cardHistory.setOnClickListener(cardClickListener)
         cardHelp.setOnClickListener(cardClickListener)
+        cardRepair.setOnClickListener(cardClickListener)
+    }
+
+    private fun QrCodePage() {
+        startActivity((Intent(this, QrCodeActivity::class.java)))
     }
 
     private fun HelpPage() {
@@ -121,10 +129,14 @@ class SettingsActivity : BaseActivity() {
         if (role == "admin"){
             repairCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             helpCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            profileCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            logoutCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+        } else {
+            profileCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            logoutCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            historyCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
         }
-        profileCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
-        logoutCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
-        historyCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+
     }
 
     // Méthodes pour ouvrir les pages respectives (à implémenter)
