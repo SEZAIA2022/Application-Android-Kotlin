@@ -13,11 +13,10 @@ import com.google.android.material.textfield.TextInputEditText
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.DayItem
 import com.houssein.sezaia.model.data.QuestionAnswer
-import com.houssein.sezaia.model.request.AskRepairRequest
-import com.houssein.sezaia.model.request.SaveResponseRequest
+import com.houssein.sezaia.model.request.AskRepairWithResponsesRequest
+import com.houssein.sezaia.model.request.ResponseItem
 import com.houssein.sezaia.model.request.SendEmailRequest
-import com.houssein.sezaia.model.response.AskRepairResponse
-import com.houssein.sezaia.model.response.SaveResponseResponse
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.TakenSlotsResponse
 import com.houssein.sezaia.network.RetrofitClient
@@ -99,38 +98,46 @@ class AppointmentActivity : AppCompatActivity() {
                     val qrCode = qrData ?: return@setOnClickListener
                     val toEmail = loggedEmail
 
-                    val message = "Appointment confirmed for $formattedDate\nComment: $commentText"
-
-                    responseList.forEach { qa ->
-                        sendResponseWithRetrofit(
-                            qa.id.toString(),
-                            qa.answer,
-                            username,
-                            qrCode
-                        )
+                    val responsesPayload = responseList.map { qa ->
+                        ResponseItem(qa.id, qa.answer)
                     }
 
-                    sendAskRepair(
-                        username,
-                        formattedDate,
-                        commentText,
-                        qrCode
+                    val combinedRequest = AskRepairWithResponsesRequest(
+                        username = username,
+                        date = formattedDate,
+                        comment = commentText,
+                        qr_code = qrCode,
+                        responses = responsesPayload
                     )
 
-                    if (toEmail != null) {
-                        sendEmail(toEmail, message)
-                    }
+                    RetrofitClient.instance.sendAskRepairWithResponses(combinedRequest).enqueue(object : Callback<BaseResponse> {
+                        override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                            if (response.isSuccessful && response.body()?.status == "success") {
+                                Toast.makeText(this@AppointmentActivity, "Demande envoyée avec succès", Toast.LENGTH_SHORT).show()
 
-                    val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
-                    prefs.edit().apply {
-                        putString("title", getString(R.string.request_sent))
-                        putString("content", getString(R.string.request_message_sent))
-                        putString("button", getString(R.string.show_history))
-                        apply()
-                    }
+                                if (toEmail != null) {
+                                    val message = "Appointment confirmed for $formattedDate\nComment: $commentText"
+                                    sendEmail(toEmail, message)
+                                }
 
-                    val intent = Intent(this@AppointmentActivity, SuccessActivity::class.java)
-                    startActivity(intent)
+                                val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+                                prefs.edit().apply {
+                                    putString("title", getString(R.string.request_sent))
+                                    putString("content", getString(R.string.request_message_sent))
+                                    putString("button", getString(R.string.show_history))
+                                    apply()
+                                }
+                                val intent = Intent(this@AppointmentActivity, SuccessActivity::class.java)
+                                startActivity(intent)
+                            } else {
+                                Toast.makeText(this@AppointmentActivity, "Erreur lors de l'envoi de la demande", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                            Toast.makeText(this@AppointmentActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                        }
+                    })
 
                 } catch (e: Exception) {
                     Toast.makeText(this, "Erreur lors du traitement de la date sélectionnée.", Toast.LENGTH_LONG).show()
@@ -139,6 +146,7 @@ class AppointmentActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please select a date, a time slot and fill in the comments.", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
     private fun fetchTakenSlots(onComplete: () -> Unit) {
@@ -310,45 +318,6 @@ class AppointmentActivity : AppCompatActivity() {
         return slots
     }
 
-    private fun sendResponseWithRetrofit(
-        questionId: String,
-        answer: String,
-        username: String,
-        qrCode: String
-    ) {
-        val request = SaveResponseRequest(questionId, answer, username, qrCode)
-        RetrofitClient.instance.saveResponse(request).enqueue(object : Callback<SaveResponseResponse> {
-            override fun onResponse(call: Call<SaveResponseResponse>, response: Response<SaveResponseResponse>) {
-                if (!response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "Erreur lors de l'enregistrement de la réponse.", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<SaveResponseResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "Échec de connexion pour enregistrer la réponse.", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
-    private fun sendAskRepair(
-        username: String,
-        dateTime: String,
-        comment: String,
-        qrCode: String
-    ) {
-        val request = AskRepairRequest(username, dateTime, comment, qrCode)
-        RetrofitClient.instance.sendAsk(request).enqueue(object : Callback<AskRepairResponse> {
-            override fun onResponse(call: Call<AskRepairResponse>, response: Response<AskRepairResponse>) {
-                if (!response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "Erreur lors de la demande de réparation.", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<AskRepairResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "Échec de connexion pour la demande de réparation.", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
 
     private fun sendEmail(toEmail: String, message: String) {
         val request = SendEmailRequest(toEmail, message)

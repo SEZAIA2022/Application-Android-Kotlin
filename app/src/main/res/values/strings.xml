@@ -102,6 +102,7 @@
     <string name="help_center">Help center</string>
     <string name="qr_code_history">Qrcode history</string>
     <string name="qr_code_details">Qrcode details</string>
+    <string name="problem">Describe the problem ...</string>
 
 
 </resources>

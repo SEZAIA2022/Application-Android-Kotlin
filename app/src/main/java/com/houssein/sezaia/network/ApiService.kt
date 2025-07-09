@@ -26,13 +26,7 @@ interface ApiService {
 
     @POST("api/exist_qr")
     fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
-
-    @POST("api/save_response")
-    fun saveResponse(@Body request: SaveResponseRequest): Call<SaveResponseResponse>
-
-    @POST("api/send_ask")
-    fun sendAsk(@Body askRepairRequest: AskRepairRequest): Call<AskRepairResponse>
-
+    
     @POST("api/send_email")
     fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>
 
@@ -89,4 +83,9 @@ interface ApiService {
 
     @GET("api/get_qrcodes")
     fun getQRCodes(): Call<QrCodeResponse>
+
+    @POST("api/send_ask_and_response")
+    fun sendAskRepairWithResponses(@Body request: AskRepairWithResponsesRequest): Call<BaseResponse>
+
+
 }
