@@ -1,11 +1,13 @@
 package com.houssein.sezaia.network
 
+import RepairResponse
 import com.houssein.sezaia.model.request.*
 import com.houssein.sezaia.model.response.*
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -26,7 +28,7 @@ interface ApiService {
 
     @POST("api/exist_qr")
     fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
-    
+
     @POST("api/send_email")
     fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>
 
@@ -87,5 +89,9 @@ interface ApiService {
     @POST("api/send_ask_and_response")
     fun sendAskRepairWithResponses(@Body request: AskRepairWithResponsesRequest): Call<BaseResponse>
 
+    @GET("api/ask_repair/details/{repair_id}")
+    suspend fun getRepairDetails(
+        @Path("repair_id") repairId: String?
+    ): RepairResponse
 
 }

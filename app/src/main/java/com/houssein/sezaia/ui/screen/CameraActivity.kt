@@ -34,10 +34,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
-import androidx.core.content.edit
-import androidx.core.graphics.ColorUtils.calculateLuminance
-import com.houssein.sezaia.model.request.AddQrRequest
-import com.houssein.sezaia.model.response.BaseResponse
 
 class CameraActivity : BaseActivity() {
 
@@ -255,11 +251,13 @@ class CameraActivity : BaseActivity() {
             .enqueue(object : Callback<QrCodeResponse> {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                     val body = response.body()
-
+                    val status_repair = body?.status_repair.toString()
+                    val id_repair_ask = body?.id_ask_repair.toString()
+                    val message = body?.message.toString()
                     if (response.isSuccessful && body?.status == "success") {
                         when (body.is_active) {
-                            true -> handleActiveQrCode(qrCode, role)
-                            false -> handleInactiveQrCode(qrCode)
+                            true -> handleActiveQrCode(qrCode, role, status_repair, id_repair_ask, message)
+                            false -> handleInactiveQrCode(qrCode, message)
                             else -> {
                                 Log.w("QRCode", "QR code unknown state or null")
                                 Toast.makeText(this@CameraActivity, "QR code unknown state", Toast.LENGTH_SHORT).show()
@@ -280,11 +278,22 @@ class CameraActivity : BaseActivity() {
     }
 
     // Gère les QR codes actifs
-    private fun handleActiveQrCode(qrCode: String, role: String) {
-        Toast.makeText(this@CameraActivity, "QR code is active", Toast.LENGTH_SHORT).show()
+    private fun handleActiveQrCode(qrCode: String, role: String, status_repair: String, id_repair_ask: String, message: String) {
 
         if (role == "admin") {
-            Toast.makeText(this@CameraActivity, "Welcome admin", Toast.LENGTH_SHORT).show()
+            if (status_repair == "processing"){
+                saveQrCode(qrCode)
+                getSharedPreferences("MyPrefs", MODE_PRIVATE).edit().apply {
+                    putString("id", id_repair_ask)
+                    putString("status_repair", status_repair)
+                    apply()
+                }
+                startActivity(Intent(this@CameraActivity, RepairActivity::class.java))
+            } else {
+                Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
+                resetScannerWithDelay()
+            }
+
         } else {
             saveQrCode(qrCode)
             startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))
@@ -292,8 +301,7 @@ class CameraActivity : BaseActivity() {
     }
 
     // Gère les QR codes inactifs
-    private fun handleInactiveQrCode(qrCode: String) {
-        Toast.makeText(this@CameraActivity, "QR code is not active", Toast.LENGTH_SHORT).show()
+    private fun handleInactiveQrCode(qrCode: String, message: String) {
         saveQrCode(qrCode)
         startActivity(Intent(this@CameraActivity, ActivateQrCodeActivity::class.java))
     }
