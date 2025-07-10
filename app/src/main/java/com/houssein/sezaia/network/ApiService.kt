@@ -97,4 +97,9 @@ interface ApiService {
 
     @POST("api/add_description")
     suspend fun addDescription(@Body request: DescriptionRequest): BaseResponse
+
+    @GET("api/get_repair_by_qrcode_full")
+    fun fetchRepairByQrCode(
+        @Query("qr_code") qrCode: String
+    ): Call<RepairApiResponse>
 }
