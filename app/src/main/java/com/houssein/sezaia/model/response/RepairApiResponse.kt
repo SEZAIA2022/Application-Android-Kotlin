@@ -5,3 +5,4 @@ data class RepairApiResponse(
     val data: List<Repair>?,
     val message: String?
 )
+

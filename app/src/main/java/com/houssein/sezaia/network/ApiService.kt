@@ -66,7 +66,7 @@ interface ApiService {
     @POST("api/add_qr")
     fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 
-    @GET("api/ask_repair")
+    @GET("api/ ")
     suspend fun getRepairs(@Query("username") username: String): List<Repair>
 
     @GET("api/taken_slots")
