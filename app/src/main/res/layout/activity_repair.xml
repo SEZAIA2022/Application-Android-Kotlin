@@ -6,71 +6,95 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="0dp"
+    android:background="?android:colorBackground"
     tools:context=".ui.screen.RepairActivity">
 
-    <!-- Toolbar -->
+    <!-- Custom Toolbar -->
     <include
         android:id="@+id/custom_toolbar"
         layout="@layout/toolbar_layout"
         android:layout_width="0dp"
-        android:layout_height="65dp"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Message d'information -->
+    <!-- General Information TextView -->
     <TextView
-        android:id="@+id/info"
-        style="@style/CustomTextView"
-        android:text="@string/welcome_login"
-        android:textColor="@color/black"
+        android:id="@+id/repairInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="14sp"
+        android:lineSpacingExtra="4dp"
+        android:importantForAccessibility="yes"
+        android:contentDescription="General repair information"
         app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5" />
+        tools:text="Your repair concerns the device XYZ..." />
 
-    <!-- Champ de description du problème -->
+    <!-- Response List RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/responseList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/repairInfo"
+        app:layout_constraintBottom_toTopOf="@id/problemLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_response" />
+
+    <!-- Problem Description Input Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/problemLayout"
         style="@style/CustomTextInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/info"
+        android:layout_marginBottom="12dp"
+        android:layout_marginHorizontal="16dp"
+        android:hint="@string/problem"
+        app:layout_constraintBottom_toTopOf="@id/btnHistory"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/problem"
             style="@style/CustomTextInputEditText"
-            android:layout_width="match_parent"
             android:layout_height="150dp"
             android:gravity="top|start"
-            android:hint="@string/problem"
-            android:drawableEnd="@drawable/baseline_report_problem_24"
-            android:inputType="textMultiLine"
             android:lines="5"
             android:maxLines="10"
-            android:scrollbars="vertical" />
+            android:scrollbars="vertical"
+            android:contentDescription="Problem description input field" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Bouton de connexion -->
+    <!-- History Button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnlogin"
+        android:id="@+id/btnHistory"
         style="@style/MyCustomButtonBlue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/login"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintTop_toBottomOf="@id/problemLayout"
+        android:text="Voir l'historique"
+        android:textAllCaps="false"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@id/btnRepair"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Save Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRepair"
+        style="@style/MyCustomButtonBlue"
+        android:text="Save"
+        android:textAllCaps="false"
+        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

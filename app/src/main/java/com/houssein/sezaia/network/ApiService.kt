@@ -6,6 +6,7 @@ import com.houssein.sezaia.model.response.*
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -94,4 +95,6 @@ interface ApiService {
         @Path("repair_id") repairId: String?
     ): RepairResponse
 
+    @POST("api/add_description")
+    suspend fun addDescription(@Body request: DescriptionRequest): BaseResponse
 }

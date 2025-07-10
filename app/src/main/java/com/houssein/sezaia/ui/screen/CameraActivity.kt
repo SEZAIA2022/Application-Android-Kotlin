@@ -295,8 +295,14 @@ class CameraActivity : BaseActivity() {
             }
 
         } else {
-            saveQrCode(qrCode)
-            startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))
+            if (status_repair == "processing"){
+                Toast.makeText(this@CameraActivity, "Qr code being repaired", Toast.LENGTH_LONG).show()
+                resetScannerWithDelay()
+
+            } else {
+                saveQrCode(qrCode)
+                startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))            }
+
         }
     }
 
