@@ -113,15 +113,22 @@ class HistoryActivity : BaseActivity() {
                 append("Status: ${repair.status}\n")
             }
 
+            val showNegative = repair.status.lowercase() != "repaired" // Condition : bouton négatif si status différent de "repaired"
+
             showDialog(
                 title = "Repair details",
                 message = message,
                 positiveButtonText = "OK",
-                negativeButtonText = "Cancel appointment",
+                negativeButtonText = if (showNegative) "Cancel appointment" else null,
                 onPositiveClick = {},
-                onNegativeClick = { cancelAppointement(repair.id) }
+                onNegativeClick = {
+                    if (showNegative) {
+                        cancelAppointement(repair.id)
+                    }
+                }
             )
         }
+
 
         recyclerView.adapter = adapter
     }
