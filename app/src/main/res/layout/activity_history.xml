@@ -20,19 +20,13 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 
-    <!-- Zone des filtres -->
+    <!-- Filtre et tri -->
     <LinearLayout
         android:id="@+id/filterLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:background="@color/light_gray"
-        android:elevation="2dp"
-        android:gravity="center"
+        android:padding="8dp"
         app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -40,24 +34,15 @@
         <Spinner
             android:id="@+id/spinnerSortDate"
             android:layout_width="0dp"
-            android:layout_height="48dp"
             android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:background="@drawable/spinner_background"
-            android:spinnerMode="dropdown" />
+            android:layout_height="wrap_content" />
 
         <Spinner
             android:id="@+id/spinnerFilterStatus"
             android:layout_width="0dp"
-            android:layout_height="48dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:background="@drawable/spinner_background"
-            android:spinnerMode="dropdown" />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <!-- Liste des réparations -->
