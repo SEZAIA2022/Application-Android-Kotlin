@@ -14,6 +14,7 @@ import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -67,9 +68,14 @@ class ActivateQrCodeActivity : BaseActivity() {
                     }else {
                         Toast.makeText(this@ActivateQrCodeActivity, body?.message ?: "Unknown Error", Toast.LENGTH_SHORT).show()
                     }
-                }else {
-                    val errorMsg = response.errorBody()?.string() ?: "Unknown Error"
-                    Toast.makeText(this@ActivateQrCodeActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = try {
+                        errorBody?.let { JSONObject(it).getString("message") }
+                    } catch (e: Exception) {
+                        "Unknown Error"
+                    }
+                    Toast.makeText(this@ActivateQrCodeActivity, errorMessage, Toast.LENGTH_SHORT).show()
                 }
 
 

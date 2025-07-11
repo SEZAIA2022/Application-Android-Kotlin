@@ -17,6 +17,7 @@ class SuccessActivity : AppCompatActivity() {
     private lateinit var message : TextView
     private lateinit var btnHistory : Button
     private lateinit var btnClose : Button
+    private lateinit var btnRescan : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,13 +43,17 @@ class SuccessActivity : AppCompatActivity() {
         title = findViewById(R.id.textView3)
         message = findViewById((R.id.textView2))
         btnClose = findViewById(R.id.btnClose)
+        btnRescan = findViewById(R.id.btnRescan)
         title.text = newTitle
         message.text = newMessage
         btnHistory.text = newButton
         if (btnHistory.text == getString(R.string.show_history)){
             btnClose.visibility = View.VISIBLE
+            btnRescan.visibility = View.VISIBLE
+
         } else {
             btnClose.visibility = View.GONE
+            btnRescan.visibility = View.GONE
         }
 
     }
@@ -56,6 +61,9 @@ class SuccessActivity : AppCompatActivity() {
     private fun setupListeners() {
         if (btnHistory.text == getString(R.string.show_history)){
             btnHistory.setOnClickListener { startActivity( Intent(this@SuccessActivity, HistoryActivity::class.java)) }
+            btnRescan.setOnClickListener{
+                startActivity( Intent(this@SuccessActivity, CameraActivity::class.java))
+            }
             btnClose.setOnClickListener{
                 // Fermer l'application
                 finishAffinity()

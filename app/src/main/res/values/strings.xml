@@ -104,6 +104,7 @@
     <string name="qr_code_details">Qrcode details</string>
     <string name="problem">Describe the problem ...</string>
     <string name="repair">"Repair"</string>
+    <string name="rescan">Rescan qr code</string>
 
 
 </resources>

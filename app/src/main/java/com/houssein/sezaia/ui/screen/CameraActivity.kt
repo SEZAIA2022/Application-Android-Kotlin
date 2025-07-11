@@ -30,6 +30,7 @@ import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.BarcodeOverlayView
 import com.houssein.sezaia.ui.utils.UIUtils
 import com.houssein.sezaia.network.RetrofitClient
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -258,16 +259,21 @@ class CameraActivity : BaseActivity() {
                         when (body.is_active) {
                             true -> handleActiveQrCode(qrCode, role, status_repair, id_repair_ask, message)
                             false -> handleInactiveQrCode(qrCode, message)
-                            else -> {
-                                Log.w("QRCode", "QR code unknown state or null")
-                                Toast.makeText(this@CameraActivity, "QR code unknown state", Toast.LENGTH_SHORT).show()
-                            }
+
                         }
                     } else {
-                        val errorMessage = body?.message ?: "QR code is not valid."
+                        val errorBody = response.errorBody()?.string()
+                        val errorMessage = try {
+                            errorBody?.let { JSONObject(it).getString("message") } ?: "Le QR code est invalide."
+                        } catch (e: Exception) {
+                            Log.e("CameraActivity", "Erreur lors du parsing JSON: ${e.message}")
+                            "Erreur inconnue"
+                        }
+
                         Toast.makeText(this@CameraActivity, errorMessage, Toast.LENGTH_SHORT).show()
                         resetScannerWithDelay()
                     }
+
                 }
 
                 override fun onFailure(call: Call<QrCodeResponse>, t: Throwable) {
@@ -296,7 +302,7 @@ class CameraActivity : BaseActivity() {
 
         } else {
             if (status_repair == "processing"){
-                Toast.makeText(this@CameraActivity, "Qr code being repaired", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@CameraActivity, message, Toast.LENGTH_LONG).show()
                 resetScannerWithDelay()
 
             } else {
