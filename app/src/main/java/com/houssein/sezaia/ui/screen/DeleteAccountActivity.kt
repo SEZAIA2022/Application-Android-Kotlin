@@ -76,10 +76,6 @@ class DeleteAccountActivity : BaseActivity() {
         val email = emailEditText.text.toString()
         val password = passwordEditText.text.toString()
 
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         val deleteAccountRequest = DeleteAccountRequest(email, password)
         Log.d("DeleteAccount", "Tentative de suppression avec email: $email") // Log de débogage

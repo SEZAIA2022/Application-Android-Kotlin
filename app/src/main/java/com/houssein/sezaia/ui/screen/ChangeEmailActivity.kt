@@ -79,11 +79,6 @@ class ChangeEmailActivity : BaseActivity() {
         val newEmail = newEmailEditText.text.toString()
         val password = passwordEditText.text.toString()
 
-        if (email.isEmpty() || newEmail.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Tous les champs sont requis", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         btnChangeEmail.isEnabled = false
 
         val request = ChangeEmailRequest(
@@ -123,7 +118,7 @@ class ChangeEmailActivity : BaseActivity() {
 
             override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
                 btnChangeEmail.isEnabled = true
-                Toast.makeText(this@ChangeEmailActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@ChangeEmailActivity, "Network error : ${t.localizedMessage}", Toast.LENGTH_LONG).show()
             }
         })
     }

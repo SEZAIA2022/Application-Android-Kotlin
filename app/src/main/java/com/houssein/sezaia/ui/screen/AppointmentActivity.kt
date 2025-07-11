@@ -113,7 +113,8 @@ class AppointmentActivity : AppCompatActivity() {
                     RetrofitClient.instance.sendAskRepairWithResponses(combinedRequest).enqueue(object : Callback<BaseResponse> {
                         override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
                             if (response.isSuccessful && response.body()?.status == "success") {
-                                Toast.makeText(this@AppointmentActivity, "Demande envoyée avec succès", Toast.LENGTH_SHORT).show()
+                                val successMsg = response.body()?.message
+                                Toast.makeText(this@AppointmentActivity, successMsg, Toast.LENGTH_SHORT).show()
 
                                 if (toEmail != null) {
                                     val message = "Appointment confirmed for $formattedDate\nComment: $commentText"
@@ -130,7 +131,16 @@ class AppointmentActivity : AppCompatActivity() {
                                 val intent = Intent(this@AppointmentActivity, SuccessActivity::class.java)
                                 startActivity(intent)
                             } else {
-                                Toast.makeText(this@AppointmentActivity, "Erreur lors de l'envoi de la demande", Toast.LENGTH_SHORT).show()
+                                val errorMsg = try {
+                                    response.errorBody()?.string()?.let { errorBody ->
+                                        val json = org.json.JSONObject(errorBody)
+                                        json.optString("message", "Erreur inconnue")
+                                    } ?: "Erreur inconnue"
+                                } catch (e: Exception) {
+                                    "Erreur lors de la lecture de la réponse"
+                                }
+
+                                Toast.makeText(this@AppointmentActivity, errorMsg, Toast.LENGTH_SHORT).show()
                             }
                         }
 

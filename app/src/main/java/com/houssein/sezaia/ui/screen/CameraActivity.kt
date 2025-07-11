@@ -119,7 +119,6 @@ class CameraActivity : BaseActivity() {
 
             val barcodeScanner = BarcodeScanning.getClient()
             val imageAnalyzer = ImageAnalysis.Builder()
-                .setTargetResolution(Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
@@ -133,14 +132,14 @@ class CameraActivity : BaseActivity() {
                 // Affecter la caméra ici !
                 camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
             } catch (exc: Exception) {
-                Toast.makeText(this, "Échec de la liaison de la caméra", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Camera link failed", Toast.LENGTH_SHORT).show()
             }
         }, ContextCompat.getMainExecutor(this))
     }
 
     private fun toggleFlash() {
         if (!::camera.isInitialized || !camera.cameraInfo.hasFlashUnit()) {
-            Toast.makeText(this, "La torche n'est pas disponible sur cet appareil", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Torch not available on this device", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -210,7 +209,7 @@ class CameraActivity : BaseActivity() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Échec du scan du QR code", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "QR code scan fails", Toast.LENGTH_SHORT).show()
                 overlayView.clearBox()
             }
             .addOnCompleteListener {
@@ -252,29 +251,32 @@ class CameraActivity : BaseActivity() {
             .enqueue(object : Callback<QrCodeResponse> {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                     val body = response.body()
-                    val status_repair = body?.status_repair.toString()
-                    val id_repair_ask = body?.id_ask_repair.toString()
-                    val message = body?.message.toString()
-                    if (response.isSuccessful && body?.status == "success") {
-                        when (body.is_active) {
-                            true -> handleActiveQrCode(qrCode, role, status_repair, id_repair_ask, message)
-                            false -> handleInactiveQrCode(qrCode, message)
+                    val statusRepair = body?.status_repair.orEmpty()
+                    val repairRequestId = body?.id_ask_repair.orEmpty()
+                    val message = body?.message ?: "QR code verified successfully."
 
+                    if (response.isSuccessful && body?.status == "success") {
+                        // ✅ Show success message from backend
+                        Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
+
+                        when (body.is_active) {
+                            true -> handleActiveQrCode(qrCode, role, statusRepair, repairRequestId, message)
+                            false -> handleInactiveQrCode(qrCode)
                         }
                     } else {
                         val errorBody = response.errorBody()?.string()
                         val errorMessage = try {
-                            errorBody?.let { JSONObject(it).getString("message") } ?: "Le QR code est invalide."
+                            errorBody?.let { JSONObject(it).getString("message") } ?: "Invalid QR code."
                         } catch (e: Exception) {
-                            Log.e("CameraActivity", "Erreur lors du parsing JSON: ${e.message}")
-                            "Erreur inconnue"
+                            Log.e("CameraActivity", "JSON parsing error: ${e.message}")
+                            "Unknown error occurred."
                         }
 
                         Toast.makeText(this@CameraActivity, errorMessage, Toast.LENGTH_SHORT).show()
                         resetScannerWithDelay()
                     }
-
                 }
+
 
                 override fun onFailure(call: Call<QrCodeResponse>, t: Throwable) {
                     Toast.makeText(this@CameraActivity, "Network error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
@@ -313,7 +315,7 @@ class CameraActivity : BaseActivity() {
     }
 
     // Gère les QR codes inactifs
-    private fun handleInactiveQrCode(qrCode: String, message: String) {
+    private fun handleInactiveQrCode(qrCode: String) {
         saveQrCode(qrCode)
         startActivity(Intent(this@CameraActivity, ActivateQrCodeActivity::class.java))
     }
