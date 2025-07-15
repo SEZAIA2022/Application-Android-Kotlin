@@ -102,4 +102,9 @@ interface ApiService {
     fun fetchRepairByQrCode(
         @Query("qr_code") qrCode: String
     ): Call<RepairApiResponse>
+
+    @GET("api/help_tasks")
+    fun getHelpTasks(): Call<HelpResponse>
+
+
 }
