@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.response.TermsOfUseResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -33,9 +34,10 @@ class TermsOfUseActivity : AppCompatActivity() {
             onBackClick = { finish() },
             onActionClick = { recreate() }
         )
-
+        val app = application as MyApp
+        val applicationName = app.application_name
         // Chargement du contenu depuis l’API
-        RetrofitClient.instance.getTermsOfUse().enqueue(object : Callback<TermsOfUseResponse> {
+        RetrofitClient.instance.getTermsOfUse(applicationName).enqueue(object : Callback<TermsOfUseResponse> {
             override fun onResponse(
                 call: Call<TermsOfUseResponse>,
                 response: Response<TermsOfUseResponse>

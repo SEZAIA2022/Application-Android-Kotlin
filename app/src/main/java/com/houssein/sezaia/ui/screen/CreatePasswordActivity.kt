@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.network.RetrofitClient
@@ -24,6 +25,7 @@ class CreatePasswordActivity : BaseActivity() {
     private lateinit var passwordInput: TextInputEditText
     private lateinit var confirmPasswordInput: TextInputEditText
     private lateinit var btnResetPass: Button
+    private lateinit var applicationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,11 +101,13 @@ class CreatePasswordActivity : BaseActivity() {
                 cancelable = true)
             return
         }
-
+        val app = application as MyApp
+        applicationName = app.application_name
         val request = CreateNewPasswordRequest(
             email = email,
             new_password = passwordInput.text.toString(),
-            confirm_password = confirmPasswordInput.text.toString()
+            confirm_password = confirmPasswordInput.text.toString(),
+            applicationName
         )
 
         RetrofitClient.instance.createNewPassword(request).enqueue(object : Callback<CreateNewPasswordResponse> {

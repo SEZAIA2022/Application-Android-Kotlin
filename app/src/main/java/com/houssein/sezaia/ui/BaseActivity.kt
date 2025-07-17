@@ -40,7 +40,7 @@ open class BaseActivity : AppCompatActivity() {
         message: String,
         positiveButtonText: String? = null,
         onPositiveClick: (() -> Unit)? = null,
-        negativeButtonText: String? = "Annuler",
+        negativeButtonText: String? = "Cancel",
         onNegativeClick: (() -> Unit)? = null,
         cancelable: Boolean = false,
     ) {
@@ -65,18 +65,14 @@ open class BaseActivity : AppCompatActivity() {
         val dialog = builder.show()
 
         // Appliquer la couleur du bouton positif si demandé
-        if (positiveButtonTextColorResId != null) {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
-                ContextCompat.getColor(this, positiveButtonTextColorResId)
-            )
-        }
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(
+            ContextCompat.getColor(this, positiveButtonTextColorResId)
+        )
 
         // Appliquer la couleur du bouton négatif si demandé
-        if (negativeButtonTextColorResId != null) {
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(
-                ContextCompat.getColor(this, negativeButtonTextColorResId)
-            )
-        }
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(
+            ContextCompat.getColor(this, negativeButtonTextColorResId)
+        )
     }
 
 

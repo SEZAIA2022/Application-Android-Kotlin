@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -7,12 +8,11 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.ForgotPasswordRequest
-import com.houssein.sezaia.model.request.ResendOtpRequest
 import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -29,6 +29,7 @@ class ForgetActivity : BaseActivity() {
     private lateinit var usernameLayout: TextInputLayout
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
     private lateinit var textView: TextView
+    private lateinit var applicationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,23 +62,24 @@ class ForgetActivity : BaseActivity() {
         val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
         val methode = sharedPref.getString("methode", null)
 
-        if (methode == "Phone") {
-            usernameLayout.hint = getString(R.string.phone_number)
-            val drawableEnd = ContextCompat.getDrawable(this, R.drawable.baseline_local_phone_24)
+//        if (methode == "Phone") {
+//            usernameLayout.hint = getString(R.string.phone_number)
+//            val drawableEnd = ContextCompat.getDrawable(this, R.drawable.baseline_local_phone_24)
+//
+//            emailInput.setCompoundDrawablesWithIntrinsicBounds(
+//                null,      // drawableStart
+//                null,      // drawableTop
+//                drawableEnd, // drawableEnd (à droite)
+//                null       // drawableBottom
+//            )
+//
+//            textView.text = getString(R.string.forget_phone_message)
+//
+//        } else
+        if (methode == "Email") {
+            usernameLayout.hint = getString(R.string.email)
 
-            emailInput.setCompoundDrawablesWithIntrinsicBounds(
-                null,      // drawableStart
-                null,      // drawableTop
-                drawableEnd, // drawableEnd (à droite)
-                null       // drawableBottom
-            )
-
-            textView.text = getString(R.string.forget_phone_message)
-
-        } else if (methode == "Email") {
-            usernameLayout.hint = getString(R.string.username_or_email)
-
-            val drawableEnd = ContextCompat.getDrawable(this, R.drawable.baseline_group_24)
+            val drawableEnd = ContextCompat.getDrawable(this, R.drawable.baseline_mail_24)
             emailInput.setCompoundDrawablesWithIntrinsicBounds(
                 null, null, drawableEnd, null
             )
@@ -90,8 +92,9 @@ class ForgetActivity : BaseActivity() {
     private fun setupListeners() {
         sendOtpBtn.setOnClickListener {
             val email = emailInput.text?.toString()?.trim().orEmpty()
-            println(email)
-            val request = ForgotPasswordRequest(email)
+            val app = application as MyApp
+            applicationName = app.application_name
+            val request = ForgotPasswordRequest(email, applicationName)
 
             RetrofitClient.instance.forgotPassword(request)
                 .enqueue(object : Callback<BaseResponse> {
@@ -110,9 +113,22 @@ class ForgetActivity : BaseActivity() {
                             // Aller à VerifyOtpActivity
                             startActivity(Intent(this@ForgetActivity, VerifyOtpActivity::class.java))
                         } else {
-                            val errorMsg = response.errorBody()?.string() ?: "Erreur inconnue"
+                            val errorBody = response.errorBody()
+                            val errorMsg = if (errorBody != null) {
+                                try {
+                                    // Tente de lire le JSON d’erreur pour extraire un message spécifique
+                                    val errorJson = JSONObject(errorBody.charStream().readText())
+                                    errorJson.optString("message", "Erreur inconnue")
+                                } catch (e: Exception) {
+                                    // Si ce n’est pas du JSON, renvoie le texte brut
+                                    errorBody.string()
+                                }
+                            } else {
+                                "Erreur inconnue"
+                            }
                             Toast.makeText(this@ForgetActivity, errorMsg, Toast.LENGTH_SHORT).show()
                         }
+
                     }
 
                     override fun onFailure(call: Call<BaseResponse>, t: Throwable) {

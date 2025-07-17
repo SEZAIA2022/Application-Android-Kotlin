@@ -15,17 +15,39 @@ interface ApiService {
     @POST("api/login")
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
-    @GET("api/questions")
-    fun getQuestions(): Call<List<Message>>
-
     @POST("api/register")
     fun registerUser(@Body registerRequest: SignUpRequest): Call<ApiResponse>
 
     @POST("api/verify_register")
     fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
 
+    @POST("api/forgot_password")
+    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
+
+    @POST("api/resend_otp")
+    fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>
+
+    @POST("api/verify_forget")
+    fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
+
     @POST("api/change-password")
     fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<CreateNewPasswordResponse>
+
+
+
+
+
+
+
+
+
+
+    @GET("api/questions")
+    fun getQuestions(): Call<List<Message>>
+
+
+
+
 
     @POST("api/exist_qr")
     fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
@@ -45,14 +67,9 @@ interface ApiService {
     @POST("api/delete_account")
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
-    @POST("api/forgot_password")
-    fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
 
-    @POST("api/resend_otp")
-    fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>
 
-    @POST("api/verify_forget")
-    fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
+
 
     @POST("api/change_email")
     fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
@@ -73,13 +90,13 @@ interface ApiService {
     fun getTakenSlots(): Call<TakenSlotsResponse>
 
     @GET("api/about_us")
-    fun getAboutUs(): Call<AboutUsResponse>
+    fun getAboutUs(@Query("application") application: String): Call<AboutUsResponse>
 
     @GET("api/term_of_use")
-    fun getTermsOfUse(): Call<TermsOfUseResponse>
+    fun getTermsOfUse(@Query("application") application: String): Call<TermsOfUseResponse>
 
     @GET("api/privacy_policy")
-    fun getPrivacyPolicy(): Call<PrivacyPolicyResponse>
+    fun getPrivacyPolicy(@Query("application") application: String): Call<PrivacyPolicyResponse>
 
     @POST("api/cancel_appointment")
     suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse

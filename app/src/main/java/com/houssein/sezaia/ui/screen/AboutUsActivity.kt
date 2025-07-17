@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.response.AboutUsResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -20,13 +21,14 @@ class AboutUsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Appeler l’API avant affichage
         fetchAboutUsData()
     }
 
     private fun fetchAboutUsData() {
-        RetrofitClient.instance.getAboutUs().enqueue(object : Callback<AboutUsResponse> {
+        val app = application as MyApp
+        val applicationName = app.application_name
+        RetrofitClient.instance.getAboutUs(applicationName).enqueue(object : Callback<AboutUsResponse> {
             override fun onResponse(
                 call: Call<AboutUsResponse>,
                 response: Response<AboutUsResponse>

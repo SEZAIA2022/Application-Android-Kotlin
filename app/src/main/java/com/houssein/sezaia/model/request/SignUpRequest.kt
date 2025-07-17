@@ -9,5 +9,6 @@ data class SignUpRequest(
     val address: String,
     val country_code: String,
     val city: String,
-    val postal_code: String
+    val postal_code: String,
+    val application_name: String
 )

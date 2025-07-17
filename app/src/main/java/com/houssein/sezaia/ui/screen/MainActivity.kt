@@ -14,6 +14,7 @@ import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
 import androidx.core.content.edit
+import com.houssein.sezaia.model.data.MyApp
 import java.util.Locale
 
 class MainActivity : BaseActivity() {
@@ -33,6 +34,8 @@ class MainActivity : BaseActivity() {
         val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
         val isLoggedIn = prefs.getBoolean("isLoggedIn", false)
         val userRole = prefs.getString("userRole", null)
+        val app = application as MyApp
+        val applicationName = app.application_name
 
         if (isLoggedIn && userRole != null) {
             val targetActivity = when (userRole) {
@@ -46,19 +49,39 @@ class MainActivity : BaseActivity() {
 
             startActivity(Intent(this, targetActivity))
         }
-//        else {
-//            startActivity(Intent(this, LoginActivity::class.java))
-//        }
-//
-//        finish()
-
 
         // Appliquer les insets des barres système
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-        requestCameraPermissionIfNeeded()
+
         initViews()
+
+        UIUtils.initToolbar(
+            this,
+            applicationName,
+            actionIconRes = R.drawable.baseline_density_medium_24,
+            onBackClick = backButtonClickListener,
+            onActionClick = actionButtonClickListener
+        )
+
+
+        requestCameraPermissionIfNeeded()
         setupListeners()
     }
+
+    private val backButtonClickListener = {
+        showDialog("Are you sure?",
+            "press leave to quit",
+            positiveButtonText = "Leave",
+            onPositiveClick = { finish() },
+            negativeButtonText = "Cancel",
+            onNegativeClick = {},
+            cancelable = false)
+    }
+
+    private val actionButtonClickListener = {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
 
     private fun requestCameraPermissionIfNeeded() {
         val permission = Manifest.permission.CAMERA
@@ -68,25 +91,12 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initViews() {
-        backButton = findViewById(R.id.toolbar_back)
-        actionButton = findViewById(R.id.toolbar_action)
         btnLogin = findViewById(R.id.btnlogin)
         btnSignUp = findViewById(R.id.btnsignup)
     }
 
     private fun setupListeners() {
-        backButton.setOnClickListener {
-            showDialog("Are you sure?",
-                "press leave to quit",
-                positiveButtonText = "Leave",
-                onPositiveClick = { finish() },
-                negativeButtonText = "Cancel",
-                onNegativeClick = {},
-                cancelable = false)
-        }
-        actionButton.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
+
         btnLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }

@@ -15,12 +15,14 @@ import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -205,6 +207,23 @@ object UIUtils {
             "Network error: ${response.code()}"
         }
     }
+    fun showErrorResponse(context: Context, response: Response<*>) {
+        val errorMsg = try {
+            val errorBody = response.errorBody()?.string()
+            if (!errorBody.isNullOrEmpty()) {
+                val json = JSONObject(errorBody)
+                json.optString("message", "Erreur inconnue")
+            } else {
+                "Erreur inconnue"
+            }
+        } catch (e: Exception) {
+            Log.e("UIUtils", "Erreur parsing errorBody: ${e.localizedMessage}")
+            "Erreur lors du traitement de la réponse"
+        }
+
+        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+    }
+
 
 }
 

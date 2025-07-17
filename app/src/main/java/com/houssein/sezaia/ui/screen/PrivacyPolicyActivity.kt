@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.response.PrivacyPolicyResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -33,9 +34,10 @@ class PrivacyPolicyActivity : AppCompatActivity() {
             onBackClick = { finish() },
             onActionClick = { recreate() }
         )
-
+        val app = application as MyApp
+        val applicationName = app.application_name
         // Appel Retrofit pour récupérer le contenu de la politique de confidentialité
-        RetrofitClient.instance.getPrivacyPolicy().enqueue(object : Callback<PrivacyPolicyResponse> {
+        RetrofitClient.instance.getPrivacyPolicy(applicationName).enqueue(object : Callback<PrivacyPolicyResponse> {
             override fun onResponse(
                 call: Call<PrivacyPolicyResponse>,
                 response: Response<PrivacyPolicyResponse>

@@ -19,6 +19,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.core.content.edit
+import com.houssein.sezaia.model.data.MyApp
 
 class SignUpActivity : BaseActivity() {
 
@@ -40,6 +41,7 @@ class SignUpActivity : BaseActivity() {
     private lateinit var postalCodeLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var confirmPasswordLayout: TextInputLayout
+    private lateinit var applicationName: String
 
     private lateinit var btnSignUp: Button
     private lateinit var loginLink: TextView
@@ -96,6 +98,9 @@ class SignUpActivity : BaseActivity() {
         passwordLayout = findViewById(R.id.passwordInputLayout)
         confirmPasswordLayout = findViewById(R.id.confirmPasswordInputLayout)
 
+        val app = application as MyApp
+        applicationName = app.application_name
+
         btnSignUp = findViewById(R.id.sign_up_button)
         loginLink = findViewById(R.id.loginLink)
         inputFields = listOf(
@@ -132,6 +137,7 @@ class SignUpActivity : BaseActivity() {
             countryCode.selectedCountryCodeWithPlus,
             cityEditText.text.toString(),
             postalCodeEditText.text.toString(),
+            applicationName
 
         )
 

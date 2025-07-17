@@ -19,6 +19,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import org.json.JSONObject
 import androidx.core.content.edit
+import com.houssein.sezaia.model.data.MyApp
 
 class LoginActivity : BaseActivity() {
 
@@ -69,24 +70,35 @@ class LoginActivity : BaseActivity() {
                 showDialog(
                     title = "Forget password",
                     message = "Select the method to reset your password.",
-                    positiveButtonText = "Phone",
+                    positiveButtonText = "Email",
                     onPositiveClick = {
-                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
-                        sharedPref.edit().apply {
-                            putString("methode", "Phone")
-                            apply()
-                        }
-                        startActivity(Intent(context, ForgetActivity::class.java))
-                    },
-                    negativeButtonText = "Email",
-                    onNegativeClick = {
                         val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
                         sharedPref.edit().apply {
                             putString("methode", "Email")
                             apply()
                         }
                         startActivity(Intent(context, ForgetActivity::class.java))
-                    }
+                    },
+                    negativeButtonText = "Cancel",
+                    onNegativeClick = { }
+//                    positiveButtonText = "Phone",
+//                    onPositiveClick = {
+//                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
+//                        sharedPref.edit().apply {
+//                            putString("methode", "Phone")
+//                            apply()
+//                        }
+//                        startActivity(Intent(context, ForgetActivity::class.java))
+//                    },
+//                    negativeButtonText = "Email",
+//                    onNegativeClick = {
+//                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
+//                        sharedPref.edit().apply {
+//                            putString("methode", "Email")
+//                            apply()
+//                        }
+//                        startActivity(Intent(context, ForgetActivity::class.java))
+//                    }
                 )
 
             }
@@ -118,7 +130,9 @@ class LoginActivity : BaseActivity() {
     private fun loginCheck() {
         val username = usernameEditText.text.toString()
         val password = passwordEditText.text.toString()
-        val loginRequest = LoginRequest(username, password)
+        val app = application as MyApp
+        val applicationName = app.application_name
+        val loginRequest = LoginRequest(username, password, applicationName)
 
         RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(
