@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.QrCodeRequest
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.ui.BaseActivity
@@ -49,8 +50,7 @@ class CameraActivity : BaseActivity() {
     private lateinit var camera: Camera
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var currentZoomRatio = 1f
-
-
+    private lateinit var applicationName: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -247,7 +247,9 @@ class CameraActivity : BaseActivity() {
     }
 
     private fun verifyQrCodeWithServer(qrCode: String, username: String, role: String) {
-        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode, username, role))
+        val app = application as MyApp
+        applicationName = app.application_name
+        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode, username, role, applicationName))
             .enqueue(object : Callback<QrCodeResponse> {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                     val body = response.body()

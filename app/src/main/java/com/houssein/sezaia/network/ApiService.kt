@@ -33,6 +33,11 @@ interface ApiService {
     @POST("api/change-password")
     fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<CreateNewPasswordResponse>
 
+    @POST("api/exist_qr")
+    fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
+
+    @POST("api/add_qr")
+    fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 
 
 
@@ -44,13 +49,6 @@ interface ApiService {
 
     @GET("api/questions")
     fun getQuestions(): Call<List<Message>>
-
-
-
-
-
-    @POST("api/exist_qr")
-    fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
 
     @POST("api/send_email")
     fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>
@@ -68,9 +66,6 @@ interface ApiService {
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
 
-
-
-
     @POST("api/change_email")
     fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
 
@@ -80,8 +75,6 @@ interface ApiService {
     @POST("api/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
 
-    @POST("api/add_qr")
-    fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 
     @GET("api/ask_repair")
     suspend fun getRepairs(@Query("username") username: String): List<Repair>

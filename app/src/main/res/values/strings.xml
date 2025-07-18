@@ -105,6 +105,10 @@
     <string name="problem">Describe the problem ...</string>
     <string name="repair">"Repair"</string>
     <string name="rescan">Rescan qr code</string>
+    <string name="country">Country</string>
+    <string name="zone">Zone</string>
+    <string name="street">Street</string>
+    <string name="exact_location">Exact location</string>
 
 
 </resources>
