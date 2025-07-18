@@ -6,7 +6,6 @@ import com.houssein.sezaia.model.response.*
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -57,8 +56,17 @@ interface ApiService {
         @Query("application") application: String = "sezaia"
     ): List<Repair>
 
+    @POST("api/cancel_appointment")
+    suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse
 
+    @GET("api/about_us")
+    fun getAboutUs(@Query("application") application: String): Call<AboutUsResponse>
 
+    @GET("api/term_of_use")
+    fun getTermsOfUse(@Query("application") application: String): Call<TermsOfUseResponse>
+
+    @GET("api/privacy_policy")
+    fun getPrivacyPolicy(@Query("application") application: String): Call<PrivacyPolicyResponse>
 
 
 
@@ -87,23 +95,6 @@ interface ApiService {
 
     @POST("api/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
-
-
-
-
-
-
-    @GET("api/about_us")
-    fun getAboutUs(@Query("application") application: String): Call<AboutUsResponse>
-
-    @GET("api/term_of_use")
-    fun getTermsOfUse(@Query("application") application: String): Call<TermsOfUseResponse>
-
-    @GET("api/privacy_policy")
-    fun getPrivacyPolicy(@Query("application") application: String): Call<PrivacyPolicyResponse>
-
-    @POST("api/cancel_appointment")
-    suspend fun cancelAppointment(@Body request: CancelAppointmentRequest): CancelAppointmentResponse
 
     @GET("api/get_qrcodes")
     fun getQRCodes(): Call<QrCodeResponse>
