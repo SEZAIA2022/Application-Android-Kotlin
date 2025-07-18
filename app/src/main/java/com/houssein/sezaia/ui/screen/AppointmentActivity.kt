@@ -12,6 +12,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.DayItem
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.data.QuestionAnswer
 import com.houssein.sezaia.model.request.AskRepairWithResponsesRequest
 import com.houssein.sezaia.model.request.ResponseItem
@@ -35,7 +36,7 @@ class AppointmentActivity : AppCompatActivity() {
     private lateinit var daysRecyclerView: RecyclerView
     private lateinit var confirmButton: MaterialButton
     private lateinit var commentEditText: TextInputEditText
-
+    private lateinit var applicationName: String
     private var selectedDayLabel: String? = null
     private var selectedDate: LocalDate? = null       // Stocker la vraie date ici
     private var selectedTimeSlot: String? = null
@@ -101,13 +102,15 @@ class AppointmentActivity : AppCompatActivity() {
                     val responsesPayload = responseList.map { qa ->
                         ResponseItem(qa.id, qa.answer)
                     }
-
+                    val app = application as MyApp
+                    applicationName = app.application_name
                     val combinedRequest = AskRepairWithResponsesRequest(
                         username = username,
                         date = formattedDate,
                         comment = commentText,
                         qr_code = qrCode,
-                        responses = responsesPayload
+                        responses = responsesPayload,
+                        application_name = applicationName
                     )
 
                     RetrofitClient.instance.sendAskRepairWithResponses(combinedRequest).enqueue(object : Callback<BaseResponse> {
@@ -117,7 +120,7 @@ class AppointmentActivity : AppCompatActivity() {
                                 Toast.makeText(this@AppointmentActivity, successMsg, Toast.LENGTH_SHORT).show()
 
                                 if (toEmail != null) {
-                                    val message = "Appointment confirmed for $formattedDate\nComment: $commentText"
+                                    val message = "$applicationName: Appointment confirmed for $formattedDate\nComment: $commentText"
                                     sendEmail(toEmail, message)
                                 }
 

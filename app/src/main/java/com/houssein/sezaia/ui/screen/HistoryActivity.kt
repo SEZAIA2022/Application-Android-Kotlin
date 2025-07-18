@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.CancelAppointmentRequest
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.network.RetrofitClient
@@ -26,6 +27,7 @@ class HistoryActivity : BaseActivity() {
     private lateinit var adapter: RepairAdapter
     private lateinit var spinnerSortDate: Spinner
     private lateinit var spinnerFilterStatus: Spinner
+    private lateinit var applicationName: String
 
     private var allRepairs: List<Repair> = emptyList()
 
@@ -55,10 +57,11 @@ class HistoryActivity : BaseActivity() {
         // Récupération du username depuis SharedPreferences
         val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
         val loggedUsername = sharedPref.getString("loggedUsername", "") ?: ""
-
+        val app = application as MyApp
+        applicationName = app.application_name
         lifecycleScope.launch {
             try {
-                allRepairs = RetrofitClient.instance.getRepairs(loggedUsername)
+                allRepairs = RetrofitClient.instance.getRepairs(loggedUsername, applicationName)
                 updateFilteredList()
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()

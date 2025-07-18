@@ -39,19 +39,32 @@ interface ApiService {
     @POST("api/add_qr")
     fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 
-
-
-
-
-
-
-
-
     @GET("api/questions")
-    fun getQuestions(): Call<List<Message>>
+    fun getQuestions(@Query("application") application: String): Call<List<Message>>
+
+    @POST("api/send_ask_and_response")
+    fun sendAskRepairWithResponses(@Body request: AskRepairWithResponsesRequest): Call<BaseResponse>
+
+    @GET("api/taken_slots")
+    fun getTakenSlots(): Call<TakenSlotsResponse>
 
     @POST("api/send_email")
     fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>
+
+    @GET("api/ask_repair")
+    suspend fun getRepairs(
+        @Query("username") username: String,
+        @Query("application") application: String = "sezaia"
+    ): List<Repair>
+
+
+
+
+
+
+
+
+
 
     @POST("api/change_username")
     fun changeUsername(@Body request: ChangeUsernameRequest): Call<ChangeUsernameResponse>
@@ -76,11 +89,9 @@ interface ApiService {
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
 
 
-    @GET("api/ask_repair")
-    suspend fun getRepairs(@Query("username") username: String): List<Repair>
 
-    @GET("api/taken_slots")
-    fun getTakenSlots(): Call<TakenSlotsResponse>
+
+
 
     @GET("api/about_us")
     fun getAboutUs(@Query("application") application: String): Call<AboutUsResponse>
@@ -97,8 +108,6 @@ interface ApiService {
     @GET("api/get_qrcodes")
     fun getQRCodes(): Call<QrCodeResponse>
 
-    @POST("api/send_ask_and_response")
-    fun sendAskRepairWithResponses(@Body request: AskRepairWithResponsesRequest): Call<BaseResponse>
 
     @GET("api/ask_repair/details/{repair_id}")
     suspend fun getRepairDetails(

@@ -5,7 +5,8 @@ data class AskRepairWithResponsesRequest(
     val date: String,
     val comment: String,
     val qr_code: String,
-    val responses: List<ResponseItem>
+    val responses: List<ResponseItem>,
+    val application_name: String
 )
 data class ResponseItem(
     val question_id: Int,

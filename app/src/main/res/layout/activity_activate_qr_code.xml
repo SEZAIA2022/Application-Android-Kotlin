@@ -6,138 +6,115 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.screen.ActivateQrCodeActivity">
+    tools:context=".ui.screen.SignUpActivity">
 
-    <!-- Toolbar fixe en haut -->
+    <!-- Toolbar personnalisé -->
     <include
         android:id="@+id/custom_toolbar"
         layout="@layout/toolbar_layout"
         android:layout_width="0dp"
-        android:layout_height="65dp"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ScrollView occupant tout l’espace sous la toolbar -->
     <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:fillViewport="true"
-        android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:padding="20dp"
+        app:layout_constraintTop_toBottomOf="@id/custom_toolbar">
 
-        <!-- LinearLayout vertical pour contenir les champs -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- User field -->
+            <!-- Username -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/userLayout"
-                style="@style/CustomTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                style="@style/CustomTextInputLayout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/user"
                     style="@style/CustomTextInputEditText"
-                    android:drawableEnd="@drawable/baseline_group_24"
-                    android:hint="@string/username" />
+                    android:hint="@string/username"
+                    android:drawableEnd="@drawable/baseline_group_24" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Country field -->
+            <!-- Country -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/countryLayout"
-                style="@style/CustomTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
+                style="@style/CustomTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/country"
                     style="@style/CustomTextInputEditText"
-                    android:drawableEnd="@drawable/baseline_language_24"
-                    android:hint="@string/country" />
+                    android:hint="@string/country"
+                    android:drawableEnd="@drawable/baseline_language_24" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- City field -->
+            <!-- City -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/cityLayout"
-                style="@style/CustomTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
+                style="@style/CustomTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/city"
                     style="@style/CustomTextInputEditText"
-                    android:drawableEnd="@drawable/baseline_location_city_24"
-                    android:hint="@string/city" />
+                    android:hint="@string/city"
+                    android:drawableEnd="@drawable/baseline_location_city_24" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Zone field -->
+            <!-- Zone -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/zoneLayout"
-                style="@style/CustomTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
+                style="@style/CustomTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/zone"
                     style="@style/CustomTextInputEditText"
-                    android:drawableEnd="@drawable/baseline_room_24"
-                    android:hint="@string/zone" />
+                    android:hint="@string/zone"
+                    android:drawableEnd="@drawable/baseline_room_24" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Street field -->
+            <!-- Street -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/streetLayout"
-                style="@style/CustomTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
+                style="@style/CustomTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/street"
                     style="@style/CustomTextInputEditText"
-                    android:drawableEnd="@drawable/outline_streetview_24"
-                    android:hint="@string/street" />
+                    android:hint="@string/street"
+                    android:drawableEnd="@drawable/baseline_home_24" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Exact Location field -->
+            <!-- Exact location -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/exactLocationLayout"
-                style="@style/CustomTextInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
+                style="@style/CustomTextInputLayout">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/exactLocation"
                     style="@style/CustomTextInputEditText"
-                    android:drawableEnd="@drawable/outline_pin_drop_24"
-                    android:hint="@string/exact_location" />
+                    android:hint="@string/exact_location"
+                    android:drawableEnd="@drawable/outline_pin_drop_24" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Bouton -->
+            <!-- activate Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddQrcode"
-                style="@style/MyCustomButtonBlue"
+                android:text="@string/add_qrcode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:text="@string/add_qrcode" />
+                style="@style/MyCustomButtonBlue"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp" />
+
+
 
         </LinearLayout>
-
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

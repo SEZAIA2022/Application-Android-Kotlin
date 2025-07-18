@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.AddQrRequest
 import com.houssein.sezaia.model.response.BaseResponse

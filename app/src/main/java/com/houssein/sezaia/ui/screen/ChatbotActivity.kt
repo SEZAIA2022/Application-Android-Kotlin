@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.data.QuestionAnswer
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.network.RetrofitClient
@@ -29,7 +30,7 @@ class ChatbotActivity : BaseActivity() {
     private lateinit var adapter: MessageAdapter
     private lateinit var btnContinueToAppointment: Button
     private lateinit var commentLayout: LinearLayout
-
+    private lateinit var applicationName: String
     private val questions = mutableListOf<Message>()
     private val messages = mutableListOf<Message>()
     private var currentQuestionIndex = 0
@@ -81,26 +82,27 @@ class ChatbotActivity : BaseActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         buttonYes.setOnClickListener {
-            val questionText = questions.getOrNull(currentQuestionIndex - 1)?.text ?: ""
             val answer = "Yes"
-            addMessage(answer, true)
-            questionResponseList.add(
-                QuestionAnswer(id = currentQuestionIndex, question = questionText, answer = answer)
-            )
-
+            val question = questions.getOrNull(currentQuestionIndex - 1)
+            if (question != null) {
+                questionResponseList.add(
+                    QuestionAnswer(id = question.id, question = question.text, answer = answer)
+                )
+            }
+            addMessage(answer, true, currentQuestionIndex)
 
             askNextQuestion()
         }
 
         buttonNo.setOnClickListener {
-            val questionText = questions.getOrNull(currentQuestionIndex - 1)?.text ?: ""
             val answer = "No"
-            addMessage(answer, true)
-            questionResponseList.add(
-                QuestionAnswer(id = currentQuestionIndex, question = questionText, answer = answer)
-            )
-
-
+            addMessage(answer, true, currentQuestionIndex)
+            val question = questions.getOrNull(currentQuestionIndex - 1)
+            if (question != null) {
+                questionResponseList.add(
+                    QuestionAnswer(id = question.id, question = question.text, answer = answer)
+                )
+            }
             askNextQuestion()
         }
 
@@ -114,27 +116,30 @@ class ChatbotActivity : BaseActivity() {
     private fun askNextQuestion() {
         if (currentQuestionIndex < questions.size) {
             val question = questions[currentQuestionIndex]
-            addMessage(question.text, false)
+            addMessage(question.text, false, question.id)
             currentQuestionIndex++
 
             buttonYes.visibility = View.VISIBLE
             buttonNo.visibility = View.VISIBLE
         } else {
-            addMessage(getString(R.string.thank_you_message), false)
+            addMessage(getString(R.string.thank_you_message), false, currentQuestionIndex)
             buttonYes.visibility = View.GONE
             buttonNo.visibility = View.GONE
             commentLayout.visibility = View.VISIBLE
         }
     }
 
-    private fun addMessage(text: String, isUser: Boolean) {
-        messages.add(Message(text, isUser))
+    private fun addMessage(text: String, isUser: Boolean, id: Int) {
+        messages.add(Message(text = text, isUser = isUser, id = id))
         adapter.notifyItemInserted(messages.size - 1)
         recyclerView.scrollToPosition(messages.size - 1)
     }
 
+
     private fun fetchQuestionsFromApi() {
-        RetrofitClient.instance.getQuestions().enqueue(object : Callback<List<Message>> {
+        val app = application as MyApp
+        applicationName = app.application_name
+        RetrofitClient.instance.getQuestions(applicationName).enqueue(object : Callback<List<Message>> {
             override fun onResponse(call: Call<List<Message>>, response: Response<List<Message>>) {
                 if (response.isSuccessful) {
                     val fetchedQuestions = response.body()
