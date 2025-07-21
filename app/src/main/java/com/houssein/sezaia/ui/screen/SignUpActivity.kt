@@ -113,7 +113,7 @@ class SignUpActivity : BaseActivity() {
             passwordEditText to passwordLayout,
             confirmPasswordEditText to confirmPasswordLayout
         )
-
+        inputFields.firstOrNull()?.first?.requestFocus()
         UIUtils.hideShowPassword(this, passwordEditText)
         UIUtils.hideShowPassword(this, confirmPasswordEditText)
     }

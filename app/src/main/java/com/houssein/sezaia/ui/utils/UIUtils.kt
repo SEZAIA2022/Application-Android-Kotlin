@@ -173,7 +173,10 @@ object UIUtils {
     ): TextWatcher {
         return object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
+                // Supprime complètement l’erreur et désactive la zone d’erreur pour éviter l’espace
+                layout.isErrorEnabled = false
                 layout.error = null
+
                 inputField.setTextColor(ContextCompat.getColor(inputField.context, R.color.blue))
                 layout.setStartIconTintList(
                     ColorStateList.valueOf(ContextCompat.getColor(inputField.context, R.color.gray))
@@ -184,6 +187,7 @@ object UIUtils {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
     }
+
 
     fun validateInputs(inputFields:List<Pair<TextInputEditText, TextInputLayout>>): Boolean {
         var isValid = true

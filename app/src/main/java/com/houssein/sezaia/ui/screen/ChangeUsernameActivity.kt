@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.ChangeUsernameRequest
 import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.response.ChangeUsernameResponse
@@ -64,6 +65,7 @@ class ChangeUsernameActivity : BaseActivity() {
             passwordEditText to passwordLayout
         )
 
+        inputFields.firstOrNull()?.first?.requestFocus()
 
         UIUtils.hideShowPassword(this, passwordEditText)
     }
@@ -81,7 +83,9 @@ class ChangeUsernameActivity : BaseActivity() {
         val username = usernameEditText.text.toString()
         val newUsername = newUsernameEditText.text.toString()
         val password = passwordEditText.text.toString()
-        val changeUsernameRequest = ChangeUsernameRequest(username, password, newUsername)
+        val app = application as MyApp
+        val applicationName = app.application_name
+        val changeUsernameRequest = ChangeUsernameRequest(username, password, newUsername, applicationName)
 
         RetrofitClient.instance.changeUsername(changeUsernameRequest).enqueue(object : Callback<ChangeUsernameResponse>{
             override fun onResponse(

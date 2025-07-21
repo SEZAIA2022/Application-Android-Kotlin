@@ -5,5 +5,6 @@ data class ChangeNumberRequest (
     val phone: String,
     val new_code: String,
     val new_phone: String,
-    val password: String
+    val password: String,
+    val application_name : String
 )

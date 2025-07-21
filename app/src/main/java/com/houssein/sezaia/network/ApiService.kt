@@ -68,12 +68,6 @@ interface ApiService {
     @GET("api/privacy_policy")
     fun getPrivacyPolicy(@Query("application") application: String): Call<PrivacyPolicyResponse>
 
-
-
-
-
-
-
     @POST("api/change_username")
     fun changeUsername(@Body request: ChangeUsernameRequest): Call<ChangeUsernameResponse>
 
@@ -86,7 +80,6 @@ interface ApiService {
     @POST("api/delete_account")
     fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
-
     @POST("api/change_email")
     fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
 
@@ -95,6 +88,12 @@ interface ApiService {
 
     @POST("api/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
+
+
+
+
+
+
 
     @GET("api/get_qrcodes")
     fun getQRCodes(): Call<QrCodeResponse>

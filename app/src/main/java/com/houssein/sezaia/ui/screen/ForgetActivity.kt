@@ -58,6 +58,7 @@ class ForgetActivity : BaseActivity() {
         usernameLayout = findViewById(R.id.usernameLayout) // C'est un TextInputLayout
         textView = findViewById(R.id.textView2)
         inputFields = listOf(emailInput to usernameLayout)
+        inputFields.firstOrNull()?.first?.requestFocus()
 
         val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
         val methode = sharedPref.getString("methode", null)
@@ -113,20 +114,26 @@ class ForgetActivity : BaseActivity() {
                             // Aller à VerifyOtpActivity
                             startActivity(Intent(this@ForgetActivity, VerifyOtpActivity::class.java))
                         } else {
-                            val errorBody = response.errorBody()
-                            val errorMsg = if (errorBody != null) {
-                                try {
-                                    // Tente de lire le JSON d’erreur pour extraire un message spécifique
-                                    val errorJson = JSONObject(errorBody.charStream().readText())
-                                    errorJson.optString("message", "Erreur inconnue")
-                                } catch (e: Exception) {
-                                    // Si ce n’est pas du JSON, renvoie le texte brut
-                                    errorBody.string()
+                            if (!response.isSuccessful) {
+                                resetInputStyles(R.color.red, clear = true, inputFields)
+
+                                val errorBody = response.errorBody()
+                                val errorMsg = if (errorBody != null) {
+                                    try {
+                                        val errorJson = JSONObject(errorBody.charStream().readText())
+                                        errorJson.optString("message", "Unknown error")
+                                    } catch (e: Exception) {
+                                        errorBody.string()
+                                    }
+                                } else {
+                                    "Unknown error"
                                 }
-                            } else {
-                                "Erreur inconnue"
+
+                                // Affiche le message d'erreur sous l'EditText
+                                usernameLayout.error = errorMsg
+
+                                Toast.makeText(this@ForgetActivity, errorMsg, Toast.LENGTH_SHORT).show()
                             }
-                            Toast.makeText(this@ForgetActivity, errorMsg, Toast.LENGTH_SHORT).show()
                         }
 
                     }

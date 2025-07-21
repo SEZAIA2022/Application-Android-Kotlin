@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
@@ -24,6 +25,9 @@ class CreatePasswordActivity : BaseActivity() {
 
     private lateinit var passwordInput: TextInputEditText
     private lateinit var confirmPasswordInput: TextInputEditText
+    private lateinit var passwordLayout: TextInputLayout
+    private lateinit var confirmPasswordLayout: TextInputLayout
+    private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
     private lateinit var btnResetPass: Button
     private lateinit var applicationName: String
 
@@ -41,7 +45,14 @@ class CreatePasswordActivity : BaseActivity() {
     private fun initViews() {
         passwordInput = findViewById(R.id.password)
         confirmPasswordInput = findViewById(R.id.confirm_password)
+        passwordLayout = findViewById(R.id.passwordInputLayout)
+        confirmPasswordLayout = findViewById(R.id.confirmPasswordInputLayout)
         btnResetPass = findViewById(R.id.btnResetPassword)
+        inputFields = listOf(
+            passwordInput to passwordLayout,
+            confirmPasswordInput to confirmPasswordLayout
+        )
+        inputFields.firstOrNull()?.first?.requestFocus()
     }
 
     private fun setupToolbar() {
@@ -73,36 +84,28 @@ class CreatePasswordActivity : BaseActivity() {
 
     private fun handleResetButtonClick() {
         btnResetPass.setOnClickListener {
-            val pass = passwordInput.text.toString()
-            val confirm = confirmPasswordInput.text.toString()
 
-            when {
-                pass.isEmpty() || confirm.isEmpty() -> {
-                    Toast.makeText(this, getString(R.string.fill_all_fields), Toast.LENGTH_SHORT).show()
-                }
-                pass != confirm -> {
-                    Toast.makeText(this, getString(R.string.passwords_do_not_match), Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                    resetPassword()
-                }
-            }
+            resetPassword()
+        }
+        inputFields.forEach { (editText, layout) ->
+            editText.addTextChangedListener(UIUtils.inputWatcher(editText, layout))
         }
     }
 
     private fun resetPassword() {
         val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val email =  sharedPref.getString("email", null)
+        val email = sharedPref.getString("email", null)
+
         if (email.isNullOrEmpty()) {
-            showDialog(getString(R.string.error), getString(R.string.email_missing), positiveButtonText = null, // pas de bouton positif
-                onPositiveClick = null,
-                negativeButtonText = "OK",
-                onNegativeClick = { /* rien */ },
-                cancelable = true)
+            passwordLayout.error = getString(R.string.email_missing)
+            confirmPasswordLayout.error = getString(R.string.email_missing)
+            Toast.makeText(this, getString(R.string.email_missing), Toast.LENGTH_SHORT).show()
             return
         }
+
         val app = application as MyApp
         applicationName = app.application_name
+
         val request = CreateNewPasswordRequest(
             email = email,
             new_password = passwordInput.text.toString(),
@@ -118,6 +121,7 @@ class CreatePasswordActivity : BaseActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val message = response.body()?.message ?: getString(R.string.password_changed)
                     Toast.makeText(this@CreatePasswordActivity, message, Toast.LENGTH_LONG).show()
+
                     val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
                     prefs.edit().apply {
                         putString("title", getString(R.string.password_changed))
@@ -129,29 +133,36 @@ class CreatePasswordActivity : BaseActivity() {
                     val intent = Intent(this@CreatePasswordActivity, SuccessActivity::class.java)
                     startActivity(intent)
 
-                    startActivity(intent)
                 } else {
-                    val errorMessage = try {
-                        val errorBody = response.errorBody()?.string()
-                        val json = JSONObject(errorBody ?: "")
-                        json.optString("message", getString(R.string.unknown_error))
-                    } catch (e: Exception) {
-                        getString(R.string.server_error)
+                    resetInputStyles(R.color.red, clear = true, inputFields)
+
+                    val errorBody = response.errorBody()
+                    val errorMsg = if (errorBody != null) {
+                        try {
+                            val errorJson = JSONObject(errorBody.charStream().readText())
+                            errorJson.optString("message", "Unknown error")
+                        } catch (e: Exception) {
+                            errorBody.string()
+                        }
+                    } else {
+                        "Unknown error"
                     }
-                    showDialog(getString(R.string.registration_failed), errorMessage, positiveButtonText = null, // pas de bouton positif
-                        onPositiveClick = null,
-                        negativeButtonText = "OK",
-                        onNegativeClick = { /* rien */ },
-                        cancelable = true)
+
+                    passwordLayout.error = errorMsg
+                    confirmPasswordLayout.error = errorMsg
+
+                    Toast.makeText(this@CreatePasswordActivity, errorMsg, Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<CreateNewPasswordResponse>, t: Throwable) {
-                showDialog(getString(R.string.network_error), t.localizedMessage ?: getString(R.string.unknown_error), positiveButtonText = null, // pas de bouton positif
-                    onPositiveClick = null,
-                    negativeButtonText = "OK",
-                    onNegativeClick = { /* rien */ },
-                    cancelable = true)
+                resetInputStyles(R.color.red, clear = true, inputFields)
+
+                val errorMsg = t.localizedMessage ?: getString(R.string.unknown_error)
+                passwordLayout.error = errorMsg
+                confirmPasswordLayout.error = errorMsg
+
+                Toast.makeText(this@CreatePasswordActivity, errorMsg, Toast.LENGTH_SHORT).show()
             }
         })
     }

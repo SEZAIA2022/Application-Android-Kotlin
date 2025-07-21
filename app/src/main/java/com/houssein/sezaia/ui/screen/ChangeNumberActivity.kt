@@ -9,6 +9,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.hbb20.CountryCodePicker
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.ChangeNumberRequest
 import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.network.RetrofitClient
@@ -70,6 +71,7 @@ class ChangeNumberActivity : BaseActivity() {
             newNumberEditText to newNumberLayout,
             passwordEditText to passwordLayout
         )
+        inputFields.firstOrNull()?.first?.requestFocus()
 
         UIUtils.hideShowPassword(this, passwordEditText)
     }
@@ -90,8 +92,9 @@ class ChangeNumberActivity : BaseActivity() {
         val oldPostalCode = oldPostalCodeEditText.selectedCountryCodeWithPlus.toString()
         val newPostalCode = newPostalCodeEditText.selectedCountryCodeWithPlus.toString()
         val password = passwordEditText.text.toString()
-
-        val request = ChangeNumberRequest(oldPostalCode, oldNumber, newPostalCode, newNumber, password)
+        val app = application as MyApp
+        val applicationName = app.application_name
+        val request = ChangeNumberRequest(oldPostalCode, oldNumber, newPostalCode, newNumber, password, applicationName)
 
         RetrofitClient.instance.changeNumber(request).enqueue(object : Callback<ChangeNumberResponse> {
             override fun onResponse(

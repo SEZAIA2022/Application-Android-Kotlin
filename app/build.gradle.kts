@@ -53,7 +53,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation (libs.material.v1110)
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.barcode.scanning)

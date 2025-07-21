@@ -187,7 +187,15 @@ class AppointmentActivity : AppCompatActivity() {
             selectedDate = dayItem.localDate
             selectedTimeSlot = timeSlot
             updateConfirmButtonState()
+
+            // 👉 Focus automatique sur le champ commentaire
+            commentEditText.requestFocus()
+            commentEditText.post {
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                imm.showSoftInput(commentEditText, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+            }
         }
+
         daysRecyclerView.layoutManager = LinearLayoutManager(this)
         daysRecyclerView.adapter = adapter
     }

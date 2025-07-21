@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.ChangeEmailRequest
 import com.houssein.sezaia.model.request.DeleteAccountRequest
 import com.houssein.sezaia.model.response.BaseResponse
@@ -59,6 +60,7 @@ class DeleteAccountActivity : BaseActivity() {
             confirmPasswordEditText to confirmPasswordLayout,
             passwordEditText to passwordLayout
         )
+        inputFields.firstOrNull()?.first?.requestFocus()
         UIUtils.hideShowPassword(this, passwordEditText)
         UIUtils.hideShowPassword(this, confirmPasswordEditText)
     }
@@ -75,9 +77,11 @@ class DeleteAccountActivity : BaseActivity() {
     private fun deleteAccount() {
         val email = emailEditText.text.toString()
         val password = passwordEditText.text.toString()
+        val app = application as MyApp
+        val applicationName = app.application_name
 
 
-        val deleteAccountRequest = DeleteAccountRequest(email, password)
+        val deleteAccountRequest = DeleteAccountRequest(email, password, applicationName)
         Log.d("DeleteAccount", "Tentative de suppression avec email: $email") // Log de débogage
         RetrofitClient.instance.deleteAccount(deleteAccountRequest).enqueue(object : Callback<BaseResponse> {
             override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {

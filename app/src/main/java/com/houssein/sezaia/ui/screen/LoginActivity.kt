@@ -59,6 +59,7 @@ class LoginActivity : BaseActivity() {
             usernameEditText to usernameLayout,
             passwordEditText to passwordLayout
         )
+        inputFields.firstOrNull()?.first?.requestFocus()
 
         UIUtils.hideShowPassword(this, passwordEditText)
     }
@@ -172,8 +173,13 @@ class LoginActivity : BaseActivity() {
                         cancelable = true)
                 } else {
                     resetInputStyles(R.color.red, clear = true, inputFields)
-                    usernameLayout.error = " "
-                    passwordLayout.error = " "
+
+                    usernameLayout.isErrorEnabled = true
+                    usernameLayout.error = "\u00A0"  // espace insécable pour afficher contour rouge sans texte visible
+
+                    passwordLayout.isErrorEnabled = true
+                    passwordLayout.error = "\u00A0"
+
 
                     val errorMessage = try {
                         response.errorBody()?.string()?.let {

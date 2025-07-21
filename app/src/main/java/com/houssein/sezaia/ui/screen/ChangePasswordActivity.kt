@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.ChangeNumberRequest
 import com.houssein.sezaia.model.request.ChangePasswordRequest
 import com.houssein.sezaia.model.response.ChangeNumberResponse
@@ -76,6 +77,7 @@ class ChangePasswordActivity : BaseActivity() {
             newPasswordEditText to newPasswordLayout,
             confirmNewPasswordEditText to confirmNewPasswordLayout
         )
+        inputFields.firstOrNull()?.first?.requestFocus()
 
         UIUtils.hideShowPassword(this, oldPasswordEditText)
         UIUtils.hideShowPassword(this, newPasswordEditText)
@@ -87,9 +89,11 @@ class ChangePasswordActivity : BaseActivity() {
         val oldPassword = oldPasswordEditText.text.toString()
         val newPassword = newPasswordEditText.text.toString()
         val confirmNewPassword = confirmNewPasswordEditText.text.toString()
+        val app = application as MyApp
+        val applicationName = app.application_name
 
 
-        val request = ChangePasswordRequest(email, oldPassword, newPassword, confirmNewPassword)
+        val request = ChangePasswordRequest(email, oldPassword, newPassword, confirmNewPassword, applicationName)
 
         RetrofitClient.instance.changePassword(request).enqueue(object :
             Callback<ChangePasswordResponse> {

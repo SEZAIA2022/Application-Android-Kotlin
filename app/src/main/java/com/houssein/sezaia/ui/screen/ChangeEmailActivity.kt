@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.ChangeEmailRequest
 import com.houssein.sezaia.model.request.ChangeUsernameRequest
 import com.houssein.sezaia.model.response.BaseResponse
@@ -61,6 +62,8 @@ class ChangeEmailActivity : BaseActivity() {
             newEmailEditText to newEmailLayout,
             passwordEditText to passwordLayout
         )
+        inputFields.firstOrNull()?.first?.requestFocus()
+
         UIUtils.hideShowPassword(this, passwordEditText)
 
     }
@@ -78,13 +81,16 @@ class ChangeEmailActivity : BaseActivity() {
         val email = emailEditText.text.toString()
         val newEmail = newEmailEditText.text.toString()
         val password = passwordEditText.text.toString()
+        val app = application as MyApp
+        val applicationName = app.application_name
 
         btnChangeEmail.isEnabled = false
 
         val request = ChangeEmailRequest(
             email = email,
             new_email = newEmail,
-            password = password
+            password = password,
+            applicationName
         )
 
         RetrofitClient.instance.changeEmail(request).enqueue(object : Callback<BaseResponse> {

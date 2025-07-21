@@ -42,7 +42,8 @@
             android:id="@+id/username"
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_group_24"
-            android:hint="@string/username_or_email" />
+            android:hint="@string/username_or_email"
+            android:textCursorDrawable="@drawable/custom_cursor" />
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordLayout"
@@ -57,7 +58,8 @@
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_visibility_off_24"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:textCursorDrawable="@drawable/custom_cursor"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView

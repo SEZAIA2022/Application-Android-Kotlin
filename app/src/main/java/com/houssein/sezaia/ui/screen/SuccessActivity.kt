@@ -69,7 +69,12 @@ class SuccessActivity : AppCompatActivity() {
                 finishAffinity()
             }
         } else {
-            btnHistory.setOnClickListener { startActivity( Intent(this@SuccessActivity, LoginActivity::class.java)) }
+            btnHistory.setOnClickListener {
+                val intent = Intent(this@SuccessActivity, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+
 
         }
     }

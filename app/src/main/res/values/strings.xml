@@ -109,6 +109,7 @@
     <string name="zone">Zone</string>
     <string name="street">Street</string>
     <string name="exact_location">Exact location</string>
+    <string name="reset_password">Reset password</string>
 
 
 </resources>

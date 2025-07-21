@@ -32,10 +32,10 @@ class RepairAdapter(
         val repair = repairs[position]
 
         holder.dateTextView.text = repair.date
-        holder.qrTextView.text = repair.qr_code ?: "N/A"
+        holder.qrTextView.text = repair.qr_code
 
         // Capitalisation propre
-        val status = (repair.status ?: "processing")
+        val status = (repair.status )
         val formattedStatus = status.replaceFirstChar { it.uppercase() }
         holder.statusTextView.text = formattedStatus
 
