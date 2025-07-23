@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.response.HelpItem
 import com.houssein.sezaia.model.response.HelpResponse
 import com.houssein.sezaia.network.RetrofitClient
@@ -19,6 +20,7 @@ import retrofit2.Response
 class HelpActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: HelpAdapter
+    private lateinit var applicationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +42,9 @@ class HelpActivity : AppCompatActivity() {
     }
 
     private fun fetchHelpTasks() {
-        val call = RetrofitClient.instance.getHelpTasks()
+        val app = application as MyApp
+        applicationName = app.application_name
+        val call = RetrofitClient.instance.getHelpTasks(applicationName)
         call.enqueue(object : Callback<HelpResponse> {
             override fun onResponse(call: Call<HelpResponse>, response: Response<HelpResponse>) {
                 if (response.isSuccessful && response.body() != null) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "734128563351",
+    "project_id": "sezaia-application",
+    "storage_bucket": "sezaia-application.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734128563351:android:e4430fd29c233f60c5f5d2",
+        "android_client_info": {
+          "package_name": "com.houssein.sezaia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPeM1s4kat9PmyoHhqP8KWtwimPcPuh4c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

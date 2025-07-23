@@ -89,31 +89,23 @@ interface ApiService {
     @POST("api/verify_delete_account")
     fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
 
+    @POST("api/add_description")
+    suspend fun addDescription(@Body request: DescriptionRequest): BaseResponse
 
-
-
-
-
-
-    @GET("api/get_qrcodes")
-    fun getQRCodes(): Call<QrCodeResponse>
-
+    @GET("api/help_tasks")
+    fun getHelpTasks(@Query("application") application: String): Call<HelpResponse>
 
     @GET("api/ask_repair/details/{repair_id}")
     suspend fun getRepairDetails(
         @Path("repair_id") repairId: String?
     ): RepairResponse
 
-    @POST("api/add_description")
-    suspend fun addDescription(@Body request: DescriptionRequest): BaseResponse
+    @GET("api/get_qrcodes")
+    fun getQRCodes(@Query("application") application: String): Call<QrCodeResponse>
 
     @GET("api/get_repair_by_qrcode_full")
     fun fetchRepairByQrCode(
         @Query("qr_code") qrCode: String
     ): Call<RepairApiResponse>
-
-    @GET("api/help_tasks")
-    fun getHelpTasks(): Call<HelpResponse>
-
 
 }

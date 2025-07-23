@@ -114,12 +114,12 @@ class QrCodeDetailActivity : AppCompatActivity() {
 
         adapter = RepairAdapter(filteredList) { repair ->
             val message = buildString {
-                append("Date: ${repair.date}\n")
-                repair.hour_slot?.let { append("Hour: $it\n") }
-                append("QR Code: ${repair.qr_code}\n")
-                append("Description_probleme: ${repair.description_probleme}\n")
-                repair.comment?.let { append("Comment: $it\n") }
-                append("Status: ${repair.status}\n")
+                appendLine("🗓️ Date : ${repair.date}")
+                repair.hour_slot?.let { appendLine("⏰ Hour : $it") }
+                appendLine("🔳 QR Code : ${repair.qr_code}")
+                appendLine("🛠️ Problem : ${repair.description_problem}")
+                repair.comment?.let { appendLine("💬 Comment : $it") }
+                appendLine("📌 Status : ${repair.status}")
             }
 
             showDialog(

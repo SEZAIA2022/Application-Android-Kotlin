@@ -26,49 +26,58 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-
+    // AndroidX Core and UI
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // Lifecycle & Navigation
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    // UI (Jetpack Compose or standard UI lib)
     implementation(libs.androidx.ui.android)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation (libs.retrofit)
-    implementation (libs.converter.gson)
-    implementation (libs.barcode.scanning)
-    implementation (libs.androidx.camera.core)
-    implementation (libs.camera.camera2)
-    implementation (libs.camera.lifecycle)
-    implementation (libs.camera.view)
-    implementation (libs.barcode.scanning)
-    implementation (libs.ccp)
-    implementation (libs.logging.interceptor) // ou version plus récente
-    implementation (libs.retrofit)
-    implementation (libs.converter.gson)
 
+    // Retrofit & Networking
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
 
+    // Firebase Messaging
+    implementation(libs.firebase.messaging)
 
+    // Camera & Barcode
+    implementation(libs.barcode.scanning)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
 
-
-
+    // Country Code Picker or Phone Utils
+    implementation(libs.ccp)
 }

@@ -40,12 +40,18 @@
         <Button
             android:id="@+id/buttonYes"
             style="@style/MyCustomButtonBlue"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="16dp"
+            android:layout_weight="1"
             android:text="@string/yes" />
 
         <Button
             android:id="@+id/buttonNo"
             style="@style/MyCustomButtonWhite"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
             android:text="@string/no" />
     </LinearLayout>
 
@@ -64,6 +70,7 @@
             style="@style/MyCustomButtonBlue"
             android:backgroundTint="@color/blue"
             android:layout_margin="16dp"
+            android:layout_width="match_parent"
             android:text="@string/Continue"
             />
     </LinearLayout>

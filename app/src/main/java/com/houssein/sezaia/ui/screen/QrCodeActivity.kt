@@ -8,6 +8,7 @@ import com.houssein.sezaia.R
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -21,6 +22,7 @@ class QrCodeActivity : BaseActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: QrCodeAdapter
+    private lateinit var applicationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +36,9 @@ class QrCodeActivity : BaseActivity() {
         )
         recyclerView = findViewById(R.id.repairRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
-        RetrofitClient.instance.getQRCodes().enqueue(object : Callback<QrCodeResponse> {
+        val app = application as MyApp
+        applicationName = app.application_name
+        RetrofitClient.instance.getQRCodes(applicationName).enqueue(object : Callback<QrCodeResponse> {
             override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                 if (response.isSuccessful && response.body()?.status == "success") {
                     val qrCodes = response.body()?.qrcodes ?: emptyList()
