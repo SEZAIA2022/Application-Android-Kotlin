@@ -19,7 +19,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import org.json.JSONObject
 import androidx.core.content.edit
+import com.google.firebase.messaging.FirebaseMessaging
 import com.houssein.sezaia.model.data.MyApp
+import com.houssein.sezaia.model.request.TokenRequest
 
 class LoginActivity : BaseActivity() {
 
@@ -145,6 +147,11 @@ class LoginActivity : BaseActivity() {
                         val role = responseBody.role.lowercase()
                         val user = responseBody.user
                         val email = responseBody.email
+                        if (role == "admin") {
+                          sendTokenToBackend(user, applicationName)
+                        }
+
+
                         val targetActivity = when (role) {
                             "user" -> CameraActivity::class.java
                             "admin" -> CameraActivity::class.java
@@ -204,6 +211,27 @@ class LoginActivity : BaseActivity() {
                     cancelable = true)
             }
         })
+    }
+
+    private fun sendTokenToBackend(username: String, applicationName: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                // Gérer l’erreur si besoin
+                return@addOnCompleteListener
+            }
+            val token = task.result
+            token?.let {
+                // Envoie le token avec le rôle "admin"
+                RetrofitClient.instance.registerToken(TokenRequest(it, username, applicationName)).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        // Token admin envoyé avec succès
+                    }
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        // Erreur lors de l’envoi du token admin
+                    }
+                })
+            }
+        }
     }
 
 }

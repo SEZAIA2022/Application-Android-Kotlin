@@ -281,7 +281,7 @@ class CameraActivity : BaseActivity() {
 
 
                 override fun onFailure(call: Call<QrCodeResponse>, t: Throwable) {
-                    Toast.makeText(this@CameraActivity, "Network error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@CameraActivity, "Please connect to the internet and try again.", Toast.LENGTH_SHORT).show()
                     resetScannerWithDelay()
                 }
             })

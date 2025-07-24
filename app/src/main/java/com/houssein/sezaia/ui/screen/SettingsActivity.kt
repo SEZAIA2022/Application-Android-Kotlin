@@ -8,9 +8,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.cardview.widget.CardView
 import com.google.android.material.card.MaterialCardView
 import com.houssein.sezaia.R
+import androidx.core.content.edit
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
-import androidx.core.content.edit
+import com.houssein.sezaia.model.request.LogoutRequest
+import com.houssein.sezaia.model.response.BaseResponse
+import com.houssein.sezaia.network.RetrofitClient
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import org.json.JSONObject
+
+
 
 class SettingsActivity : BaseActivity() {
 
@@ -99,17 +109,80 @@ class SettingsActivity : BaseActivity() {
 
     private fun logoutAction() {
         val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val username = prefs.getString("loggedUsername", null)
+        val app = application as MyApp
+        val applicationName = app.application_name
+
+        val logoutRequest = LogoutRequest(username.toString(), applicationName)
+
+        RetrofitClient.instance.logout(logoutRequest).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                if (response.isSuccessful) {
+                    // Nettoyer la session locale
+                    clearSession()
+
+                    // Message toast
+                    val message = response.body()?.message ?: "Logout Successfully."
+                    Toast.makeText(this@SettingsActivity, message, Toast.LENGTH_SHORT).show()
+                    val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+                    val editor = prefs.edit()
+                    editor.clear() // Vide tout
+                    editor.putBoolean("isLoggedIn", false) // Garde isLoggedIn = false
+                    editor.apply()
+
+                    // Redirection vers MainActivity
+                    val intent = Intent(this@SettingsActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                } else {
+                    val errorMessage = try {
+                        response.errorBody()?.string()?.let {
+                            JSONObject(it).getString("message")
+                        } ?: "Unknown Error"
+                    } catch (e: Exception) {
+                        "Network Error : ${response.code()}"
+                    }
+
+                    showDialog(
+                        title = "Connection Error",
+                        message = errorMessage,
+                        positiveButtonText = null,
+                        onPositiveClick = null,
+                        negativeButtonText = "OK",
+                        onNegativeClick = {},
+                        cancelable = true
+                    )
+                }
+            }
+
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                showDialog(
+                    title = "Unknown Error",
+                    message = t.localizedMessage ?: "Unknown Error",
+                    positiveButtonText = null,
+                    onPositiveClick = null,
+                    negativeButtonText = "OK",
+                    onNegativeClick = {},
+                    cancelable = true
+                )
+            }
+        })
+    }
+
+    // Fonction utilitaire pour vider SharedPreferences sans redirection
+    private fun clearSession() {
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
         prefs.edit {
             putBoolean("isLoggedIn", false)
-                .remove("userRole")  // Supprime le rôle
+            remove("userRole")
+            remove("loggedUsername")
+            remove("loggedEmail")
         }
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-
     }
+
+
+
 
     private fun openProfilePage() {
         startActivity(Intent(this, ProfileActivity::class.java))

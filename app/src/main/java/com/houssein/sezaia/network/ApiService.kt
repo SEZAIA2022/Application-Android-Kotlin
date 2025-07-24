@@ -108,4 +108,18 @@ interface ApiService {
         @Query("qr_code") qrCode: String
     ): Call<RepairApiResponse>
 
+    @POST("api/logout")
+    fun logout(@Body request: LogoutRequest): Call<BaseResponse>
+
+    @POST("/api/register_token")  // endpoint unique pour tous les tokens avec rôle
+    fun registerToken(@Body request: TokenRequest): Call<Void>
+
+    @POST("/api/notify_admin")
+    fun notifyAdmin(@Body request: NotificationRequest): Call<Void>
+//    @GET("api/is_logged")
+//    fun getIsLogged(
+//        @Query("username") username: String,
+//        @Query("application_name") appName: String
+//    ): Call<IsLoggedResponse>
+
 }

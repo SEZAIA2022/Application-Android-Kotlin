@@ -15,12 +15,14 @@ import com.houssein.sezaia.model.data.DayItem
 import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.data.QuestionAnswer
 import com.houssein.sezaia.model.request.AskRepairWithResponsesRequest
+import com.houssein.sezaia.model.request.NotificationRequest
 import com.houssein.sezaia.model.request.ResponseItem
 import com.houssein.sezaia.model.request.SendEmailRequest
 import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.TakenSlotsResponse
 import com.houssein.sezaia.network.RetrofitClient
+import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
 import retrofit2.Call
 import retrofit2.Callback
@@ -31,7 +33,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class AppointmentActivity : AppCompatActivity() {
+class AppointmentActivity : BaseActivity() {
 
     private lateinit var daysRecyclerView: RecyclerView
     private lateinit var confirmButton: MaterialButton
@@ -122,6 +124,7 @@ class AppointmentActivity : AppCompatActivity() {
                                 if (toEmail != null) {
                                     val message = "$applicationName: Appointment confirmed for $formattedDate\nComment: $commentText"
                                     sendEmail(toEmail, message)
+                                    sendNotificationToAdmin("hseinghannoum@gmail.com", applicationName)
                                 }
 
                                 val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
@@ -339,6 +342,20 @@ class AppointmentActivity : AppCompatActivity() {
         return slots
     }
 
+
+    private fun sendNotificationToAdmin(email: String, appName: String) {
+        val message = "New request "
+        val role = "admin"
+        RetrofitClient.instance.notifyAdmin(NotificationRequest(message, role, email, appName)).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                // Notification envoyée avec succès
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                // Erreur lors de l'envoi
+            }
+        })
+    }
 
     private fun sendEmail(toEmail: String, message: String) {
         val request = SendEmailRequest(toEmail, message)

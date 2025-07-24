@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -55,20 +56,17 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // UI (Jetpack Compose or standard UI lib)
-    implementation(libs.androidx.ui.android)
-
-    // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // (Optionnel) Jetpack Compose — si tu utilises Compose
+    implementation(libs.compose.material3)
 
     // Retrofit & Networking
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
 
-    // Firebase Messaging
+    // Firebase
+
+    implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
     implementation(libs.firebase.messaging)
 
     // Camera & Barcode
@@ -78,6 +76,12 @@ dependencies {
     implementation(libs.camera.lifecycle)
     implementation(libs.camera.view)
 
-    // Country Code Picker or Phone Utils
+    // Country Code Picker
     implementation(libs.ccp)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
+

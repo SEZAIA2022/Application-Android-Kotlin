@@ -1,7 +1,6 @@
 package com.houssein.sezaia.model.request
 
-data class LoginRequest(
+data class LogoutRequest(
     val username: String,
-    val password: String,
     val application_name: String
 )
