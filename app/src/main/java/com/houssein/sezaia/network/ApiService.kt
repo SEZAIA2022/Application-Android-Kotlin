@@ -122,4 +122,7 @@ interface ApiService {
 //        @Query("application_name") appName: String
 //    ): Call<IsLoggedResponse>
 
+    @POST("api/get_nearest_admin_email")
+    fun getNearestAdminEmail(@Body request: TechnicianRequest): Call<TechnicianResponse>
+
 }
