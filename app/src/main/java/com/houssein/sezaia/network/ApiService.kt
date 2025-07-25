@@ -45,7 +45,12 @@ interface ApiService {
     fun sendAskRepairWithResponses(@Body request: AskRepairWithResponsesRequest): Call<BaseResponse>
 
     @GET("api/taken_slots")
-    fun getTakenSlots(): Call<TakenSlotsResponse>
+    fun getTakenSlots(
+        @Query("user") user: String,
+        @Query("application") application: String
+    ): Call<TakenSlotsResponse>
+
+
 
     @POST("api/send_email")
     fun sendEmail(@Body request: SendEmailRequest): Call<SendEmailResponse>

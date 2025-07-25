@@ -35,14 +35,18 @@ class AppointmentActivity : BaseActivity() {
     private lateinit var confirmButton: MaterialButton
     private lateinit var commentEditText: TextInputEditText
     private lateinit var applicationName: String
+    private lateinit var loggedUser: String
+    private lateinit var loggedEmail: String
+    private lateinit var qrData: String
 
+    private var totalTechs: Int = 0
     private var selectedDayLabel: String? = null
     private var selectedDate: LocalDate? = null
     private var selectedTimeSlot: String? = null
     private var commentText: String = ""
 
     private lateinit var responseList: List<QuestionAnswer>
-    private var takenSlotsMap: Map<String, List<String>> = emptyMap()
+    private var takenSlotsMap: Map<String, Map<String, Int>> = emptyMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,12 +59,23 @@ class AppointmentActivity : BaseActivity() {
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
+        // Init views
         daysRecyclerView = findViewById(R.id.daysRecyclerView)
         confirmButton = findViewById(R.id.confirmButton)
         commentEditText = findViewById(R.id.comment)
-
         confirmButton.isEnabled = false
 
+        // Load shared preferences
+        val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
+        loggedUser = sharedPref.getString("loggedUsername", "") ?: ""
+        loggedEmail = sharedPref.getString("LoggedEmail", "") ?: ""
+        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+        qrData = sharedPreferences.getString("qrData", "") ?: ""
+
+        val app = application as MyApp
+        applicationName = app.application_name
+
+        // Load answers
         @Suppress("UNCHECKED_CAST")
         responseList = (intent.getSerializableExtra("responses") as? ArrayList<*>)?.filterIsInstance<QuestionAnswer>()
             ?: emptyList()
@@ -75,34 +90,34 @@ class AppointmentActivity : BaseActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        fetchTakenSlots {
+        fetchTakenSlots(loggedUser, applicationName) {
             setupDaysRecyclerView()
         }
-
-        val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
-        val loggedUser = sharedPref.getString("loggedUsername", null)
-        val loggedEmail = sharedPref.getString("LoggedEmail", null)
-        val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
-        val qrData = sharedPreferences.getString("qrData", null)
 
         confirmButton.setOnClickListener {
             if (selectedDate != null && selectedTimeSlot != null && commentText.isNotBlank()) {
                 lifecycleScope.launch {
                     try {
-                        val formatterOutput = DateTimeFormatter.ofPattern("EEEE, dd MMMM", Locale.ENGLISH)
-                        val formattedDate = "${selectedDate!!.format(formatterOutput)} $selectedTimeSlot"
+                        val dateKey = selectedDate!!.format(DateTimeFormatter.ISO_DATE) // ex: "2025-07-27"
+                        val hourSlot = selectedTimeSlot!! // ex: "08:00"
 
-                        val username = loggedUser ?: return@launch
-                        val qrCode = qrData ?: return@launch
-                        val toEmail = loggedEmail
+                        val technicianEmail = fetchNearestTechnicianEmailSuspend(
+                            loggedEmail, applicationName, dateKey, hourSlot
+                        )
+
+                        if (technicianEmail == null) {
+                            Toast.makeText(this@AppointmentActivity, "No available technicians at this slot", Toast.LENGTH_LONG).show()
+                            return@launch
+                        }
+
+                        val formatterOutput = DateTimeFormatter.ofPattern("EEEE, dd MMMM", Locale.ENGLISH)
+                        val formattedDate = "${selectedDate!!.format(formatterOutput)} $hourSlot"
 
                         val responsesPayload = responseList.map { ResponseItem(it.id, it.answer) }
 
-                        val app = application as MyApp
-                        applicationName = app.application_name
-
                         val combinedRequest = AskRepairWithResponsesRequest(
-                            username, formattedDate, commentText, qrCode, responsesPayload, applicationName
+                            loggedUser, formattedDate, commentText, qrData,
+                            responsesPayload, applicationName, technicianEmail
                         )
 
                         RetrofitClient.instance.sendAskRepairWithResponses(combinedRequest)
@@ -110,19 +125,6 @@ class AppointmentActivity : BaseActivity() {
                                 override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
                                     if (response.isSuccessful && response.body()?.status == "success") {
                                         Toast.makeText(this@AppointmentActivity, response.body()?.message, Toast.LENGTH_SHORT).show()
-
-                                        toEmail?.let {
-                                            val message = "$applicationName: Appointment confirmed for $formattedDate\nComment: $commentText"
-                                            sendEmail(it, message)
-
-                                            lifecycleScope.launch {
-                                                val email = fetchNearestTechnicianEmailSuspend(it, applicationName)
-                                                if (email != null) {
-                                                    sendNotificationToAdmin(email, applicationName)
-                                                }
-                                            }
-                                        }
-
                                         val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
                                         prefs.edit().apply {
                                             putString("title", getString(R.string.request_sent))
@@ -133,45 +135,49 @@ class AppointmentActivity : BaseActivity() {
 
                                         startActivity(Intent(this@AppointmentActivity, SuccessActivity::class.java))
                                     } else {
-                                        val errorMsg = try {
-                                            val errorBody = response.errorBody()?.string()
-                                            val json = org.json.JSONObject(errorBody ?: "")
-                                            json.optString("message", "Erreur inconnue")
-                                        } catch (e: Exception) {
-                                            "Erreur lors de la lecture de la réponse"
-                                        }
-                                        Toast.makeText(this@AppointmentActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(this@AppointmentActivity, "Erreur lors de la réservation", Toast.LENGTH_SHORT).show()
                                     }
                                 }
-
                                 override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
                                     Toast.makeText(this@AppointmentActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
                                 }
                             })
-
                     } catch (e: Exception) {
-                        Toast.makeText(this@AppointmentActivity, "Erreur lors du traitement de la date sélectionnée.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@AppointmentActivity, "Erreur lors du traitement de la date.", Toast.LENGTH_LONG).show()
                     }
                 }
             } else {
                 Toast.makeText(this, "Please select a date, a time slot and fill in the comments.", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
-    private fun fetchTakenSlots(onComplete: () -> Unit) {
-        RetrofitClient.instance.getTakenSlots().enqueue(object : Callback<TakenSlotsResponse> {
+    private fun fetchTakenSlots(user: String, application: String, onComplete: () -> Unit) {
+        if (user.isEmpty() || application.isEmpty()) {
+            Toast.makeText(this, "User or application is missing.", Toast.LENGTH_SHORT).show()
+            onComplete()
+            return
+        }
+
+        RetrofitClient.instance.getTakenSlots(user, application).enqueue(object : Callback<TakenSlotsResponse> {
             override fun onResponse(call: Call<TakenSlotsResponse>, response: Response<TakenSlotsResponse>) {
-                if (response.isSuccessful && response.body()?.status == "success") {
-                    takenSlotsMap = response.body()?.taken_slots ?: emptyMap()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null && body.status == "success") {
+                        takenSlotsMap = body.taken_slots ?: emptyMap()
+                        totalTechs = body.total_techs
+                    } else {
+                        Toast.makeText(this@AppointmentActivity, "Server returned an error.", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
-                    Toast.makeText(this@AppointmentActivity, "Erreur lors du chargement des créneaux pris.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentActivity, "Unexpected response: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
                 onComplete()
             }
 
             override fun onFailure(call: Call<TakenSlotsResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "Échec de la connexion : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AppointmentActivity, "Connection error: ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
                 onComplete()
             }
         })
@@ -206,18 +212,6 @@ class AppointmentActivity : BaseActivity() {
         val calendar = Calendar.getInstance()
         val formatter = java.text.SimpleDateFormat("EEEE dd MMMM", Locale.ENGLISH)
 
-        fun allPossibleSlots(date: Date): List<String> {
-            val calendar = Calendar.getInstance().apply { time = date }
-            val timeFormat = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
-            val slots = mutableListOf<String>()
-            calendar.set(Calendar.HOUR_OF_DAY, 8)
-            calendar.set(Calendar.MINUTE, 0)
-            while (calendar.get(Calendar.HOUR_OF_DAY) <= 18) {
-                slots.add(timeFormat.format(calendar.time))
-                calendar.add(Calendar.HOUR_OF_DAY, 2)
-            }
-            return slots
-        }
 
         while (list.size < count) {
             val date = calendar.time
@@ -226,17 +220,38 @@ class AppointmentActivity : BaseActivity() {
             val isHoliday = isPublicHoliday(localDate)
 
             if (!isWeekend && !isHoliday) {
-                val dateKey = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-                val takenSlotsForDate = takenSlotsMap[dateKey] ?: emptyList()
-                val allSlots = allPossibleSlots(date)
-                if (takenSlotsForDate.size < allSlots.size) {
-                    list.add(DayItem(formatter.format(date), generateTimeSlots(date), localDate))
+                val availableSlots = generateTimeSlots(date)
+
+                if (availableSlots.isNotEmpty()) {
+                    list.add(DayItem(formatter.format(date), availableSlots, localDate))
                 }
             }
             calendar.add(Calendar.DAY_OF_YEAR, 1)
         }
 
         return list
+    }
+
+    private fun generateTimeSlots(date: Date): List<String> {
+        val calendar = Calendar.getInstance().apply { time = date }
+        val format = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
+        val dateKey = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
+        val takenForDate = takenSlotsMap[dateKey] ?: emptyMap()
+        val slots = mutableListOf<String>()
+
+        calendar.set(Calendar.HOUR_OF_DAY, 8)
+        calendar.set(Calendar.MINUTE, 0)
+
+        while (calendar.get(Calendar.HOUR_OF_DAY) <= 18) {
+            val slot = format.format(calendar.time)
+            val takenCount = takenForDate[slot] ?: 0
+            if (takenCount < totalTechs) {
+                slots.add(slot)
+            }
+            calendar.add(Calendar.HOUR_OF_DAY, 2)
+        }
+
+        return slots
     }
 
     private fun isPublicHoliday(date: LocalDate): Boolean {
@@ -268,22 +283,6 @@ class AppointmentActivity : BaseActivity() {
         return LocalDate.of(year, month, day)
     }
 
-    private fun generateTimeSlots(date: Date): List<String> {
-        val calendar = Calendar.getInstance().apply { time = date }
-        val format = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
-        val dateKey = java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
-        val taken = takenSlotsMap[dateKey] ?: emptyList()
-        val slots = mutableListOf<String>()
-        calendar.set(Calendar.HOUR_OF_DAY, 8)
-        calendar.set(Calendar.MINUTE, 0)
-        while (calendar.get(Calendar.HOUR_OF_DAY) <= 18) {
-            val slot = format.format(calendar.time)
-            if (slot !in taken) slots.add(slot)
-            calendar.add(Calendar.HOUR_OF_DAY, 2)
-        }
-        return slots
-    }
-
     private fun sendNotificationToAdmin(email: String, appName: String) {
         RetrofitClient.instance.notifyAdmin(
             NotificationRequest("New request", "admin", email, appName)
@@ -308,9 +307,14 @@ class AppointmentActivity : BaseActivity() {
             })
     }
 
-    suspend fun fetchNearestTechnicianEmailSuspend(email: String, application: String): String? =
+    suspend fun fetchNearestTechnicianEmailSuspend(
+        email: String,
+        application: String,
+        date: String,
+        hourSlot: String
+    ): String? =
         suspendCancellableCoroutine { continuation ->
-            RetrofitClient.instance.getNearestAdminEmail(TechnicianRequest(email, application))
+            RetrofitClient.instance.getNearestAdminEmail(TechnicianRequest(email, application, date, hourSlot))
                 .enqueue(object : Callback<TechnicianResponse> {
                     override fun onResponse(call: Call<TechnicianResponse>, response: Response<TechnicianResponse>) {
                         if (response.isSuccessful) {
