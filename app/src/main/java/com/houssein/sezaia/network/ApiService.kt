@@ -58,7 +58,7 @@ interface ApiService {
     @GET("api/ask_repair")
     suspend fun getRepairs(
         @Query("username") username: String,
-        @Query("application") application: String = "sezaia"
+        @Query("application") application: String
     ): List<Repair>
 
     @POST("api/cancel_appointment")
@@ -110,7 +110,8 @@ interface ApiService {
 
     @GET("api/get_repair_by_qrcode_full")
     fun fetchRepairByQrCode(
-        @Query("qr_code") qrCode: String
+        @Query("qr_code") qrCode: String,
+        @Query("user_tech") user_tech: String
     ): Call<RepairApiResponse>
 
     @POST("api/logout")

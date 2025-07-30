@@ -1,6 +1,7 @@
 package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Spinner
@@ -13,6 +14,7 @@ import com.houssein.sezaia.R
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.model.response.RepairApiResponse
 import com.houssein.sezaia.network.RetrofitClient
+import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.adapter.RepairAdapter
 import com.houssein.sezaia.ui.utils.UIUtils
 import retrofit2.Call
@@ -21,7 +23,7 @@ import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.*
 
-class QrCodeDetailActivity : AppCompatActivity() {
+class QrCodeDetailActivity : BaseActivity() {
 
     private lateinit var repairRecyclerView: RecyclerView
     private lateinit var spinnerSortDate: Spinner
@@ -52,10 +54,12 @@ class QrCodeDetailActivity : AppCompatActivity() {
         setupSpinners()
 
         val qrCode = intent.getStringExtra("qr_code")
+        val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val techUser = sharedPref.getString("loggedUsername", "") ?: ""
         if (qrCode != null) {
-            loadRepairData(qrCode)
+            loadRepairData(qrCode, techUser)
         } else {
-            Toast.makeText(this, "Aucun QR code trouvé", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "QR code not found", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -78,8 +82,8 @@ class QrCodeDetailActivity : AppCompatActivity() {
         spinnerFilterStatus.onItemSelectedListener = listener
     }
 
-    private fun loadRepairData(qrCode: String) {
-        RetrofitClient.instance.fetchRepairByQrCode(qrCode)
+    private fun loadRepairData(qrCode: String, techUser: String) {
+        RetrofitClient.instance.fetchRepairByQrCode(qrCode, techUser)
             .enqueue(object : Callback<RepairApiResponse> {
                 override fun onResponse(call: Call<RepairApiResponse>, response: Response<RepairApiResponse>) {
                     if (response.isSuccessful) {
@@ -88,15 +92,15 @@ class QrCodeDetailActivity : AppCompatActivity() {
                             allRepairs = body.data
                             updateFilteredList()
                         } else {
-                            Toast.makeText(this@QrCodeDetailActivity, body?.message ?: "Aucune donnée trouvée", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@QrCodeDetailActivity, body?.message ?: "History not found", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        Toast.makeText(this@QrCodeDetailActivity, "Erreur serveur : ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@QrCodeDetailActivity, "Qr has not been repaired before", Toast.LENGTH_SHORT).show()
                     }
                 }
 
                 override fun onFailure(call: Call<RepairApiResponse>, t: Throwable) {
-                    Toast.makeText(this@QrCodeDetailActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@QrCodeDetailActivity, "Please connect to the internet and try again.", Toast.LENGTH_SHORT).show()
                 }
             })
     }
@@ -120,15 +124,38 @@ class QrCodeDetailActivity : AppCompatActivity() {
                 appendLine("🛠️ Problem : ${repair.description_problem}")
                 repair.comment?.let { appendLine("💬 Comment : $it") }
                 appendLine("📌 Status : ${repair.status}")
+                if (repair.status == "repaired") {
+                    appendLine("👷 Technician : ${repair.user_tech ?: "N/A"}")
+                }
+                repair.address?.let {
+                    appendLine("📍 Address : $it")
+                }
+            }
+
+            val context = repairRecyclerView.context
+
+            val encodedAddress = repair.address?.let { Uri.encode(it) }
+            val mapsUri = encodedAddress?.let {
+                Uri.parse("https://www.google.com/maps/search/?api=1&query=$it")
             }
 
             showDialog(
                 title = "Repair details",
                 message = message,
                 positiveButtonText = "OK",
-                onPositiveClick = {}
+                onPositiveClick = {},
+                negativeButtonText = if (mapsUri != null) "Ouvrir dans Google Maps" else null,
+                onNegativeClick =
+                    if (mapsUri != null) {
+                        {
+                            val intent = Intent(Intent.ACTION_VIEW, mapsUri)
+                            intent.setPackage("com.google.android.apps.maps")
+                            context.startActivity(intent)
+                        }
+                    } else null
             )
         }
+
 
         repairRecyclerView.adapter = adapter
     }
@@ -143,17 +170,5 @@ class QrCodeDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDialog(
-        title: String,
-        message: String,
-        positiveButtonText: String,
-        onPositiveClick: () -> Unit
-    ) {
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(positiveButtonText) { _, _ -> onPositiveClick() }
-            .show()
-    }
 
 }

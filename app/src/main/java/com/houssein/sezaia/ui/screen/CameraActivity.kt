@@ -31,6 +31,7 @@ import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.BarcodeOverlayView
 import com.houssein.sezaia.ui.utils.UIUtils
 import com.houssein.sezaia.network.RetrofitClient
+import com.houssein.sezaia.ui.screen.QrCodeActivity
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -298,7 +299,9 @@ class CameraActivity : BaseActivity() {
                     putString("status_repair", status_repair)
                     apply()
                 }
-                startActivity(Intent(this@CameraActivity, RepairActivity::class.java))
+                val intent = Intent(this@CameraActivity, RepairActivity::class.java)
+                intent.putExtra("qr_code", qrCode )
+                startActivity(intent)
             } else {
                 Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
                 resetScannerWithDelay()

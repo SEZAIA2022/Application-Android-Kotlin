@@ -115,9 +115,10 @@ class HistoryActivity : BaseActivity() {
                 appendLine("🛠️ Problem : ${repair.description_problem}")
                 repair.comment?.let { appendLine("💬 Comment : $it") }
                 appendLine("📌 Status : ${repair.status}")
+                appendLine("👷 Technician : ${repair.user_tech ?: "N/A"}") // Safe call + fallback
             }
 
-            val showNegative = repair.status.lowercase() != "repaired" // Condition : bouton négatif si status différent de "repaired"
+            val showNegative = repair.status.lowercase() != "repaired"
 
             showDialog(
                 title = "Repair details",
@@ -127,26 +128,24 @@ class HistoryActivity : BaseActivity() {
                 onPositiveClick = {},
                 onNegativeClick = {
                     if (showNegative) {
-                        cancelAppointement(repair.id)
+                        cancelAppointment(repair.id)  // Correction orthographe
                     }
                 }
             )
         }
 
-
         recyclerView.adapter = adapter
     }
 
-    private fun cancelAppointement(repairId: Int) {
+    private fun cancelAppointment(repairId: Int) {
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.instance.cancelAppointment(CancelAppointmentRequest(repairId))
                 Toast.makeText(this@HistoryActivity, response.message, Toast.LENGTH_LONG).show()
                 if (response.status == "success") {
-                    // Recharge la liste après annulation
                     val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
                     val loggedUsername = sharedPref.getString("loggedUsername", "") ?: ""
-                    allRepairs = RetrofitClient.instance.getRepairs(loggedUsername)
+                    allRepairs = RetrofitClient.instance.getRepairs(loggedUsername, applicationName) // Ajout applicationName
                     updateFilteredList()
                 }
             } catch (e: Exception) {
@@ -155,8 +154,6 @@ class HistoryActivity : BaseActivity() {
         }
     }
 
-
-    // Fonction pour parser date + heure en Date Java
     private fun parseDate(dateStr: String): Date? {
         return try {
             val format = SimpleDateFormat("EEEE, dd MMM yyyy", Locale.getDefault())

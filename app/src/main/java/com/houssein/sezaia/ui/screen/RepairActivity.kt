@@ -64,7 +64,9 @@ class RepairActivity : AppCompatActivity() {
 
         // Listener pour ouvrir l'activité historique
         btnHistory.setOnClickListener {
-            val intent = Intent(this, HistoryActivity::class.java)
+            val qrCode = intent.getStringExtra("qr_code")
+            val intent = Intent(this, QrCodeDetailActivity::class.java)
+            intent.putExtra("qr_code", qrCode)
             startActivity(intent)
         }
 

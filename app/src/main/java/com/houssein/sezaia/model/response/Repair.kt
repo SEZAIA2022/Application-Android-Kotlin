@@ -8,5 +8,7 @@ data class Repair(
     val qr_code: String,
     val hour_slot: String?,
     val status: String,
-    val description_problem: String?
+    val description_problem: String?,
+    val user_tech: String?,
+    val address: String?
 )
