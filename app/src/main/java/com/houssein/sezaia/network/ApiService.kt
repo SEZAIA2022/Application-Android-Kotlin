@@ -131,4 +131,9 @@ interface ApiService {
     @POST("api/get_nearest_admin_email")
     fun getNearestAdminEmail(@Body request: TechnicianRequest): Call<TechnicianResponse>
 
+    @POST("assign_and_notify_admin")
+    fun assignAndNotifyAdmin(
+        @Body request: AssignAdminRequest
+    ): Call<AssignAdminResponse>
+
 }

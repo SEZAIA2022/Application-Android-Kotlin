@@ -21,7 +21,6 @@ import org.json.JSONObject
 import androidx.core.content.edit
 import com.google.firebase.messaging.FirebaseMessaging
 import com.houssein.sezaia.model.data.MyApp
-import com.houssein.sezaia.model.request.TokenRequest
 
 class LoginActivity : BaseActivity() {
 
@@ -33,19 +32,21 @@ class LoginActivity : BaseActivity() {
     private lateinit var btnSignUp: Button
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         enableEdgeToEdge()
-        // Appliquer les insets des barres système
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-
         initViews()
+
         UIUtils.initToolbar(
-            this,getString(R.string.login),actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
+            this,
+            getString(R.string.login),
+            actionIconRes = R.drawable.baseline_density_medium_24,
+            onBackClick = { finish() },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
+
         setupListeners()
     }
 
@@ -61,8 +62,8 @@ class LoginActivity : BaseActivity() {
             usernameEditText to usernameLayout,
             passwordEditText to passwordLayout
         )
-        inputFields.firstOrNull()?.first?.requestFocus()
 
+        inputFields.firstOrNull()?.first?.requestFocus()
         UIUtils.hideShowPassword(this, passwordEditText)
     }
 
@@ -76,34 +77,15 @@ class LoginActivity : BaseActivity() {
                     positiveButtonText = "Email",
                     onPositiveClick = {
                         val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
-                        sharedPref.edit().apply {
+                        sharedPref.edit {
                             putString("methode", "Email")
-                            apply()
                         }
                         startActivity(Intent(context, ForgetActivity::class.java))
                     },
                     negativeButtonText = "Cancel",
-                    onNegativeClick = { }
-//                    positiveButtonText = "Phone",
-//                    onPositiveClick = {
-//                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
-//                        sharedPref.edit().apply {
-//                            putString("methode", "Phone")
-//                            apply()
-//                        }
-//                        startActivity(Intent(context, ForgetActivity::class.java))
-//                    },
-//                    negativeButtonText = "Email",
-//                    onNegativeClick = {
-//                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
-//                        sharedPref.edit().apply {
-//                            putString("methode", "Email")
-//                            apply()
-//                        }
-//                        startActivity(Intent(context, ForgetActivity::class.java))
-//                    }
+                    onNegativeClick = { },
+                    cancelable = true
                 )
-
             }
         }
 
@@ -131,107 +113,123 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun loginCheck() {
-        val username = usernameEditText.text.toString()
-        val password = passwordEditText.text.toString()
+        val username = usernameEditText.text.toString().trim()
+        val password = passwordEditText.text.toString().trim()
         val app = application as MyApp
         val applicationName = app.application_name
-        val loginRequest = LoginRequest(username, password, applicationName)
 
-        RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
-            override fun onResponse(
-                call: Call<LoginResponse>,
-                response: Response<LoginResponse>
-            ) {
-                if (response.isSuccessful) {
-                    response.body()?.let { responseBody ->
-                        val role = responseBody.role.lowercase()
-                        val user = responseBody.user
-                        val email = responseBody.email
-                        if (role == "admin") {
-                          sendTokenToBackend(user, applicationName)
-                        }
+        if (username.isEmpty() || password.isEmpty()) {
+            showDialog(
+                title = "Error",
+                message = "Username and password are required.",
+                positiveButtonText = null,
+                onPositiveClick = null,
+                negativeButtonText = "OK",
+                onNegativeClick = { },
+                cancelable = true
+            )
+            usernameEditText.requestFocus()
+            return
+        }
 
-
-                        val targetActivity = when (role) {
-                            "user" -> CameraActivity::class.java
-                            "admin" -> CameraActivity::class.java
-                            else -> {
-                                showDialog("Error", "Role unknown : $role",positiveButtonText = null, // pas de bouton positif
-                                    onPositiveClick = null,
-                                    negativeButtonText = "OK",
-                                    onNegativeClick = { /* rien */ },
-                                    cancelable = true)
-                                return
-                            }
-                        }
-                        getSharedPreferences("LoginData", MODE_PRIVATE)
-                            .edit {
-                                putString("loggedUsername", user)
-                                    .putString("LoggedEmail", email)
-                                    .putBoolean("isLoggedIn", true)
-                                    .putString("userRole", role)
-                            }
-
-                        startActivity(Intent(this@LoginActivity, targetActivity))
-                    } ?: showDialog("Error", "Empty response from the server.", positiveButtonText = null, // pas de bouton positif
-                        onPositiveClick = null,
-                        negativeButtonText = "OK",
-                        onNegativeClick = { /* rien */ },
-                        cancelable = true)
-                } else {
-                    resetInputStyles(R.color.red, clear = true, inputFields)
-
-                    usernameLayout.isErrorEnabled = true
-                    usernameLayout.error = "\u00A0"  // espace insécable pour afficher contour rouge sans texte visible
-
-                    passwordLayout.isErrorEnabled = true
-                    passwordLayout.error = "\u00A0"
-
-
-                    val errorMessage = try {
-                        response.errorBody()?.string()?.let {
-                            JSONObject(it).getString("message")
-                        } ?: "Unknown error"
-                    } catch (e: Exception) {
-                        "Network Error : ${response.code()}"
-                    }
-                    showDialog("Connection failure", errorMessage,positiveButtonText = null, // pas de bouton positif
-                        onPositiveClick = null,
-                        negativeButtonText = "OK",
-                        onNegativeClick = { /* rien */ },
-                        cancelable = true)
-                }
-            }
-
-            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                showDialog("Connection failure", t.localizedMessage ?: "Unknown error", positiveButtonText = null, // pas de bouton positif
-                    onPositiveClick = null,
-                    negativeButtonText = "OK",
-                    onNegativeClick = { /* rien */ },
-                    cancelable = true)
-            }
-        })
-    }
-
-    private fun sendTokenToBackend(username: String, applicationName: String) {
+        // On récupère le token FCM et on l'envoie directement dans le login
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
-                // Gérer l’erreur si besoin
+                showDialog(
+                    title = "Error",
+                    message = "Unable to get device token.",
+                    positiveButtonText = null,
+                    onPositiveClick = null,
+                    negativeButtonText = "OK",
+                    onNegativeClick = { },
+                    cancelable = true
+                )
                 return@addOnCompleteListener
             }
-            val token = task.result
-            token?.let {
-                // Envoie le token avec le rôle "admin"
-                RetrofitClient.instance.registerToken(TokenRequest(it, username, applicationName)).enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        // Token admin envoyé avec succès
+
+            val fcmToken = task.result ?: ""
+            val loginRequest = LoginRequest(username, password, applicationName, fcmToken)
+
+            RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+                override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { body ->
+                            val role = body.role.lowercase()
+                            val user = body.user
+                            val email = body.email
+
+                            val targetActivity = when (role) {
+                                "user", "admin" -> CameraActivity::class.java
+                                else -> {
+                                    showDialog(
+                                        title = "Error",
+                                        message = "Role unknown : $role",
+                                        positiveButtonText = null,
+                                        onPositiveClick = null,
+                                        negativeButtonText = "OK",
+                                        onNegativeClick = { },
+                                        cancelable = true
+                                    )
+                                    return
+                                }
+                            }
+
+                            getSharedPreferences("LoginData", MODE_PRIVATE).edit {
+                                putString("loggedUsername", user)
+                                putString("LoggedEmail", email)
+                                putBoolean("isLoggedIn", true)
+                                putString("userRole", role)
+                            }
+
+                            startActivity(Intent(this@LoginActivity, targetActivity))
+                        } ?: showDialog(
+                            title = "Error",
+                            message = "Empty response from the server.",
+                            positiveButtonText = null,
+                            onPositiveClick = null,
+                            negativeButtonText = "OK",
+                            onNegativeClick = { },
+                            cancelable = true
+                        )
+                    } else {
+                        resetInputStyles(R.color.red, clear = true, inputFields)
+                        usernameLayout.isErrorEnabled = true
+                        usernameLayout.error = "\u00A0"
+                        passwordLayout.isErrorEnabled = true
+                        passwordLayout.error = "\u00A0"
+
+                        val errorMessage = try {
+                            response.errorBody()?.string()?.let {
+                                JSONObject(it).getString("message")
+                            } ?: "Unknown error"
+                        } catch (e: Exception) {
+                            "Network Error : ${response.code()}"
+                        }
+
+                        showDialog(
+                            title = "Connection failure",
+                            message = errorMessage,
+                            positiveButtonText = null,
+                            onPositiveClick = null,
+                            negativeButtonText = "OK",
+                            onNegativeClick = { },
+                            cancelable = true
+                        )
                     }
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        // Erreur lors de l’envoi du token admin
-                    }
-                })
-            }
+                }
+
+                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                    showDialog(
+                        title = "Connection failure",
+                        message = t.localizedMessage ?: "Unknown error",
+                        positiveButtonText = null,
+                        onPositiveClick = null,
+                        negativeButtonText = "OK",
+                        onNegativeClick = { },
+                        cancelable = true
+                    )
+                }
+            })
         }
     }
-
 }

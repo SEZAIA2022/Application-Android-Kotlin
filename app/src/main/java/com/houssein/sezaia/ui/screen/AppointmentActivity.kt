@@ -125,6 +125,8 @@ class AppointmentActivity : BaseActivity() {
                                 override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
                                     if (response.isSuccessful && response.body()?.status == "success") {
                                         Toast.makeText(this@AppointmentActivity, response.body()?.message, Toast.LENGTH_SHORT).show()
+                                        sendNotificationToAdmin(technicianEmail, applicationName)
+                                        sendNotificationToUser(loggedEmail, applicationName)
                                         val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
                                         prefs.edit().apply {
                                             putString("title", getString(R.string.request_sent))
@@ -285,27 +287,36 @@ class AppointmentActivity : BaseActivity() {
 
     private fun sendNotificationToAdmin(email: String, appName: String) {
         RetrofitClient.instance.notifyAdmin(
-            NotificationRequest("New request", "admin", email, appName)
+            NotificationRequest("New request received", "admin", email, appName)
         ).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
             override fun onFailure(call: Call<Void>, t: Throwable) {}
         })
     }
 
-    private fun sendEmail(toEmail: String, message: String) {
-        RetrofitClient.instance.sendEmail(SendEmailRequest(toEmail, message))
-            .enqueue(object : Callback<SendEmailResponse> {
-                override fun onResponse(call: Call<SendEmailResponse>, response: Response<SendEmailResponse>) {
-                    if (!response.isSuccessful) {
-                        Toast.makeText(this@AppointmentActivity, "Erreur lors de l'envoi de l'email.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<SendEmailResponse>, t: Throwable) {
-                    Toast.makeText(this@AppointmentActivity, "Échec de connexion pour l'envoi d'email.", Toast.LENGTH_SHORT).show()
-                }
-            })
+    private fun sendNotificationToUser(email: String, appName: String) {
+        RetrofitClient.instance.notifyAdmin(
+            NotificationRequest("New request sent successfully", "user", email, appName)
+        ).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {}
+            override fun onFailure(call: Call<Void>, t: Throwable) {}
+        })
     }
+
+//    private fun sendEmail(toEmail: String, message: String) {
+//        RetrofitClient.instance.sendEmail(SendEmailRequest(toEmail, message))
+//            .enqueue(object : Callback<SendEmailResponse> {
+//                override fun onResponse(call: Call<SendEmailResponse>, response: Response<SendEmailResponse>) {
+//                    if (!response.isSuccessful) {
+//                        Toast.makeText(this@AppointmentActivity, "Erreur lors de l'envoi de l'email.", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<SendEmailResponse>, t: Throwable) {
+//                    Toast.makeText(this@AppointmentActivity, "Échec de connexion pour l'envoi d'email.", Toast.LENGTH_SHORT).show()
+//                }
+//            })
+//    }
 
     suspend fun fetchNearestTechnicianEmailSuspend(
         email: String,

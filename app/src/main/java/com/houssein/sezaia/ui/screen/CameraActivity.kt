@@ -37,6 +37,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
+import kotlin.math.log
 
 class CameraActivity : BaseActivity() {
 
@@ -255,6 +256,7 @@ class CameraActivity : BaseActivity() {
                 override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                     val body = response.body()
                     val statusRepair = body?.status_repair.orEmpty()
+
                     val repairRequestId = body?.id_ask_repair.orEmpty()
                     val message = body?.message ?: "QR code verified successfully."
 
