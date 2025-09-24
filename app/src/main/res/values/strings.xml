@@ -110,6 +110,16 @@
     <string name="street">Street</string>
     <string name="exact_location">Exact location</string>
     <string name="reset_password">Reset password</string>
+    <string name="check_your_email">Please check your email to verify your account.</string>
+    <string name="verification_token">Verification token</string>
+    <string name="verify">Verify</string>
+    <string name="resend_link">Resend verification link</string>
+    <string name="token_required">Token required</string>
+    <string name="verify_email_title">Email verification</string>
+    <string name="check_your_email_title">Check your email</string>
+    <string name="check_your_email_message">We’ve sent a verification link to your email address. Please open your mail app to confirm your account.</string>
+    <string name="open_email_app">Open my email app</string>
+
 
 
 </resources>

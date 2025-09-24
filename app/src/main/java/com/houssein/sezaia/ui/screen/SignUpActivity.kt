@@ -3,12 +3,14 @@ package com.houssein.sezaia.ui.screen
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.*
-import androidx.activity.enableEdgeToEdge
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.hbb20.CountryCodePicker
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.SignUpRequest
 import com.houssein.sezaia.model.response.ApiResponse
 import com.houssein.sezaia.network.RetrofitClient
@@ -19,7 +21,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.core.content.edit
-import com.houssein.sezaia.model.data.MyApp
 
 class SignUpActivity : BaseActivity() {
 
@@ -41,18 +42,15 @@ class SignUpActivity : BaseActivity() {
     private lateinit var postalCodeLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var confirmPasswordLayout: TextInputLayout
-    private lateinit var applicationName: String
 
+    private lateinit var applicationName: String
     private lateinit var btnSignUp: Button
     private lateinit var loginLink: TextView
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_sign_up)
-
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
 
         initViews()
@@ -77,7 +75,6 @@ class SignUpActivity : BaseActivity() {
         setupListeners()
     }
 
-
     private fun initViews() {
         usernameEditText = findViewById(R.id.username)
         emailEditText = findViewById(R.id.email)
@@ -98,11 +95,11 @@ class SignUpActivity : BaseActivity() {
         passwordLayout = findViewById(R.id.passwordInputLayout)
         confirmPasswordLayout = findViewById(R.id.confirmPasswordInputLayout)
 
-        val app = application as MyApp
-        applicationName = app.application_name
+        applicationName = (application as MyApp).application_name
 
         btnSignUp = findViewById(R.id.sign_up_button)
         loginLink = findViewById(R.id.loginLink)
+
         inputFields = listOf(
             usernameEditText to usernameLayout,
             emailEditText to emailLayout,
@@ -119,48 +116,44 @@ class SignUpActivity : BaseActivity() {
     }
 
     private fun setupListeners() {
-        btnSignUp.setOnClickListener {
-            registerUser()
-        }
+        btnSignUp.setOnClickListener { registerUser() }
         inputFields.forEach { (editText, layout) ->
             editText.addTextChangedListener(UIUtils.inputWatcher(editText, layout))
         }
     }
+
     private fun registerUser() {
         val request = SignUpRequest(
-            usernameEditText.text.toString(),
-            emailEditText.text.toString(),
+            usernameEditText.text.toString().trim(),
+            emailEditText.text.toString().trim(),
             passwordEditText.text.toString(),
             confirmPasswordEditText.text.toString(),
-            numberEditText.text.toString(),
-            addressEditText.text.toString(),
+            numberEditText.text.toString().trim(),
+            addressEditText.text.toString().trim(),
             countryCode.selectedCountryCodeWithPlus,
-            cityEditText.text.toString(),
-            postalCodeEditText.text.toString(),
+            cityEditText.text.toString().trim(),
+            postalCodeEditText.text.toString().trim(),
             applicationName
-
         )
 
         RetrofitClient.instance.registerUser(request).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 if (response.isSuccessful) {
-                    val message = response.body()?.message
-                    println("Success: $message")
+                    val message = response.body()?.message ?: getString(R.string.check_your_email)
                     Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_LONG).show()
-                    // Stockage dans SharedPreferences
-                    val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-                    sharedPref.edit().apply {
-                        putString("email", emailEditText.text.toString() )
+
+                    // Sauvegarde légère pour l’UX
+                    getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE).edit {
                         putString("previous_page", "SignUpActivity")
-                        apply()
                     }
 
-// Lancement de l’activité sans putExtra
-                    val intent = Intent(this@SignUpActivity, VerifyOtpActivity::class.java)
-                    startActivity(intent)
+                    // Aller vers l’écran “Vérifie ton e-mail” (coller token + App Link)
+                    startActivity(Intent(this@SignUpActivity, VerifyEmailActivity::class.java))
+                    finish()
+
                 } else {
-                    //resetInputStyles(R.color.red, clear = true, inputFields)
-                    usernameLayout.error= ""
+                    // Reset erreurs UI
+                    usernameLayout.error = ""
                     emailLayout.error = ""
                     numberLayout.error = ""
                     addressLayout.error = ""
@@ -173,26 +166,32 @@ class SignUpActivity : BaseActivity() {
                         val errorBody = response.errorBody()?.string()
                         val json = JSONObject(errorBody ?: "")
                         json.optString("message", "Unknown error")
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         "Server error"
                     }
-                    showDialog("Registration failure", errorMessage,positiveButtonText = null, // pas de bouton positif
+                    showDialog(
+                        "Registration failure",
+                        errorMessage,
+                        positiveButtonText = null,
                         onPositiveClick = null,
                         negativeButtonText = "OK",
-                        onNegativeClick = { /* rien */ },
-                        cancelable = true)
+                        onNegativeClick = { },
+                        cancelable = true
+                    )
                 }
             }
 
             override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
-                showDialog("Network error", t.localizedMessage ?: "Unknown error",positiveButtonText = null, // pas de bouton positif
+                showDialog(
+                    "Network error",
+                    t.localizedMessage ?: "Unknown error",
+                    positiveButtonText = null,
                     onPositiveClick = null,
                     negativeButtonText = "OK",
-                    onNegativeClick = { /* rien */ },
-                    cancelable = true)
+                    onNegativeClick = { },
+                    cancelable = true
+                )
             }
         })
     }
 }
-
-

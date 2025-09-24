@@ -15,7 +15,10 @@ interface ApiService {
     fun login(@Body request: LoginRequest): Call<LoginResponse>
 
     @POST("api/register")
-    fun registerUser(@Body registerRequest: SignUpRequest): Call<ApiResponse>
+    fun registerUser(@Body body: SignUpRequest): Call<ApiResponse>
+
+    @POST("api/email/verify_register")
+    fun verifyRegister(@Body body: VerifyTokenRequest): Call<ApiResponse>
 
     @POST("api/verify_register")
     fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
