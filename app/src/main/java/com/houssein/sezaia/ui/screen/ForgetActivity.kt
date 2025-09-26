@@ -111,8 +111,15 @@ class ForgetActivity : BaseActivity() {
                                 putString("email", email)
                                 apply()
                             }
-                            // Aller à VerifyOtpActivity
-                            startActivity(Intent(this@ForgetActivity, VerifyOtpActivity::class.java))
+                            Toast.makeText(this@ForgetActivity, body?.message, Toast.LENGTH_SHORT).show()
+
+                            // Sauvegarde (optionnel)
+                            getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+                                .edit().putString("email", email).apply()
+
+                            // Aller à VerifyEmailActivity
+                            startActivity(Intent(this@ForgetActivity, VerifyEmailActivity::class.java))
+
                         } else {
                             if (!response.isSuccessful) {
                                 resetInputStyles(R.color.red, clear = true, inputFields)

@@ -11,7 +11,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.MyApp
+import com.houssein.sezaia.model.request.ChangePasswordRequest
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -29,7 +31,6 @@ class CreatePasswordActivity : BaseActivity() {
     private lateinit var confirmPasswordLayout: TextInputLayout
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
     private lateinit var btnResetPass: Button
-    private lateinit var applicationName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,35 +94,37 @@ class CreatePasswordActivity : BaseActivity() {
     }
 
     private fun resetPassword() {
-        val sharedPref = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-        val email = sharedPref.getString("email", null)
+        val token = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+            .getString("reset_token", null)
 
-        if (email.isNullOrEmpty()) {
-            passwordLayout.error = getString(R.string.email_missing)
-            confirmPasswordLayout.error = getString(R.string.email_missing)
-            Toast.makeText(this, getString(R.string.email_missing), Toast.LENGTH_SHORT).show()
+        if (token.isNullOrEmpty()) {
+            val msg = getString(R.string.token_missing)
+            passwordLayout.error = msg
+            confirmPasswordLayout.error = msg
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             return
         }
 
-        val app = application as MyApp
-        applicationName = app.application_name
+        val newPass = passwordInput.text?.toString()?.trim().orEmpty()
+        val confirm = confirmPasswordInput.text?.toString()?.trim().orEmpty()
 
-        val request = CreateNewPasswordRequest(
-            email = email,
-            new_password = passwordInput.text.toString(),
-            confirm_password = confirmPasswordInput.text.toString(),
-            applicationName
+        val req = CreateNewPasswordRequest(
+            token = token,
+            new_password = newPass,
+            confirm_password = confirm
         )
 
-        RetrofitClient.instance.createNewPassword(request).enqueue(object : Callback<CreateNewPasswordResponse> {
-            override fun onResponse(
-                call: Call<CreateNewPasswordResponse>,
-                response: Response<CreateNewPasswordResponse>
-            ) {
-                if (response.isSuccessful && response.body() != null) {
-                    val message = response.body()?.message ?: getString(R.string.password_changed)
+        RetrofitClient.instance.createNewPassword(req).enqueue(object : Callback<BaseResponse> {
+            override fun onResponse(call: Call<BaseResponse>, resp: Response<BaseResponse>) {
+                if (resp.isSuccessful) {
+                    val message = resp.body()?.message ?: getString(R.string.password_changed)
                     Toast.makeText(this@CreatePasswordActivity, message, Toast.LENGTH_LONG).show()
 
+                    // nettoyage du token
+                    getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
+                        .edit().remove("reset_token").apply()
+
+                    // Aller sur un écran de succès
                     val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
                     prefs.edit().apply {
                         putString("title", getString(R.string.password_changed))
@@ -129,41 +132,34 @@ class CreatePasswordActivity : BaseActivity() {
                         putString("button", getString(R.string.return_to_login))
                         apply()
                     }
-
-                    val intent = Intent(this@CreatePasswordActivity, SuccessActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this@CreatePasswordActivity, SuccessActivity::class.java))
+                    finish()
 
                 } else {
                     resetInputStyles(R.color.red, clear = true, inputFields)
-
-                    val errorBody = response.errorBody()
-                    val errorMsg = if (errorBody != null) {
+                    val errorBody = resp.errorBody()
+                    val msg = if (errorBody != null) {
                         try {
-                            val errorJson = JSONObject(errorBody.charStream().readText())
-                            errorJson.optString("message", "Unknown error")
+                            val j = JSONObject(errorBody.charStream().readText())
+                            j.optString("error", j.optString("message", "Unknown error"))
                         } catch (e: Exception) {
                             errorBody.string()
                         }
-                    } else {
-                        "Unknown error"
-                    }
-
-                    passwordLayout.error = errorMsg
-                    confirmPasswordLayout.error = errorMsg
-
-                    Toast.makeText(this@CreatePasswordActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                    } else "Unknown error"
+                    passwordLayout.error = msg
+                    confirmPasswordLayout.error = msg
+                    Toast.makeText(this@CreatePasswordActivity, msg, Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<CreateNewPasswordResponse>, t: Throwable) {
+            override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
                 resetInputStyles(R.color.red, clear = true, inputFields)
-
-                val errorMsg = t.localizedMessage ?: getString(R.string.unknown_error)
-                passwordLayout.error = errorMsg
-                confirmPasswordLayout.error = errorMsg
-
-                Toast.makeText(this@CreatePasswordActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                val msg = t.localizedMessage ?: getString(R.string.unknown_error)
+                passwordLayout.error = msg
+                confirmPasswordLayout.error = msg
+                Toast.makeText(this@CreatePasswordActivity, msg, Toast.LENGTH_SHORT).show()
             }
         })
     }
+
 }

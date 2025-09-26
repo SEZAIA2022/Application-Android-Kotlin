@@ -29,20 +29,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Sezaia"
         tools:targetApi="31">
+
+
+
         <activity
             android:name=".ui.screen.VerifyEmailActivity"
             android:exported="true">
+
             <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:scheme="https"
-                    android:host="assistbyscan.com"
-                    android:pathPrefix="/verify" />
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="assistbyscan.com" android:pathPrefix="/verify"/>
+                <data android:scheme="https" android:host="www.assistbyscan.com" android:pathPrefix="/verify"/>
+            </intent-filter>
+
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="assistbyscan.com" android:pathPrefix="/create-new-password"/>
+                <data android:scheme="https" android:host="www.assistbyscan.com" android:pathPrefix="/create-new-password"/>
             </intent-filter>
 
         </activity>
+
+
+
+
 
 
         <service
@@ -104,9 +118,7 @@
         <activity
             android:name=".ui.screen.ProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.screen.VerifyOtpActivity"
-            android:exported="false" />
+
         <activity
             android:name=".ui.screen.SettingsActivity"
             android:exported="false" />

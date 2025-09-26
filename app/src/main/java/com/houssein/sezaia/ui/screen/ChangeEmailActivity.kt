@@ -110,8 +110,8 @@ class ChangeEmailActivity : BaseActivity() {
                         }
 
                         // Rediriger vers écran de vérification OTP (pas besoin de new_email ici)
-                        val intent = Intent(this@ChangeEmailActivity, VerifyOtpActivity::class.java)
-                        startActivity(intent)
+//                        val intent = Intent(this@ChangeEmailActivity, VerifyOtpActivity::class.java)
+//                        startActivity(intent)
                         finish()
                     } else {
                         Toast.makeText(this@ChangeEmailActivity, body?.message ?: "Unknown Error", Toast.LENGTH_SHORT).show()

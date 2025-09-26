@@ -101,9 +101,9 @@ class DeleteAccountActivity : BaseActivity() {
                         Log.d("DeleteAccount", "Redirection vers VerifyOtpActivity") // Log de débog
 
                         // Redirection vers VerifyOtpActivity
-                        val intent = Intent(this@DeleteAccountActivity, VerifyOtpActivity::class.java).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
+//                        val intent = Intent(this@DeleteAccountActivity, VerifyOtpActivity::class.java).apply {
+//                            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+//                        }
                         startActivity(intent)
                         finish() // Ferme l'activité actuelle
 

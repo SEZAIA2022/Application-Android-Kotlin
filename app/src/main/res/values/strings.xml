@@ -119,7 +119,10 @@
     <string name="check_your_email_title">Check your email</string>
     <string name="check_your_email_message">We’ve sent a verification link to your email address. Please open your mail app to confirm your account.</string>
     <string name="open_email_app">Open my email app</string>
-
+    <string name="email_verified_title">Email verified</string>
+    <string name="email_verified_content">Your email has been verified. You can sign in now.</string>
+    <string name="token_missing">token missing</string>
+    <string name="unknown_deeplink_path">unknown deeplink path</string>
 
 
 </resources>

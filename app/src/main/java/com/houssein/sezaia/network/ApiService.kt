@@ -20,20 +20,27 @@ interface ApiService {
     @POST("api/email/verify_register")
     fun verifyRegister(@Body body: VerifyTokenRequest): Call<ApiResponse>
 
-    @POST("api/verify_register")
-    fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
-
     @POST("api/forgot_password")
     fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
 
+    @POST("api/verify_forget")
+    fun verifyForget(@Body request: VerifyTokenRequest): Call<VerifyResponse>
+
+    @POST("api/change-password")
+    fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<BaseResponse>
+
+
+
+
+    @POST("api/verify_register")
+    fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
     @POST("api/resend_otp")
     fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>
 
-    @POST("api/verify_forget")
-    fun verifyForget(@Body request: VerifyForgetRequest): Call<BaseResponse>
 
-    @POST("api/change-password")
-    fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<CreateNewPasswordResponse>
+
+
+
 
     @POST("api/exist_qr")
     fun checkQrCode(@Body body: QrCodeRequest): Call<QrCodeResponse>
