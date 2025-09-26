@@ -123,6 +123,13 @@
     <string name="email_verified_content">Your email has been verified. You can sign in now.</string>
     <string name="token_missing">token missing</string>
     <string name="unknown_deeplink_path">unknown deeplink path</string>
+    <string name="fill_required_fields">fill required fields</string>
+    <!-- res/values/strings.xml -->
+    <string name="email_changed_title">Success 🎉</string>
+    <string name="email_changed_success">Your e-mail address has been successfully changed.</string>
+    <string name="account_deleted_title">Account deleted</string>
+    <string name="account_deleted_success">Your account has been deleted.</string>
+
 
 
 </resources>

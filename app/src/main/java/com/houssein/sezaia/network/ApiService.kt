@@ -18,7 +18,7 @@ interface ApiService {
     fun registerUser(@Body body: SignUpRequest): Call<ApiResponse>
 
     @POST("api/email/verify_register")
-    fun verifyRegister(@Body body: VerifyTokenRequest): Call<ApiResponse>
+    fun verifyRegister(@Body body: VerifyTokenRequest): Call<BaseResponse>
 
     @POST("api/forgot_password")
     fun forgotPassword(@Body request: ForgotPasswordRequest): Call<BaseResponse>
@@ -29,13 +29,17 @@ interface ApiService {
     @POST("api/change-password")
     fun createNewPassword(@Body request: CreateNewPasswordRequest): Call<BaseResponse>
 
+    @POST("api/delete_account")
+    fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
+    @POST("api/change_email")
+    fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
 
+    @POST("api/verify_change_email")
+    fun verifyChangeEmail(@Body request: VerifyTokenRequest): Call<BaseResponse>
 
-    @POST("api/verify_register")
-    fun verifyRegister(@Body verifyRequest: VerifyRegisterRequest): Call<ApiResponse>
-    @POST("api/resend_otp")
-    fun resendOtp(@Body request: ResendOtpRequest): Call<BaseResponse>
+    @POST("api/verify_delete_account")
+    fun verifyDeleteAccount(@Body request: VerifyTokenRequest): Call<BaseResponse>
 
 
 
@@ -92,17 +96,7 @@ interface ApiService {
     @POST("api/change_password")
     fun changePassword(@Body request: ChangePasswordRequest): Call<ChangePasswordResponse>
 
-    @POST("api/delete_account")
-    fun deleteAccount(@Body request: DeleteAccountRequest): Call<BaseResponse>
 
-    @POST("api/change_email")
-    fun changeEmail(@Body request: ChangeEmailRequest): Call<BaseResponse>
-
-    @POST("api/verify_change_email")
-    fun verifyChangeEmail(@Body request: VerifyChangeEmailRequest): Call<BaseResponse>
-
-    @POST("api/verify_delete_account")
-    fun verifyDeleteAccount(@Body request: VerifyDeleteAccountRequest): Call<BaseResponse>
 
     @POST("api/add_description")
     suspend fun addDescription(@Body request: DescriptionRequest): BaseResponse

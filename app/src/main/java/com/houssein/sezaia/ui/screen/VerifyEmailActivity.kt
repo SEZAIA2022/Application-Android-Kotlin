@@ -10,7 +10,7 @@ import android.widget.Toast
 import com.google.android.material.button.MaterialButton
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.request.VerifyTokenRequest
-import com.houssein.sezaia.model.response.ApiResponse
+import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.VerifyResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
@@ -67,68 +67,140 @@ class VerifyEmailActivity : BaseActivity() {
 
     /**
      * Reconnaît:
-     *  - /verify?token=...                 -> vérification d'inscription (register)
-     *  - /create-new-password?token=...    -> vérification reset (forgot)
-     * Tolère le slash final et les paramètres additionnels (UTM).
+     *  - /verify?token=...&flow=register_user|change_email|delete_account
+     *  - /create-new-password?token=... (reset password)
      */
     private fun handleDeepLink(data: Uri?) {
-        if (data == null) return
-        if (isHandlingDeepLink) return
+        if (data == null || isHandlingDeepLink) return
 
         val token = data.getQueryParameter("token")?.trim().orEmpty()
-        if (token.isEmpty()) {
-            // Lien sans token → on ignore silencieusement (ou affiche un message)
-            return
-        }
+        if (token.isEmpty()) return
 
         val path = (data.path ?: "").lowercase()
+        val flow = data.getQueryParameter("flow")?.lowercase()
 
         isHandlingDeepLink = true
         when {
+            // Reset password (mobile → CreatePasswordActivity)
             path.contains("create-new-password") -> verifyForget(token)
-            path.contains("verify") -> verifyRegister(token)
+
+            // Flows pilotés explicitement par 'flow'
+            flow == "change_email"   -> verifyChangeEmail(token)
+            flow == "delete_account" -> verifyDeleteAccount(token)
+
+            // Inscription (accepte aussi flow=register_user ou verify_register)
+            (path.contains("verify") && flow.isNullOrEmpty()) ||
+            (path.contains("verify") && flow in setOf("register_user", "verify_register")) -> verifyRegister(token)
+
+
             else -> {
                 isHandlingDeepLink = false
-                // Chemin inattendu mais token présent : message utile pour debug
                 Toast.makeText(this, getString(R.string.unknown_deeplink_path), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    /** Vérifie le token d'inscription et active le compte. */
-    private fun verifyRegister(token: String) {
+    /** Confirme le changement d’email (POST /api/verify_change_email) */
+    private fun verifyChangeEmail(token: String) {
         val req = VerifyTokenRequest(token)
-        RetrofitClient.instance.verifyRegister(req)
-            .enqueue(object : Callback<ApiResponse> {
-                override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
+        RetrofitClient.instance.verifyChangeEmail(req)
+            .enqueue(object : Callback<BaseResponse> {
+                override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
                     isHandlingDeepLink = false
-                    if (response.isSuccessful) {
-                        // Succès → écran de succès / retour login
-                        val prefs = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
-                        prefs.edit().apply {
-                            putString("title", getStringSafe(R.string.email_verified_title, "Email vérifié"))
-                            putString("content", getStringSafe(R.string.email_verified_content, "Votre e-mail a été vérifié. Vous pouvez vous connecter."))
-                            putString("button", getString(R.string.return_to_login))
-                            apply()
-                        }
+                    if (response.isSuccessful && response.body()?.status == "success") {
+                        // Préparer l’écran de succès générique
+                        getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("title", getString(R.string.email_changed_title))
+                            .putString("content", getString(R.string.email_changed_success))
+                            .putString("button", getString(R.string.return_to_login))
+                            .apply()
+
                         startActivity(Intent(this@VerifyEmailActivity, SuccessActivity::class.java))
                         finish()
                     } else {
                         showHttpErrorToast(response)
                     }
                 }
-
-                override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
+                override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
                     isHandlingDeepLink = false
-                    Toast.makeText(this@VerifyEmailActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@VerifyEmailActivity,
+                        "Erreur réseau : ${t.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
     }
 
-    /** Vérifie le token de reset; si OK, stocke le token et passe à la création du nouveau MDP. */
+    /** Confirme la suppression de compte (POST /api/verify_delete_account) */
+    private fun verifyDeleteAccount(token: String) {
+        val req = VerifyTokenRequest(token)
+        RetrofitClient.instance.verifyDeleteAccount(req)
+            .enqueue(object : Callback<BaseResponse> {
+                override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                    isHandlingDeepLink = false
+                    if (response.isSuccessful && response.body()?.status == "success") {
+                        getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("title", getString(R.string.account_deleted_title))
+                            .putString("content", getString(R.string.account_deleted_success))
+                            .putString("button", getString(R.string.return_to_login))
+                            .apply()
+
+                        startActivity(Intent(this@VerifyEmailActivity, SuccessActivity::class.java))
+                        finish()
+                    } else {
+                        showHttpErrorToast(response)
+                    }
+                }
+                override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                    isHandlingDeepLink = false
+                    Toast.makeText(
+                        this@VerifyEmailActivity,
+                        "Erreur réseau : ${t.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
+    /** Vérifie le token d'inscription et active le compte (POST /api/email/verify) */
+    private fun verifyRegister(token: String) {
+        val req = VerifyTokenRequest(token)
+        RetrofitClient.instance.verifyRegister(req) // Doit retourner Call<BaseResponse>
+            .enqueue(object : Callback<BaseResponse> {
+                override fun onResponse(call: Call<BaseResponse>, response: Response<BaseResponse>) {
+                    isHandlingDeepLink = false
+                    if (response.isSuccessful && response.body()?.status == "success") {
+                        getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
+                            .edit()
+                            .putString("title", getStringSafe(R.string.email_verified_title, "Email vérifié"))
+                            .putString("content", getStringSafe(R.string.email_verified_content, "Votre e-mail a été vérifié. Vous pouvez vous connecter."))
+                            .putString("button", getString(R.string.return_to_login))
+                            .apply()
+
+                        startActivity(Intent(this@VerifyEmailActivity, SuccessActivity::class.java))
+                        finish()
+                    } else {
+                        showHttpErrorToast(response)
+                    }
+                }
+                override fun onFailure(call: Call<BaseResponse>, t: Throwable) {
+                    isHandlingDeepLink = false
+                    Toast.makeText(
+                        this@VerifyEmailActivity,
+                        "Erreur réseau : ${t.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
+    /** Vérifie le token du reset; si OK → CreatePasswordActivity (POST /api/verify_forget) */
     private fun verifyForget(token: String) {
         val req = VerifyTokenRequest(token)
-        RetrofitClient.instance.verifyForget(req)
+        RetrofitClient.instance.verifyForget(req) // Call<VerifyResponse>
             .enqueue(object : Callback<VerifyResponse> {
                 override fun onResponse(call: Call<VerifyResponse>, response: Response<VerifyResponse>) {
                     isHandlingDeepLink = false
@@ -144,10 +216,13 @@ class VerifyEmailActivity : BaseActivity() {
                         Toast.makeText(this@VerifyEmailActivity, msg, Toast.LENGTH_SHORT).show()
                     }
                 }
-
                 override fun onFailure(call: Call<VerifyResponse>, t: Throwable) {
                     isHandlingDeepLink = false
-                    Toast.makeText(this@VerifyEmailActivity, "Erreur réseau : ${t.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@VerifyEmailActivity,
+                        "Erreur réseau : ${t.localizedMessage}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
     }
