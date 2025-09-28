@@ -41,7 +41,7 @@
             android:id="@+id/comment"
             style="@style/CustomTextInputEditText"
             android:drawableEnd="@drawable/baseline_comment_24"
-            android:hint="@string/optional_comment"
+            android:hint="@string/describe_exact_problem"
             android:inputType="textMultiLine"
             android:minLines="3"
             android:maxLines="5"

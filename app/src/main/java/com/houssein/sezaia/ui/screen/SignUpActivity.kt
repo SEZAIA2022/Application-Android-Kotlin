@@ -135,7 +135,7 @@ class SignUpActivity : BaseActivity() {
             postalCodeEditText.text.toString().trim(),
             applicationName
         )
-
+        val email = emailEditText.text?.toString()?.trim().orEmpty()
         RetrofitClient.instance.registerUser(request).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 if (response.isSuccessful) {
@@ -146,7 +146,8 @@ class SignUpActivity : BaseActivity() {
                     getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE).edit {
                         putString("previous_page", "SignUpActivity")
                     }
-
+                    getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+                        .edit().putString("email", email).apply()
                     // Aller vers l’écran “Vérifie ton e-mail” (coller token + App Link)
                     startActivity(Intent(this@SignUpActivity, VerifyEmailActivity::class.java))
                     finish()

@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:layout_marginHorizontal="16dp"
-        android:hint="@string/problem"
+        android:hint="@string/intervention"
         app:layout_constraintBottom_toTopOf="@id/btnHistory"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

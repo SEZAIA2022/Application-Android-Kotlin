@@ -112,7 +112,7 @@ class HistoryActivity : BaseActivity() {
                 appendLine("🗓️ Date : ${repair.date}")
                 repair.hour_slot?.let { appendLine("⏰ Hour : $it") }
                 appendLine("🔳 QR Code : ${repair.qr_code}")
-                appendLine("🛠️ Problem : ${repair.description_problem}")
+                appendLine("🛠️ Problem : ${repair.description_probleme}")
                 repair.comment?.let { appendLine("💬 Comment : $it") }
                 appendLine("📌 Status : ${repair.status}")
                 appendLine("👷 Technician : ${repair.user_tech ?: "N/A"}") // Safe call + fallback

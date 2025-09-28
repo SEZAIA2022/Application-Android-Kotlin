@@ -78,7 +78,7 @@
     <string name="network_error">Network error</string>
     <string name="unknown_error">Unknown error</string>
     <string name="email_missing">email missing\n</string>
-    <string name="optional_comment">type your comment</string>
+    <string name="describe_exact_problem">description supplémentaire et exacte de la probleme </string>
     <string name="confirm_appointment">Confirm Appointment</string>
     <string name="send">send</string>
     <string name="request_sent">Request sent</string>
@@ -102,7 +102,7 @@
     <string name="help_center">Help center</string>
     <string name="qr_code_history">Qrcode history</string>
     <string name="qr_code_details">Qrcode details</string>
-    <string name="problem">Describe the problem ...</string>
+    <string name="intervention">Intervention report...</string>
     <string name="repair">"Repair"</string>
     <string name="rescan">Rescan qr code</string>
     <string name="country">Country</string>
