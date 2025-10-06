@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.screen.SignUpActivity">
 
-    <!-- Toolbar personnalisé -->
+    <!-- Toolbar -->
     <include
         android:id="@+id/custom_toolbar"
         layout="@layout/toolbar_layout"
@@ -18,20 +18,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <ScrollView
+    <!-- IMPORTANT : NestedScrollView + clipToPadding=false -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:padding="20dp"
+        android:clipToPadding="false"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp"
         app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Ton contenu existant -->
         <LinearLayout
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <TextView
                 android:text="@string/hello_register"
                 style="@style/CustomTextView"
@@ -141,7 +149,6 @@
                 android:layout_width="match_parent"
                 style="@style/CustomTextInputLayout"
                 app:endIconMode="password_toggle">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password"
                     style="@style/CustomTextInputEditText"
@@ -156,7 +163,6 @@
                 android:layout_marginBottom="24dp"
                 style="@style/CustomTextInputLayout"
                 app:endIconMode="password_toggle">
-
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/confirm_password"
                     style="@style/CustomTextInputEditText"
@@ -167,20 +173,20 @@
             <!-- Sign Up Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/sign_up_button"
-                android:text="@string/sign_up"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/MyCustomButtonBlue"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
-                android:contentDescription="@string/sign_up" />
+                android:text="@string/sign_up" />
 
-            <!-- Login Link -->
+            <!-- Login Link (doit rester visible) -->
             <TextView
                 android:id="@+id/loginLink"
                 style="@style/CustomClickableTextView"
                 android:text="@string/already_have_an_account_login"
                 android:contentDescription="@string/login" />
+
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

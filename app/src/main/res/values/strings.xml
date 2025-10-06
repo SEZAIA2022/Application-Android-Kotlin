@@ -129,7 +129,7 @@
     <string name="email_changed_success">Your e-mail address has been successfully changed.</string>
     <string name="account_deleted_title">Account deleted</string>
     <string name="account_deleted_success">Your account has been deleted.</string>
-
+    <string name="done">Done</string>
 
 
 </resources>

@@ -2,10 +2,19 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.hbb20.CountryCodePicker
@@ -20,9 +29,10 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import androidx.core.content.edit
 
 class SignUpActivity : BaseActivity() {
+
+    private lateinit var scroll: NestedScrollView
 
     private lateinit var usernameEditText: TextInputEditText
     private lateinit var emailEditText: TextInputEditText
@@ -50,10 +60,20 @@ class SignUpActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Redimensionner la zone utile quand le clavier apparaît
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
         setContentView(R.layout.activity_sign_up)
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
 
+        scroll = findViewById(R.id.scroll)
+
+        // Padding bas dynamique = max(system bars, clavier)
+        applyImeAndSystemBarsPadding(scroll)
+
         initViews()
+        attachFocusAutoScroll()   // <— nouveau : scroll seulement quand un champ prend le focus
 
         UIUtils.initToolbar(
             this,
@@ -122,6 +142,69 @@ class SignUpActivity : BaseActivity() {
         }
     }
 
+    // ====================  SCROLL / CLAVIER  ====================
+
+    /** Ajoute du padding bas = hauteur clavier ou barres système pour garder le lien visible */
+    private fun applyImeAndSystemBarsPadding(target: View) {
+        val startPad = target.paddingLeft
+        val topPad = target.paddingTop
+        val endPad = target.paddingRight
+        val baseBottomPad = target.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(target) { v, insets ->
+            val sysBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val extraBottom = maxOf(sysBars.bottom, ime.bottom)
+            v.updatePadding(
+                left = startPad,
+                top = topPad,
+                right = endPad,
+                bottom = baseBottomPad + extraBottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    /** Attache un listener de focus sur chaque champ pour assurer sa visibilité sans “sauter en bas”. */
+    private fun attachFocusAutoScroll() {
+        val marginPx = dp(12f)
+        inputFields.map { it.first }.forEach { edit ->
+            edit.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) v.post { ensureVisible(scroll, v, marginPx) }
+            }
+        }
+    }
+
+    /** Scroll seulement si le View n’est pas entièrement visible dans le viewport. */
+    private fun ensureVisible(nsv: NestedScrollView, child: View, margin: Int) {
+        val rect = Rect()
+        child.getDrawingRect(rect)
+        nsv.offsetDescendantRectToMyCoords(child, rect)
+
+        val viewportTop = nsv.scrollY + nsv.paddingTop
+        val viewportBottom = nsv.scrollY + nsv.height - nsv.paddingBottom
+
+        when {
+            rect.top - margin < viewportTop -> {
+                // trop haut
+                nsv.smoothScrollTo(0, rect.top - nsv.paddingTop - margin)
+            }
+            rect.bottom + margin > viewportBottom -> {
+                // trop bas
+                val targetY = rect.bottom - (nsv.height - nsv.paddingBottom) + margin
+                nsv.smoothScrollTo(0, targetY)
+            }
+            else -> {
+                // déjà visible, ne rien faire
+            }
+        }
+    }
+
+    private fun dp(value: Float): Int =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics).toInt()
+
+    // ====================  API  ====================
+
     private fun registerUser() {
         val request = SignUpRequest(
             usernameEditText.text.toString().trim(),
@@ -136,24 +219,23 @@ class SignUpActivity : BaseActivity() {
             applicationName
         )
         val email = emailEditText.text?.toString()?.trim().orEmpty()
+
         RetrofitClient.instance.registerUser(request).enqueue(object : Callback<ApiResponse> {
             override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                 if (response.isSuccessful) {
                     val message = response.body()?.message ?: getString(R.string.check_your_email)
                     Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_LONG).show()
 
-                    // Sauvegarde légère pour l’UX
                     getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE).edit {
                         putString("previous_page", "SignUpActivity")
                     }
                     getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
                         .edit().putString("email", email).apply()
-                    // Aller vers l’écran “Vérifie ton e-mail” (coller token + App Link)
+
                     startActivity(Intent(this@SignUpActivity, VerifyEmailActivity::class.java))
                     finish()
-
                 } else {
-                    // Reset erreurs UI
+                    // reset erreurs UI
                     usernameLayout.error = ""
                     emailLayout.error = ""
                     numberLayout.error = ""
