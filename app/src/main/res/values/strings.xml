@@ -145,6 +145,9 @@
     <string name="booking_error">Erreur lors de la réservation.</string>
     <string name="save">Save</string>
     <string name="qr_id">Qr id</string>
+    <string name="request_intervention">Request intervention</string>
+    <string name="direct_intervention_title">New direct intervention request</string>
+    <string name="direct_intervention_body">QR: %1$s\\nComment: %2$s</string>
 
 
 </resources>

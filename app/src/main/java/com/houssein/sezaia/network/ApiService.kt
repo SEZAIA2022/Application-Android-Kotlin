@@ -1,8 +1,49 @@
 package com.houssein.sezaia.network
 
 import RepairResponse
-import com.houssein.sezaia.model.request.*
-import com.houssein.sezaia.model.response.*
+import com.houssein.sezaia.model.request.AddQrRequest
+import com.houssein.sezaia.model.request.AskRepairWithResponsesRequest
+import com.houssein.sezaia.model.request.AssignAdminRequest
+import com.houssein.sezaia.model.request.CancelAppointmentRequest
+import com.houssein.sezaia.model.request.ChangeEmailRequest
+import com.houssein.sezaia.model.request.ChangeNumberRequest
+import com.houssein.sezaia.model.request.ChangePasswordRequest
+import com.houssein.sezaia.model.request.ChangeUsernameRequest
+import com.houssein.sezaia.model.request.CreateNewPasswordRequest
+import com.houssein.sezaia.model.request.DeleteAccountRequest
+import com.houssein.sezaia.model.request.DescriptionRequest
+import com.houssein.sezaia.model.request.ForgotPasswordRequest
+import com.houssein.sezaia.model.request.LoginRequest
+import com.houssein.sezaia.model.request.LogoutRequest
+import com.houssein.sezaia.model.request.NotificationRequest
+import com.houssein.sezaia.model.request.QrCodeRequest
+import com.houssein.sezaia.model.request.SendAskDirectRequest
+import com.houssein.sezaia.model.request.SendEmailRequest
+import com.houssein.sezaia.model.request.SignUpRequest
+import com.houssein.sezaia.model.request.TechnicianRequest
+import com.houssein.sezaia.model.request.TokenRequest
+import com.houssein.sezaia.model.request.VerifyTokenRequest
+import com.houssein.sezaia.model.response.AboutUsResponse
+import com.houssein.sezaia.model.response.ApiResponse
+import com.houssein.sezaia.model.response.AssignAdminResponse
+import com.houssein.sezaia.model.response.BaseResponse
+import com.houssein.sezaia.model.response.CancelAppointmentResponse
+import com.houssein.sezaia.model.response.ChangeNumberResponse
+import com.houssein.sezaia.model.response.ChangePasswordResponse
+import com.houssein.sezaia.model.response.ChangeUsernameResponse
+import com.houssein.sezaia.model.response.HelpResponse
+import com.houssein.sezaia.model.response.LoginResponse
+import com.houssein.sezaia.model.response.Message
+import com.houssein.sezaia.model.response.PrivacyPolicyResponse
+import com.houssein.sezaia.model.response.QrCodeResponse
+import com.houssein.sezaia.model.response.Repair
+import com.houssein.sezaia.model.response.RepairApiResponse
+import com.houssein.sezaia.model.response.SendAskDirectResponse
+import com.houssein.sezaia.model.response.SendEmailResponse
+import com.houssein.sezaia.model.response.TakenSlotsResponse
+import com.houssein.sezaia.model.response.TechnicianResponse
+import com.houssein.sezaia.model.response.TermsOfUseResponse
+import com.houssein.sezaia.model.response.VerifyResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -126,11 +167,8 @@ interface ApiService {
 
     @POST("/api/notify_admin")
     fun notifyAdmin(@Body request: NotificationRequest): Call<Void>
-//    @GET("api/is_logged")
-//    fun getIsLogged(
-//        @Query("username") username: String,
-//        @Query("application_name") appName: String
-//    ): Call<IsLoggedResponse>
+    @POST("/api/send_ask_direct")
+    fun sendAskDirect(@Body req: SendAskDirectRequest): Call<SendAskDirectResponse>
 
     @POST("api/get_nearest_admin_email")
     fun getNearestAdminEmail(@Body request: TechnicianRequest): Call<TechnicianResponse>
