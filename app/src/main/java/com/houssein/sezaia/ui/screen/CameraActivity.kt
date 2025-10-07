@@ -10,13 +10,20 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.util.Size
+import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
-import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
@@ -27,114 +34,158 @@ import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.QrCodeRequest
 import com.houssein.sezaia.model.response.QrCodeResponse
+import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.BarcodeOverlayView
 import com.houssein.sezaia.ui.utils.UIUtils
-import com.houssein.sezaia.network.RetrofitClient
-import com.houssein.sezaia.ui.screen.QrCodeActivity
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
-import kotlin.math.log
 
 class CameraActivity : BaseActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var overlayView: BarcodeOverlayView
     private val executor = Executors.newSingleThreadExecutor()
+
     private val CAMERA_PERMISSION_CODE = 1001
+
     private var isQrCodeProcessed = false
-    private var currentFlashMode = FlashMode.OFF
-    private lateinit var flashButton: ImageButton
     private var isAutoFlashEnabled = false
+
     private lateinit var camera: Camera
+    private lateinit var flashButton: ImageButton
+    private lateinit var requestButton: Button
+
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var currentZoomRatio = 1f
+
+    private var currentFlashMode = FlashMode.OFF
     private lateinit var applicationName: String
 
+    enum class FlashMode { OFF, ON, AUTO }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_camera)
-        flashButton = findViewById(R.id.flashButton)
-        flashButton.setOnClickListener {
-            toggleFlash()
+        requestButton = findViewById(R.id.requestInterventionButton)
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val role = prefs.getString("userRole", "") ?: ""
+
+        // Affiche le bouton uniquement pour le rôle "user"
+        if (role == "user") {
+            requestButton.visibility = View.VISIBLE
+            requestButton.setOnClickListener {
+                startActivity(Intent(this, RequestInterventionDirectActivity::class.java))
+            }
+        } else {
+            requestButton.visibility = View.GONE
         }
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
 
         UIUtils.initToolbar(
-            this,getString(R.string.qr_code_scan),actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {},
+            this,
+            getString(R.string.qr_code_scan),
+            actionIconRes = R.drawable.baseline_density_medium_24,
+            onBackClick = {},
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
         previewView = findViewById(R.id.previewView)
         overlayView = findViewById(R.id.overlayView)
-        scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScale(detector: ScaleGestureDetector): Boolean {
-                if (!::camera.isInitialized) return false
+        flashButton = findViewById(R.id.flashButton)
 
-                val scale = detector.scaleFactor
-                currentZoomRatio = (currentZoomRatio * scale).coerceIn(
-                    camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f,
-                    camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 10f
-                )
-                camera.cameraControl.setZoomRatio(currentZoomRatio)
-                return true
+        flashButton.setOnClickListener { toggleFlash() }
+
+        scaleGestureDetector = ScaleGestureDetector(
+            this,
+            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    if (!::camera.isInitialized) return false
+                    val scale = detector.scaleFactor
+                    currentZoomRatio = (currentZoomRatio * scale).coerceIn(
+                        camera.cameraInfo.zoomState.value?.minZoomRatio ?: 1f,
+                        camera.cameraInfo.zoomState.value?.maxZoomRatio ?: 10f
+                    )
+                    camera.cameraControl.setZoomRatio(currentZoomRatio)
+                    return true
+                }
             }
-        })
-
+        )
 
         requestCameraPermission()
     }
 
-    override fun onTouchEvent(event: android.view.MotionEvent?): Boolean {
-        event?.let {
-            scaleGestureDetector.onTouchEvent(it)
-        }
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event?.let { scaleGestureDetector.onTouchEvent(it) }
         return super.onTouchEvent(event)
     }
 
-    enum class FlashMode {
-        OFF, ON, AUTO
-    }
-
     private fun requestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
             startCamera()
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_CODE
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startCamera()
+            } else {
+                Toast.makeText(this, R.string.camera_perm, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
         cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
+            try {
+                val cameraProvider = cameraProviderFuture.get()
 
-            val barcodeScanner = BarcodeScanning.getClient()
-            val imageAnalyzer = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build()
-                .also {
-                    it.setAnalyzer(executor) { imageProxy -> processImageProxy(barcodeScanner, imageProxy) }
+                val preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
                 }
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                val barcodeScanner = BarcodeScanning.getClient()
+                val imageAnalyzer = ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build()
+                    .also { analysis ->
+                        analysis.setAnalyzer(executor) { imageProxy ->
+                            processImageProxy(barcodeScanner, imageProxy)
+                        }
+                    }
 
-            try {
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
                 cameraProvider.unbindAll()
-                // Affecter la caméra ici !
-                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer)
+                camera = cameraProvider.bindToLifecycle(
+                    this,
+                    cameraSelector,
+                    preview,
+                    imageAnalyzer
+                )
             } catch (exc: Exception) {
                 Toast.makeText(this, "Camera link failed", Toast.LENGTH_SHORT).show()
+                Log.e("CameraActivity", "startCamera error", exc)
             }
         }, ContextCompat.getMainExecutor(this))
     }
@@ -148,47 +199,48 @@ class CameraActivity : BaseActivity() {
         currentFlashMode = when (currentFlashMode) {
             FlashMode.OFF -> {
                 camera.cameraControl.enableTorch(true)
-                flashButton.setImageResource(R.drawable.baseline_flash_on_24) // icône flash ON
+                flashButton.setImageResource(R.drawable.baseline_flash_on_24)
                 isAutoFlashEnabled = false
                 FlashMode.ON
             }
-
             FlashMode.ON -> {
                 camera.cameraControl.enableTorch(false)
-                flashButton.setImageResource(R.drawable.baseline_flash_auto_24) // icône flash AUTO
+                flashButton.setImageResource(R.drawable.baseline_flash_auto_24)
                 isAutoFlashEnabled = true
                 FlashMode.AUTO
             }
-
             FlashMode.AUTO -> {
                 camera.cameraControl.enableTorch(false)
-                flashButton.setImageResource(R.drawable.baseline_flash_off_24) // icône flash OFF
+                flashButton.setImageResource(R.drawable.baseline_flash_off_24)
                 isAutoFlashEnabled = false
                 FlashMode.OFF
             }
         }
     }
+
     private fun calculateLuminance(image: Image): Double {
         val buffer = image.planes[0].buffer
-        var sum = 0
+        var sum = 0L
         while (buffer.hasRemaining()) {
-            sum += buffer.get().toInt() and 0xFF
+            sum += (buffer.get().toInt() and 0xFF)
         }
-        return sum.toDouble() / buffer.capacity()
+        return if (buffer.capacity() > 0) sum.toDouble() / buffer.capacity() else 0.0
     }
 
     @OptIn(ExperimentalGetImage::class)
-    private fun processImageProxy(scanner: com.google.mlkit.vision.barcode.BarcodeScanner, imageProxy: ImageProxy) {
+    private fun processImageProxy(
+        scanner: com.google.mlkit.vision.barcode.BarcodeScanner,
+        imageProxy: ImageProxy
+    ) {
         val mediaImage = imageProxy.image ?: run {
             imageProxy.close()
             return
         }
+
+        // AUTO flash
         val luminance = calculateLuminance(mediaImage)
-        if (isAutoFlashEnabled) {
-            val lowLight = luminance < 50  // seuil ajustable
-            if (::camera.isInitialized && camera.cameraInfo.hasFlashUnit()) {
-                camera.cameraControl.enableTorch(lowLight)
-            }
+        if (isAutoFlashEnabled && ::camera.isInitialized && camera.cameraInfo.hasFlashUnit()) {
+            camera.cameraControl.enableTorch(luminance < 50) // seuil ajustable
         }
 
         if (isQrCodeProcessed) {
@@ -197,21 +249,22 @@ class CameraActivity : BaseActivity() {
         }
 
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+
+        // Récup infos session (valeurs non null par défaut)
         val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
-        val username = prefs.getString("loggedUsername", null)
-        val role = prefs.getString("userRole", null)
+        val username = prefs.getString("loggedUsername", "") ?: ""
+        val role = prefs.getString("userRole", "") ?: ""
+
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
                 barcodes.forEach { barcode ->
-                    barcode.rawValue?.let { value ->
-                        barcode.boundingBox?.let { box ->
-                            processBoundingBox(box, imageProxy, value, username.toString(), role.toString())
-                        }
-                    }
+                    val value = barcode.rawValue ?: return@forEach
+                    val box = barcode.boundingBox ?: return@forEach
+                    processBoundingBox(box, imageProxy, value, username, role)
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "QR code scan fails", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "QR code scan failed", Toast.LENGTH_SHORT).show()
                 overlayView.clearBox()
             }
             .addOnCompleteListener {
@@ -220,7 +273,13 @@ class CameraActivity : BaseActivity() {
     }
 
     @OptIn(ExperimentalGetImage::class)
-    private fun processBoundingBox(box: Rect, imageProxy: ImageProxy, value: String, username: String, role: String) {
+    private fun processBoundingBox(
+        box: Rect,
+        imageProxy: ImageProxy,
+        value: String,
+        username: String,
+        role: String
+    ) {
         val previewWidth = previewView.width.toFloat()
         val previewHeight = previewView.height.toFloat()
         val imageWidth = imageProxy.image?.width?.toFloat() ?: 0f
@@ -239,7 +298,6 @@ class CameraActivity : BaseActivity() {
             box.right * scaleX,
             box.bottom * scaleY
         )
-
         overlayView.setBoundingBox(scaledBox)
 
         if (!isQrCodeProcessed) {
@@ -251,50 +309,60 @@ class CameraActivity : BaseActivity() {
     private fun verifyQrCodeWithServer(qrCode: String, username: String, role: String) {
         val app = application as MyApp
         applicationName = app.application_name
-        RetrofitClient.instance.checkQrCode(QrCodeRequest(qrCode, username, role, applicationName))
+
+        RetrofitClient.instance
+            .checkQrCode(QrCodeRequest(qrCode, username, role, applicationName))
             .enqueue(object : Callback<QrCodeResponse> {
-                override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
+                override fun onResponse(
+                    call: Call<QrCodeResponse>,
+                    response: Response<QrCodeResponse>
+                ) {
                     val body = response.body()
                     val statusRepair = body?.status_repair.orEmpty()
-
                     val repairRequestId = body?.id_ask_repair.orEmpty()
                     val message = body?.message ?: "QR code verified successfully."
 
                     if (response.isSuccessful && body?.status == "success") {
-                        // ✅ Show success message from backend
                         Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
-
-                        when (body.is_active) {
-                            true -> handleActiveQrCode(qrCode, role, statusRepair, repairRequestId, message)
-                            false -> handleInactiveQrCode(qrCode)
+                        if (body.is_active == true) {
+                            handleActiveQrCode(qrCode, role, statusRepair, repairRequestId, message)
+                        } else {
+                            handleInactiveQrCode(qrCode)
                         }
                     } else {
-                        val errorBody = response.errorBody()?.string()
                         val errorMessage = try {
-                            errorBody?.let { JSONObject(it).getString("message") } ?: "Invalid QR code."
+                            JSONObject(response.errorBody()?.string().orEmpty())
+                                .optString("message", "Invalid QR code.")
                         } catch (e: Exception) {
                             Log.e("CameraActivity", "JSON parsing error: ${e.message}")
                             "Unknown error occurred."
                         }
-
                         Toast.makeText(this@CameraActivity, errorMessage, Toast.LENGTH_SHORT).show()
                         resetScannerWithDelay()
                     }
                 }
 
-
                 override fun onFailure(call: Call<QrCodeResponse>, t: Throwable) {
-                    Toast.makeText(this@CameraActivity, "Please connect to the internet and try again.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@CameraActivity,
+                        "Please connect to the internet and try again.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     resetScannerWithDelay()
                 }
             })
     }
 
-    // Gère les QR codes actifs
-    private fun handleActiveQrCode(qrCode: String, role: String, status_repair: String, id_repair_ask: String, message: String) {
-
+    // QR actif
+    private fun handleActiveQrCode(
+        qrCode: String,
+        role: String,
+        status_repair: String,
+        id_repair_ask: String,
+        message: String
+    ) {
         if (role == "admin") {
-            if (status_repair == "processing"){
+            if (status_repair == "processing") {
                 saveQrCode(qrCode)
                 getSharedPreferences("MyPrefs", MODE_PRIVATE).edit().apply {
                     putString("id", id_repair_ask)
@@ -302,32 +370,29 @@ class CameraActivity : BaseActivity() {
                     apply()
                 }
                 val intent = Intent(this@CameraActivity, RepairActivity::class.java)
-                intent.putExtra("qr_code", qrCode )
+                intent.putExtra("qr_code", qrCode)
                 startActivity(intent)
             } else {
                 Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
                 resetScannerWithDelay()
             }
-
         } else {
-            if (status_repair == "processing"){
+            if (status_repair == "processing") {
                 Toast.makeText(this@CameraActivity, message, Toast.LENGTH_LONG).show()
                 resetScannerWithDelay()
-
             } else {
                 saveQrCode(qrCode)
-                startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))            }
-
+                startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))
+            }
         }
     }
 
-    // Gère les QR codes inactifs
+    // QR inactif
     private fun handleInactiveQrCode(qrCode: String) {
         saveQrCode(qrCode)
         startActivity(Intent(this@CameraActivity, ActivateQrCodeActivity::class.java))
     }
 
-    // Sauvegarde des données dans SharedPreferences
     private fun saveQrCode(qrCode: String) {
         getSharedPreferences("MyPrefs", MODE_PRIVATE).edit().apply {
             putString("qrData", qrCode)
@@ -335,20 +400,17 @@ class CameraActivity : BaseActivity() {
         }
     }
 
-    // Réinitialisation du scanner après 3 secondes
     private fun resetScannerWithDelay() {
         Handler(Looper.getMainLooper()).postDelayed({
             isQrCodeProcessed = false
-            overlayView.clearBox()
+            if (::overlayView.isInitialized) overlayView.clearBox()
         }, 3000)
     }
 
     override fun onResume() {
         super.onResume()
         isQrCodeProcessed = false
-        if (::overlayView.isInitialized) {
-            overlayView.clearBox()
-        }
+        if (::overlayView.isInitialized) overlayView.clearBox()
         requestCameraPermission()
     }
 }

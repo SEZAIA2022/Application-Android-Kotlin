@@ -82,8 +82,10 @@
     <string name="confirm_appointment">Confirm Appointment</string>
     <string name="send">send</string>
     <string name="request_sent">Request sent</string>
+    <string name="missing_repair_id">ID de réparation manquant</string>
+    <string name="load_error_fmt">Erreur de chargement : %1$s</string>
     <string name="request_message_sent">Your request has been sent, you will receive an email containing the date of arrival of our technicians,thank you</string>
-    <string name="show_history">Show history</string>
+    <string name="show_history">View history</string>
     <string name="success">Success</string>
     <string name="qr_code_scan">Qr code Scanner</string>
     <string name="http_error">Http error</string>
@@ -130,6 +132,19 @@
     <string name="account_deleted_title">Account deleted</string>
     <string name="account_deleted_success">Your account has been deleted.</string>
     <string name="done">Done</string>
+    <string name="activate_qr_code">Activate qr code</string>
+    <string name="all_fields_required">All fields requireds</string>
+
+    <string name="user">Utilisateur</string>
+    <string name="date">Date</string>
+    <string name="comment">Commentaire</string>
+    <string name="status">Statut</string>
+    <!-- Etats / erreurs -->
+    <string name="no_tech_available">Aucun technicien disponible pour le moment.</string>
+    <string name="no_tech_this_slot">Aucun technicien disponible à ce créneau.</string>
+    <string name="booking_error">Erreur lors de la réservation.</string>
+    <string name="save">Save</string>
+    <string name="qr_id">Qr id</string>
 
 
 </resources>

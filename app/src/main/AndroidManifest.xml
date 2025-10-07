@@ -29,35 +29,43 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Sezaia"
         tools:targetApi="31">
-
-
-
+        <activity
+            android:name=".ui.screen.RequestInterventionDirectActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.screen.VerifyEmailActivity"
             android:exported="true">
-
             <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https" android:host="assistbyscan.com" android:pathPrefix="/verify"/>
-                <data android:scheme="https" android:host="www.assistbyscan.com" android:pathPrefix="/verify"/>
-            </intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="assistbyscan.com"
+                    android:pathPrefix="/verify"
+                    android:scheme="https" />
+                <data
+                    android:host="www.assistbyscan.com"
+                    android:pathPrefix="/verify"
+                    android:scheme="https" />
+            </intent-filter>
             <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https" android:host="assistbyscan.com" android:pathPrefix="/create-new-password"/>
-                <data android:scheme="https" android:host="www.assistbyscan.com" android:pathPrefix="/create-new-password"/>
-            </intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="assistbyscan.com"
+                    android:pathPrefix="/create-new-password"
+                    android:scheme="https" />
+                <data
+                    android:host="www.assistbyscan.com"
+                    android:pathPrefix="/create-new-password"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
-
-
-
-
-
 
         <service
             android:name=".network.MyFirebaseMessagingService"
@@ -69,7 +77,8 @@
 
         <activity
             android:name=".ui.screen.RepairActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".ui.screen.QrCodeDetailActivity"
             android:exported="false" />
@@ -98,7 +107,6 @@
             android:name=".ui.screen.ChangePasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-
         <activity
             android:name=".ui.screen.ChangeNumberActivity"
             android:exported="false" />
@@ -109,7 +117,6 @@
             android:name=".ui.screen.ChangeUsernameActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-
         <activity
             android:name=".ui.screen.TermsOfUseActivity"
             android:exported="false" />
@@ -122,7 +129,6 @@
         <activity
             android:name=".ui.screen.ProfileActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.screen.SettingsActivity"
             android:exported="false" />
@@ -145,7 +151,6 @@
             android:name=".ui.screen.SignUpActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-
         <activity
             android:name=".ui.screen.LoginActivity"
             android:exported="false" />

@@ -6,95 +6,117 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="0dp"
     android:background="?android:colorBackground"
     tools:context=".ui.screen.RepairActivity">
 
-    <!-- Custom Toolbar -->
+    <!-- Toolbar -->
     <include
         android:id="@+id/custom_toolbar"
         layout="@layout/toolbar_layout"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- General Information TextView -->
-    <TextView
-        android:id="@+id/repairInfo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="12dp"
-        android:textColor="?android:textColorPrimary"
-        android:textSize="14sp"
-        android:lineSpacingExtra="4dp"
-        android:importantForAccessibility="yes"
-        android:contentDescription="General repair information"
-        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="Your repair concerns the device XYZ..." />
-
-    <!-- Response List RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/responseList"
+    <!-- CONTENU DÉFILABLE (header + liste) -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:padding="8dp"
+        android:fillViewport="true"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/repairInfo"
-        app:layout_constraintBottom_toTopOf="@id/problemLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_response" />
-
-    <!-- Problem Description Input Field -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/problemLayout"
-        style="@style/CustomTextInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:layout_marginHorizontal="16dp"
-        android:hint="@string/intervention"
-        app:layout_constraintBottom_toTopOf="@id/btnHistory"
+        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
+        app:layout_constraintBottom_toTopOf="@id/bottomPanel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/problem"
-            style="@style/CustomTextInputEditText"
-            android:layout_height="150dp"
-            android:gravity="top|start"
-            android:lines="5"
-            android:maxLines="10"
-            android:scrollbars="vertical"
-            android:contentDescription="Problem description input field" />
-    </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <!-- History Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnHistory"
-        style="@style/MyCustomButtonBlue"
-        android:text="Voir l'historique"
-        android:textAllCaps="false"
-        android:layout_marginBottom="12dp"
-        app:layout_constraintBottom_toTopOf="@id/btnRepair"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Infos -->
+            <TextView
+                android:id="@+id/repairInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="12dp"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                tools:text="👤 User…\n📅 Date…\n💬 Comment…\n📌 Status…" />
 
-    <!-- Save Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnRepair"
-        style="@style/MyCustomButtonBlue"
-        android:text="Save"
-        android:textAllCaps="false"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+            <!-- Liste des réponses.
+                 Hauteur WRAP + nestedScrolling désactivé => c’est le NestedScrollView
+                 qui gère tout le défilement. -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/responseList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:padding="8dp"
+                android:clipToPadding="false"
+                tools:listitem="@layout/item_response" />
+
+            <!-- petit espace avant le panneau du bas -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="12dp"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- PANNEAU BAS poussé au-dessus du clavier -->
+    <LinearLayout
+        android:id="@+id/bottomPanel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp"
+        android:animateLayoutChanges="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/problemLayout"
+            style="@style/CustomTextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="12dp"
+            android:hint="@string/intervention">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/problem"
+                style="@style/CustomTextInputEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:maxLines="8"
+                android:scrollbars="vertical"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnHistory"
+            style="@style/MyCustomButtonBlue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/show_history"
+            android:textAllCaps="false" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRepair"
+            style="@style/MyCustomButtonBlue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:textAllCaps="false" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
