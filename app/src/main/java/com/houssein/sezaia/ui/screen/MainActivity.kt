@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat
 import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
-import com.houssein.sezaia.model.data.MyApp
 
 class MainActivity : BaseActivity() {
 
@@ -32,14 +31,13 @@ class MainActivity : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        val app = application as MyApp
-        val applicationName = app.application_name
+
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         initViews()
         UIUtils.initToolbar(
             this,
-            applicationName,
+            "Assist By Scan",
             actionIconRes = R.drawable.baseline_density_medium_24,
             onBackClick = backButtonClickListener,
             onActionClick = actionButtonClickListener

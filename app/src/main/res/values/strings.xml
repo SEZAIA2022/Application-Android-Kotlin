@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sezaia</string>
+    <string name="app_name">Assist By Scan</string>
     <string name="settings">Settings</string>
     <string name="back">return</string>
     <string name="hello">H E L L O !</string>
@@ -148,6 +148,9 @@
     <string name="request_intervention">Request intervention</string>
     <string name="direct_intervention_title">New direct intervention request</string>
     <string name="direct_intervention_body">QR: %1$s\\nComment: %2$s</string>
+    <string name="choose_methode">Please choose the method you want to use to request the intervention</string>
+    <string name="intervention_direct">Intervention direct</string>
+    <string name="intervention_by_appointment">Intervention by appointment</string>
 
 
 </resources>

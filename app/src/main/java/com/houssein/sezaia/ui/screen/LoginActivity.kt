@@ -1,26 +1,27 @@
 package com.houssein.sezaia.ui.screen
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.messaging.FirebaseMessaging
 import com.houssein.sezaia.R
-import com.houssein.sezaia.ui.BaseActivity
-import com.houssein.sezaia.ui.utils.UIUtils
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.request.LoginRequest
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.network.RetrofitClient
+import com.houssein.sezaia.ui.BaseActivity
+import com.houssein.sezaia.ui.utils.UIUtils
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import org.json.JSONObject
-import androidx.core.content.edit
-import com.google.firebase.messaging.FirebaseMessaging
-import com.houssein.sezaia.model.data.MyApp
 
 class LoginActivity : BaseActivity() {
 
@@ -30,8 +31,8 @@ class LoginActivity : BaseActivity() {
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var btnLogin: Button
     private lateinit var btnSignUp: Button
+    var targetActivity: Class<out Activity>? = null
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -115,8 +116,10 @@ class LoginActivity : BaseActivity() {
     private fun loginCheck() {
         val username = usernameEditText.text.toString().trim()
         val password = passwordEditText.text.toString().trim()
-        val app = application as MyApp
-        val applicationName = app.application_name
+        val app = applicationContext as MyApp
+        val name = app.application_name
+        val type = app.application_type
+
 
         if (username.isEmpty() || password.isEmpty()) {
             showDialog(
@@ -148,7 +151,7 @@ class LoginActivity : BaseActivity() {
             }
 
             val fcmToken = task.result ?: ""
-            val loginRequest = LoginRequest(username, password, applicationName, fcmToken)
+            val loginRequest = LoginRequest(username, password, name, fcmToken)
 
             RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
@@ -157,20 +160,37 @@ class LoginActivity : BaseActivity() {
                             val role = body.role.lowercase()
                             val user = body.user
                             val email = body.email
-
-                            val targetActivity = when (role) {
-                                "user", "admin" -> CameraActivity::class.java
-                                else -> {
-                                    showDialog(
-                                        title = "Error",
-                                        message = "Role unknown : $role",
-                                        positiveButtonText = null,
-                                        onPositiveClick = null,
-                                        negativeButtonText = "OK",
-                                        onNegativeClick = { },
-                                        cancelable = true
-                                    )
-                                    return
+                            val typeApp = type
+                            if (typeApp == "direct") {
+                                if (role == "user"){
+                                    targetActivity = RequestInterventionDirectActivity::class.java
+                                }
+                                else if (role == "admin"){
+                                    targetActivity = CameraActivity::class.java
+                                }
+                            } else if (typeApp == "scan") {
+                                targetActivity = when (role) {
+                                    "user", "admin" -> CameraActivity::class.java
+                                    else -> {
+                                        showDialog(
+                                            title = "Error",
+                                            message = "Role unknown : $role",
+                                            positiveButtonText = null,
+                                            onPositiveClick = null,
+                                            negativeButtonText = "OK",
+                                            onNegativeClick = { },
+                                            cancelable = true
+                                        )
+                                        return
+                                    }
+                                }
+                            }
+                            else if (typeApp == "both"){
+                                if (role == "user"){
+                                    targetActivity = InterventionActivity::class.java
+                                }
+                                else if (role == "admin"){
+                                    targetActivity = CameraActivity::class.java
                                 }
                             }
 
@@ -181,7 +201,10 @@ class LoginActivity : BaseActivity() {
                                 putString("userRole", role)
                             }
 
-                            startActivity(Intent(this@LoginActivity, targetActivity))
+                            if (targetActivity != null) {
+                                val intent = Intent(this@LoginActivity, targetActivity)
+                                startActivity(intent)
+                            }
                         } ?: showDialog(
                             title = "Error",
                             message = "Empty response from the server.",

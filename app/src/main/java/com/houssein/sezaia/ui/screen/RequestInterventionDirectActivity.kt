@@ -28,6 +28,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.reflect.typeOf
 
 class RequestInterventionDirectActivity : BaseActivity() {
 
@@ -50,13 +51,14 @@ class RequestInterventionDirectActivity : BaseActivity() {
         setContentView(R.layout.activity_request_intervention_direct)
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-
+        val app = applicationContext as MyApp
+        val type = app.application_type
         // Toolbar
         UIUtils.initToolbar(
             this,
             getString(R.string.request_intervention),
             actionIconRes = R.drawable.baseline_density_medium_24,
-            onBackClick = { finish() },
+            onBackClick = { if (type == "direct") {} else finish() },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 

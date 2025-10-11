@@ -25,6 +25,7 @@ import com.houssein.sezaia.model.request.TokenRequest
 import com.houssein.sezaia.model.request.VerifyTokenRequest
 import com.houssein.sezaia.model.response.AboutUsResponse
 import com.houssein.sezaia.model.response.ApiResponse
+import com.houssein.sezaia.model.response.AppNameTypeResponse
 import com.houssein.sezaia.model.response.AssignAdminResponse
 import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.CancelAppointmentResponse
@@ -177,5 +178,9 @@ interface ApiService {
     fun assignAndNotifyAdmin(
         @Body request: AssignAdminRequest
     ): Call<AssignAdminResponse>
+    @GET("api/app_name_type")
+    fun getAppNameType(
+        @Query("application_name") applicationName: String
+    ): Call<AppNameTypeResponse>
 
 }

@@ -62,15 +62,5 @@
         app:layout_constraintTop_toTopOf="@id/previewView"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ✅ Bouton pour faire une demande d’intervention -->
-    <Button
-        android:id="@+id/requestInterventionButton"
-        style="@style/MyCustomButtonBlue"
-        android:text="Request Intervention"
-        android:textAllCaps="false"
-        android:layout_margin="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

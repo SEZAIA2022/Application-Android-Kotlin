@@ -12,8 +12,6 @@ import android.os.Looper
 import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -57,7 +55,6 @@ class CameraActivity : BaseActivity() {
 
     private lateinit var camera: Camera
     private lateinit var flashButton: ImageButton
-    private lateinit var requestButton: Button
 
     private lateinit var scaleGestureDetector: ScaleGestureDetector
     private var currentZoomRatio = 1f
@@ -71,27 +68,17 @@ class CameraActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_camera)
-        requestButton = findViewById(R.id.requestInterventionButton)
-        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
-        val role = prefs.getString("userRole", "") ?: ""
 
-        // Affiche le bouton uniquement pour le rôle "user"
-        if (role == "user") {
-            requestButton.visibility = View.VISIBLE
-            requestButton.setOnClickListener {
-                startActivity(Intent(this, RequestInterventionDirectActivity::class.java))
-            }
-        } else {
-            requestButton.visibility = View.GONE
-        }
+
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
-
+        val app = applicationContext as MyApp
+        val type = app.application_type
         UIUtils.initToolbar(
             this,
             getString(R.string.qr_code_scan),
             actionIconRes = R.drawable.baseline_density_medium_24,
-            onBackClick = {},
+            onBackClick = { if (type == "both") finish() else {} },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
