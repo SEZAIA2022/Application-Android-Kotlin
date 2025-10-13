@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Commentaire -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        style="@style/CustomTextInputLayout">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/commentInput"
+            style="@style/CustomTextInputEditText"
+            android:hint="@string/describe_exact_problem"
+            android:drawableEnd="@drawable/baseline_comment_24"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:maxLines="5"
+            android:gravity="top|start"/>
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

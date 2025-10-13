@@ -5,6 +5,14 @@ data class QrCodeResponse(
     val message: String,
     val is_active: Boolean,
     val qrcodes: List <String>,
+    val qrids: List<String>,
     val status_repair: String,
     val id_ask_repair: String
 )
+
+data class QrIdResponse(
+    val status: String,
+    val message: String? = null,       // nullable (présent seulement en cas d’erreur)
+    val qr_ids: List<String>? = null   // nullable (présent seulement en cas de succès)
+)
+

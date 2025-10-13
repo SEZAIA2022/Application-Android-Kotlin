@@ -29,21 +29,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Sezaia"
         tools:targetApi="31" >
+
         <activity
             android:name=".ui.screen.InterventionActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.RequestInterventionDirectActivity"
             android:exported="false" />
+
+        <!-- Ouvre /verify (et filtre générique pour la vérification) -->
         <activity
             android:name=".ui.screen.VerifyEmailActivity"
-            android:exported="true" >
-            <intent-filter android:autoVerify="true" >
-                <action android:name="android.intent.action.VIEW" />
+            android:exported="true">
 
+            <!-- Filtres précis /verify -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="https" />
                 <data android:host="assistbyscan.com" />
                 <data android:pathPrefix="/verify" />
@@ -51,18 +55,16 @@
                 <data android:host="www.assistbyscan.com" />
                 <data android:pathPrefix="/verify" />
             </intent-filter>
-            <intent-filter android:autoVerify="true" >
-                <action android:name="android.intent.action.VIEW" />
 
+            <!-- Filtre générique (sans path) pour aider la vérification -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="https" />
                 <data android:host="assistbyscan.com" />
-                <data android:pathPrefix="/create-new-password" />
                 <data android:scheme="https" />
                 <data android:host="www.assistbyscan.com" />
-                <data android:pathPrefix="/create-new-password" />
             </intent-filter>
         </activity>
 
@@ -78,90 +80,126 @@
             android:name=".ui.screen.RepairActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustResize" />
+
         <activity
             android:name=".ui.screen.QrCodeDetailActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.HelpActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.QrCodeActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.HistoryActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ActivateQrCodeActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.SuccessActivity"
             android:exported="false" />
+
+        <!-- Ouvre /create-new-password -->
         <activity
             android:name=".ui.screen.CreatePasswordActivity"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="assistbyscan.com" />
+                <data android:pathPrefix="/create-new-password" />
+                <data android:scheme="https" />
+                <data android:host="www.assistbyscan.com" />
+                <data android:pathPrefix="/create-new-password" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ui.screen.DeleteAccountActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ChangePasswordActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustPan" />
+
         <activity
             android:name=".ui.screen.ChangeNumberActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ChangeEmailActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ChangeUsernameActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustPan" />
+
         <activity
             android:name=".ui.screen.TermsOfUseActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.PrivacyPolicyActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.AboutUsActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ProfileActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.SettingsActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ForgetActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.ChatbotActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.AppointmentActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.WelcomeChatbotActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.CameraActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.SignUpActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustPan" />
+
         <activity
             android:name=".ui.screen.LoginActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.screen.MainActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

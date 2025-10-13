@@ -84,7 +84,7 @@
     <string name="request_sent">Request sent</string>
     <string name="missing_repair_id">ID de réparation manquant</string>
     <string name="load_error_fmt">Erreur de chargement : %1$s</string>
-    <string name="request_message_sent">Your request has been sent, you will receive an email containing the date of arrival of our technicians,thank you</string>
+    <string name="request_message_sent">Your request has been sent, you can check the date of arrival of our technicians in your history, thank you</string>
     <string name="show_history">View history</string>
     <string name="success">Success</string>
     <string name="qr_code_scan">Qr code Scanner</string>
@@ -106,7 +106,7 @@
     <string name="qr_code_details">Qrcode details</string>
     <string name="intervention">Intervention report...</string>
     <string name="repair">"Repair"</string>
-    <string name="rescan">Rescan qr code</string>
+    <string name="newInt">New intervention</string>
     <string name="country">Country</string>
     <string name="zone">Zone</string>
     <string name="street">Street</string>
@@ -151,6 +151,9 @@
     <string name="choose_methode">Please choose the method you want to use to request the intervention</string>
     <string name="intervention_direct">Intervention direct</string>
     <string name="intervention_by_appointment">Intervention by appointment</string>
+
+    <string name="loading_error">Loading error</string>
+
 
 
 </resources>

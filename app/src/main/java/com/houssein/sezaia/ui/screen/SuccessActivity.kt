@@ -7,9 +7,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.houssein.sezaia.R
+import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.ui.utils.UIUtils
 
 class SuccessActivity : AppCompatActivity() {
@@ -61,8 +60,22 @@ class SuccessActivity : AppCompatActivity() {
     private fun setupListeners() {
         if (btnHistory.text == getString(R.string.show_history)){
             btnHistory.setOnClickListener { startActivity( Intent(this@SuccessActivity, HistoryActivity::class.java)) }
-            btnRescan.setOnClickListener{
-                startActivity( Intent(this@SuccessActivity, CameraActivity::class.java))
+            val app = applicationContext as MyApp
+            val type = app.application_type
+            if(type == "direct"){
+                btnRescan.setOnClickListener{
+                    startActivity( Intent(this@SuccessActivity, RequestInterventionDirectActivity::class.java))
+                }
+            }
+            else if(type == "scan"){
+                btnRescan.setOnClickListener{
+                    startActivity( Intent(this@SuccessActivity, CameraActivity::class.java))
+                }
+            }
+            else if(type == "both"){
+                btnRescan.setOnClickListener{
+                    startActivity( Intent(this@SuccessActivity, InterventionActivity::class.java))
+                }
             }
             btnClose.setOnClickListener{
                 // Fermer l'application

@@ -3,11 +3,18 @@ package com.houssein.sezaia.ui.screen
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import androidx.core.widget.NestedScrollView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.messaging.FirebaseMessaging
@@ -25,20 +32,32 @@ import retrofit2.Response
 
 class LoginActivity : BaseActivity() {
 
+    private lateinit var scroll: NestedScrollView
+
     private lateinit var usernameEditText: TextInputEditText
     private lateinit var passwordEditText: TextInputEditText
     private lateinit var usernameLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
     private lateinit var btnLogin: Button
     private lateinit var btnSignUp: Button
-    var targetActivity: Class<out Activity>? = null
     private lateinit var inputFields: List<Pair<TextInputEditText, TextInputLayout>>
+
+    var targetActivity: Class<out Activity>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Ajuster la zone utile quand le clavier apparaît
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
         setContentView(R.layout.activity_login)
-        enableEdgeToEdge()
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
+
+        scroll = findViewById(R.id.scroll)
+        applyImeAndSystemBarsPadding(scroll)   // padding bas dynamique
+
         initViews()
+        attachFocusAutoScroll()                // auto-scroll sur focus
 
         UIUtils.initToolbar(
             this,
@@ -77,8 +96,7 @@ class LoginActivity : BaseActivity() {
                     message = "Select the method to reset your password.",
                     positiveButtonText = "Email",
                     onPositiveClick = {
-                        val sharedPref = getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE)
-                        sharedPref.edit {
+                        getSharedPreferences("MethodePrefs", Context.MODE_PRIVATE).edit {
                             putString("methode", "Email")
                         }
                         startActivity(Intent(context, ForgetActivity::class.java))
@@ -90,16 +108,11 @@ class LoginActivity : BaseActivity() {
             }
         }
 
-        btnSignUp.setOnClickListener {
-            startActivity(Intent(this, SignUpActivity::class.java))
-        }
+        btnSignUp.setOnClickListener { startActivity(Intent(this, SignUpActivity::class.java)) }
+        btnLogin.setOnClickListener { loginCheck() }
 
-        btnLogin.setOnClickListener {
-            loginCheck()
-        }
-
-        inputFields.forEach { (editText, layout) ->
-            editText.addTextChangedListener(UIUtils.inputWatcher(editText, layout))
+        inputFields.forEach { (et, layout) ->
+            et.addTextChangedListener(UIUtils.inputWatcher(et, layout))
         }
     }
 
@@ -113,6 +126,54 @@ class LoginActivity : BaseActivity() {
         resetInputStyles(R.color.gray, clear = false, inputFields)
     }
 
+    // ---------- Scroll & clavier (mêmes helpers que SignUp) ----------
+
+    private fun applyImeAndSystemBarsPadding(target: View) {
+        val l = target.paddingLeft
+        val t = target.paddingTop
+        val r = target.paddingRight
+        val baseB = target.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(target) { v, insets ->
+            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.updatePadding(left = l, top = t, right = r, bottom = baseB + maxOf(sys.bottom, ime.bottom))
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    private fun attachFocusAutoScroll() {
+        val margin = dp(12f)
+        inputFields.map { it.first }.forEach { edit ->
+            edit.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) v.post { ensureVisible(scroll, v, margin) }
+            }
+        }
+    }
+
+    private fun ensureVisible(nsv: NestedScrollView, child: View, margin: Int) {
+        val rect = Rect()
+        child.getDrawingRect(rect)
+        nsv.offsetDescendantRectToMyCoords(child, rect)
+
+        val top = nsv.scrollY + nsv.paddingTop
+        val bottom = nsv.scrollY + nsv.height - nsv.paddingBottom
+
+        when {
+            rect.top - margin < top ->
+                nsv.smoothScrollTo(0, rect.top - nsv.paddingTop - margin)
+            rect.bottom + margin > bottom -> {
+                val y = rect.bottom - (nsv.height - nsv.paddingBottom) + margin
+                nsv.smoothScrollTo(0, y)
+            }
+        }
+    }
+
+    private fun dp(v: Float): Int =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, resources.displayMetrics).toInt()
+
+    // ---------- Login ----------
+
     private fun loginCheck() {
         val username = usernameEditText.text.toString().trim()
         val password = passwordEditText.text.toString().trim()
@@ -120,13 +181,10 @@ class LoginActivity : BaseActivity() {
         val name = app.application_name
         val type = app.application_type
 
-
         if (username.isEmpty() || password.isEmpty()) {
             showDialog(
                 title = "Error",
                 message = "Username and password are required.",
-                positiveButtonText = null,
-                onPositiveClick = null,
                 negativeButtonText = "OK",
                 onNegativeClick = { },
                 cancelable = true
@@ -135,14 +193,11 @@ class LoginActivity : BaseActivity() {
             return
         }
 
-        // On récupère le token FCM et on l'envoie directement dans le login
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 showDialog(
                     title = "Error",
                     message = "Unable to get device token.",
-                    positiveButtonText = null,
-                    onPositiveClick = null,
                     negativeButtonText = "OK",
                     onNegativeClick = { },
                     cancelable = true
@@ -151,80 +206,44 @@ class LoginActivity : BaseActivity() {
             }
 
             val fcmToken = task.result ?: ""
-            val loginRequest = LoginRequest(username, password, name, fcmToken)
+            val req = LoginRequest(username, password, name, fcmToken)
 
-            RetrofitClient.instance.login(loginRequest).enqueue(object : Callback<LoginResponse> {
+            RetrofitClient.instance.login(req).enqueue(object : Callback<LoginResponse> {
                 override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                     if (response.isSuccessful) {
                         response.body()?.let { body ->
                             val role = body.role.lowercase()
-                            val user = body.user
-                            val email = body.email
                             val typeApp = type
-                            if (typeApp == "direct") {
-                                if (role == "user"){
-                                    targetActivity = RequestInterventionDirectActivity::class.java
+
+                            targetActivity =
+                                when (typeApp) {
+                                    "direct" -> if (role == "user") RequestInterventionDirectActivity::class.java else CameraActivity::class.java
+                                    "scan"   -> if (role == "user" || role == "admin") CameraActivity::class.java else null
+                                    "both"   -> if (role == "user") InterventionActivity::class.java else CameraActivity::class.java
+                                    else     -> null
                                 }
-                                else if (role == "admin"){
-                                    targetActivity = CameraActivity::class.java
-                                }
-                            } else if (typeApp == "scan") {
-                                targetActivity = when (role) {
-                                    "user", "admin" -> CameraActivity::class.java
-                                    else -> {
-                                        showDialog(
-                                            title = "Error",
-                                            message = "Role unknown : $role",
-                                            positiveButtonText = null,
-                                            onPositiveClick = null,
-                                            negativeButtonText = "OK",
-                                            onNegativeClick = { },
-                                            cancelable = true
-                                        )
-                                        return
-                                    }
-                                }
-                            }
-                            else if (typeApp == "both"){
-                                if (role == "user"){
-                                    targetActivity = InterventionActivity::class.java
-                                }
-                                else if (role == "admin"){
-                                    targetActivity = CameraActivity::class.java
-                                }
-                            }
 
                             getSharedPreferences("LoginData", MODE_PRIVATE).edit {
-                                putString("loggedUsername", user)
-                                putString("LoggedEmail", email)
+                                putString("loggedUsername", body.user)
+                                putString("LoggedEmail", body.email)
                                 putBoolean("isLoggedIn", true)
                                 putString("userRole", role)
                             }
 
                             if (targetActivity != null) {
-                                val intent = Intent(this@LoginActivity, targetActivity)
-                                startActivity(intent)
+                                startActivity(Intent(this@LoginActivity, targetActivity))
+                            } else {
+                                showDialog("Error", "Role unknown: $role", negativeButtonText = "OK")
                             }
-                        } ?: showDialog(
-                            title = "Error",
-                            message = "Empty response from the server.",
-                            positiveButtonText = null,
-                            onPositiveClick = null,
-                            negativeButtonText = "OK",
-                            onNegativeClick = { },
-                            cancelable = true
-                        )
+                        } ?: showDialog("Error", "Empty response from the server.", negativeButtonText = "OK")
                     } else {
                         resetInputStyles(R.color.red, clear = true, inputFields)
-                        usernameLayout.isErrorEnabled = true
                         usernameLayout.error = "\u00A0"
-                        passwordLayout.isErrorEnabled = true
                         passwordLayout.error = "\u00A0"
 
                         val errorMessage = try {
-                            response.errorBody()?.string()?.let {
-                                JSONObject(it).getString("message")
-                            } ?: "Unknown error"
+                            response.errorBody()?.string()?.let { JSONObject(it).getString("message") }
+                                ?: "Unknown error"
                         } catch (e: Exception) {
                             "Network Error : ${response.code()}"
                         }
@@ -232,8 +251,6 @@ class LoginActivity : BaseActivity() {
                         showDialog(
                             title = "Connection failure",
                             message = errorMessage,
-                            positiveButtonText = null,
-                            onPositiveClick = null,
                             negativeButtonText = "OK",
                             onNegativeClick = { },
                             cancelable = true
@@ -242,15 +259,7 @@ class LoginActivity : BaseActivity() {
                 }
 
                 override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                    showDialog(
-                        title = "Connection failure",
-                        message = t.localizedMessage ?: "Unknown error",
-                        positiveButtonText = null,
-                        onPositiveClick = null,
-                        negativeButtonText = "OK",
-                        onNegativeClick = { },
-                        cancelable = true
-                    )
+                    showDialog("Connection failure", t.localizedMessage ?: "Unknown error", negativeButtonText = "OK")
                 }
             })
         }

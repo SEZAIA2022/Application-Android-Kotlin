@@ -65,7 +65,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRescan"
         style="@style/MyCustomButtonBlue"
-        android:text="@string/rescan"
+        android:text="@string/newInt"
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"

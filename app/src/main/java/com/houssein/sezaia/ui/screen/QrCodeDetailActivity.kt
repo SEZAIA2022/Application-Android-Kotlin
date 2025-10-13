@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
@@ -21,7 +19,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class QrCodeDetailActivity : BaseActivity() {
 
@@ -53,11 +52,11 @@ class QrCodeDetailActivity : BaseActivity() {
 
         setupSpinners()
 
-        val qrCode = intent.getStringExtra("qr_code")
+        val qrId = intent.getStringExtra("qr_id")
         val sharedPref = getSharedPreferences("LoginData", MODE_PRIVATE)
         val techUser = sharedPref.getString("loggedUsername", "") ?: ""
-        if (qrCode != null) {
-            loadRepairData(qrCode, techUser)
+        if (qrId != null) {
+            loadRepairData(qrId, techUser)
         } else {
             Toast.makeText(this, "QR code not found", Toast.LENGTH_SHORT).show()
         }
@@ -82,8 +81,8 @@ class QrCodeDetailActivity : BaseActivity() {
         spinnerFilterStatus.onItemSelectedListener = listener
     }
 
-    private fun loadRepairData(qrCode: String, techUser: String) {
-        RetrofitClient.instance.fetchRepairByQrCode(qrCode, techUser)
+    private fun loadRepairData(qrId: String, techUser: String) {
+        RetrofitClient.instance.fetchRepairByQrCode(qrId, techUser)
             .enqueue(object : Callback<RepairApiResponse> {
                 override fun onResponse(call: Call<RepairApiResponse>, response: Response<RepairApiResponse>) {
                     if (response.isSuccessful) {
@@ -120,7 +119,7 @@ class QrCodeDetailActivity : BaseActivity() {
             val message = buildString {
                 appendLine("🗓️ Date : ${repair.date}")
                 repair.hour_slot?.let { appendLine("⏰ Hour : $it") }
-                appendLine("🔳 QR Code : ${repair.qr_code}")
+                appendLine("🔳 QR Id : ${repair.qr_code}")
                 appendLine("🛠️ Problem : ${repair.description_probleme}")
                 repair.comment?.let { appendLine("💬 Comment : $it") }
                 appendLine("📌 Status : ${repair.status}")

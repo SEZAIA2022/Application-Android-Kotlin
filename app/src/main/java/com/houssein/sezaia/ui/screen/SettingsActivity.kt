@@ -6,20 +6,19 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.cardview.widget.CardView
+import androidx.core.content.edit
 import com.google.android.material.card.MaterialCardView
 import com.houssein.sezaia.R
-import androidx.core.content.edit
 import com.houssein.sezaia.model.data.MyApp
-import com.houssein.sezaia.ui.BaseActivity
-import com.houssein.sezaia.ui.utils.UIUtils
 import com.houssein.sezaia.model.request.LogoutRequest
 import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.network.RetrofitClient
+import com.houssein.sezaia.ui.BaseActivity
+import com.houssein.sezaia.ui.utils.UIUtils
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import org.json.JSONObject
-
 
 
 class SettingsActivity : BaseActivity() {

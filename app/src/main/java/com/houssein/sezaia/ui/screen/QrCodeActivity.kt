@@ -2,12 +2,10 @@ package com.houssein.sezaia.ui.screen
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.houssein.sezaia.R
-
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.network.RetrofitClient
@@ -41,10 +39,10 @@ class QrCodeActivity : BaseActivity() {
         RetrofitClient.instance.getQRCodes(applicationName).enqueue(object : Callback<QrCodeResponse> {
             override fun onResponse(call: Call<QrCodeResponse>, response: Response<QrCodeResponse>) {
                 if (response.isSuccessful && response.body()?.status == "success") {
-                    val qrCodes = response.body()?.qrcodes ?: emptyList()
-                    adapter = QrCodeAdapter(qrCodes) { selectedQrCode ->
+                    val qrIds = response.body()?.qrids ?: emptyList()
+                    adapter = QrCodeAdapter(qrIds) { selectedQrCode ->
                         val intent = Intent(this@QrCodeActivity, QrCodeDetailActivity::class.java)
-                        intent.putExtra("qr_code", selectedQrCode)
+                        intent.putExtra("qr_id", selectedQrCode)
                         startActivity(intent)
                     }
                     recyclerView.adapter = adapter

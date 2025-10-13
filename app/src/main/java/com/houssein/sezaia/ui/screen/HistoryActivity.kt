@@ -20,7 +20,8 @@ import com.houssein.sezaia.ui.utils.UIUtils
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class HistoryActivity : BaseActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -111,7 +112,7 @@ class HistoryActivity : BaseActivity() {
             val message = buildString {
                 appendLine("🗓️ Date : ${repair.date}")
                 repair.hour_slot?.let { appendLine("⏰ Hour : $it") }
-                appendLine("🔳 QR Code : ${repair.qr_code}")
+                appendLine("🔳 QR Id : ${repair.qr_code}")
                 appendLine("🛠️ Problem : ${repair.description_probleme}")
                 repair.comment?.let { appendLine("💬 Comment : $it") }
                 appendLine("📌 Status : ${repair.status}")
