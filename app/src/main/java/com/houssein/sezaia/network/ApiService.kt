@@ -36,8 +36,10 @@ import com.houssein.sezaia.model.response.HelpResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.PrivacyPolicyResponse
+import com.houssein.sezaia.model.response.ProblemTypesResponse
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.model.response.QrIdResponse
+import com.houssein.sezaia.model.response.QrIdResponses
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.model.response.RepairApiResponse
 import com.houssein.sezaia.model.response.SendAskDirectResponse
@@ -177,6 +179,17 @@ interface ApiService {
         @Query("qr_id") qrId: String,
         @Query("user_tech") user_tech: String
     ): Call<RepairApiResponse>
+
+    @GET("/api/problem-types")
+    suspend fun getProblemTypes(
+        @Query("application") application: String
+    ): ProblemTypesResponse
+
+    @GET("/api/get_qr_id")
+    suspend fun getQrId(
+        @Query("qr_code") qrCode: String,
+        @Query("application") application: String
+    ): QrIdResponses
 
     @POST("api/logout")
     fun logout(@Body request: LogoutRequest): Call<BaseResponse>

@@ -356,7 +356,7 @@ class CameraActivity : BaseActivity() {
                     putString("status_repair", status_repair)
                     apply()
                 }
-                val intent = Intent(this@CameraActivity, RepairActivity::class.java)
+                val intent = Intent(this@CameraActivity, RepairDetailsActivity::class.java)
                 intent.putExtra("qr_code", qrCode)
                 startActivity(intent)
             } else {

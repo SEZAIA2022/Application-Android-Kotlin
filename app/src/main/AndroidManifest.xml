@@ -30,6 +30,12 @@
         android:theme="@style/Theme.Sezaia"
         tools:targetApi="31">
         <activity
+            android:name=".ui.screen.ReportCreationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.screen.RepairDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.screen.ConfirmAppointmentActivity"
             android:exported="false" />
         <activity
@@ -92,12 +98,7 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-
-        <activity
-            android:name=".ui.screen.RepairActivity"
-            android:exported="false"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+        </service>hFD8oMmU
         <activity
             android:name=".ui.screen.QrCodeDetailActivity"
             android:exported="false" />
@@ -171,7 +172,6 @@
         <activity
             android:name=".ui.screen.ChatbotActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.screen.WelcomeChatbotActivity"
             android:exported="false" />

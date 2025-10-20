@@ -16,3 +16,10 @@ data class QrIdResponse(
     val qr_ids: List<String>? = null   // nullable (présent seulement en cas de succès)
 )
 
+data class QrIdResponses(
+    val status: String,
+    val qr_id: String?,
+    val qr_code: String?,
+    val application: String?,
+    val message: String? = null
+)

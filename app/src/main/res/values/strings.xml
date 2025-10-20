@@ -83,7 +83,7 @@
     <string name="send">send</string>
     <string name="request_sent">Request sent</string>
     <string name="missing_repair_id">ID de réparation manquant</string>
-    <string name="load_error_fmt">Erreur de chargement : %1$s</string>
+    <string name="load_error_fmt">Loading error: %1$s</string>
     <string name="request_message_sent">Your request has been sent, you can check the date of arrival of our technicians in your history, thank you</string>
     <string name="show_history">View history</string>
     <string name="success">Success</string>
@@ -166,6 +166,9 @@
     <string name="no_repairs_today">There are no interventions planned for today.</string>
     <string name="error_missing_username">Missing username.</string>
     <string name="next">Next</string>
+    <string name="create_report">Create report</string>
+    <string name="report_for_id">Create report for ID #%1$s</string>
+    <string name="problem_type">Problem type</string>
 
 
 </resources>
