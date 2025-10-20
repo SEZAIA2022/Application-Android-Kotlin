@@ -153,7 +153,19 @@
     <string name="intervention_by_appointment">Intervention by appointment</string>
 
     <string name="loading_error">Loading error</string>
-
+    <string name="HelloCompany">Please enter your company name</string>
+    <string name="company">Company</string>
+    <string name="confirm">Confirm</string>
+    <string name="retry">Retry</string>
+    <string name="no_internet_title">No internet connection</string>
+    <string name="no_internet_message">Please connect to the internet and relance l\'app again.</string>
+    <string name="saved_success_you_can_login">you can connect now</string>
+    <string name="camera_permission_required">You must give your camera permission to continue.</string>
+    <string name="daily_intervention">Daily intervention</string>
+    <string name="error_generic">generic error.</string>
+    <string name="no_repairs_today">There are no interventions planned for today.</string>
+    <string name="error_missing_username">Missing username.</string>
+    <string name="next">Next</string>
 
 
 </resources>

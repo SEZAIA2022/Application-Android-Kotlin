@@ -26,7 +26,7 @@ class SuccessActivity : AppCompatActivity() {
         initViews()
         setupListeners()
         UIUtils.initToolbar(
-            this,getString(R.string.success),actionIconRes = R.drawable.outline_verified_24, onBackClick = {},
+            this,getString(R.string.success),actionIconRes = R.drawable.outline_verified_24, showBackButton = false, onBackClick = {},
             onActionClick = {}
         )
     }

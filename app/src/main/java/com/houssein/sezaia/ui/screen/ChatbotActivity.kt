@@ -16,8 +16,8 @@ import com.houssein.sezaia.model.data.QuestionAnswer
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
-import com.houssein.sezaia.ui.utils.UIUtils
 import com.houssein.sezaia.ui.adapter.MessageAdapter
+import com.houssein.sezaia.ui.utils.UIUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -107,7 +107,7 @@ class ChatbotActivity : BaseActivity() {
         }
 
         btnContinueToAppointment.setOnClickListener {
-            val intent = Intent(this, AppointmentActivity::class.java)
+            val intent = Intent(this, SlotSelectionActivity::class.java)
             intent.putExtra("responses", ArrayList(questionResponseList))
             startActivity(intent)
         }

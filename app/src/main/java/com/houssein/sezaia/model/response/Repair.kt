@@ -1,5 +1,7 @@
 package com.houssein.sezaia.model.response
 
+import com.google.gson.annotations.SerializedName
+
 data class Repair(
     val id: Int,
     val username: String,
@@ -10,5 +12,9 @@ data class Repair(
     val status: String,
     val description_probleme: String?,
     val user_tech: String?,
+    @SerializedName(
+        value = "address",
+        alternate = ["adresse", "address_line", "location", "addr"] // adapte si besoin
+    )
     val address: String?
 )

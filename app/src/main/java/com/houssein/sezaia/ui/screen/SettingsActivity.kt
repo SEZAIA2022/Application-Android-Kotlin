@@ -28,6 +28,7 @@ class SettingsActivity : BaseActivity() {
     private lateinit var cardTermsOfUse: MaterialCardView
     private lateinit var cardLanguage: MaterialCardView
     private lateinit var cardProfile: MaterialCardView
+    private lateinit var cardCamera: MaterialCardView
     private lateinit var cardHelp: MaterialCardView
     private lateinit var cardLogout: MaterialCardView
     private lateinit var cardHistory: MaterialCardView
@@ -66,6 +67,7 @@ class SettingsActivity : BaseActivity() {
         cardHistory = findViewById(R.id.cardHistory)
         cardRepair = findViewById(R.id.cardRepair)
         cardHelp = findViewById(R.id.cardHelp)
+        cardCamera = findViewById(R.id.cardCamera)
 
         val cardClickListener = View.OnClickListener { view ->
             when (view.id) {
@@ -78,12 +80,14 @@ class SettingsActivity : BaseActivity() {
                 R.id.cardHistory -> historyPage()
                 R.id.cardHelp -> HelpPage()
                 R.id.cardRepair -> QrCodePage()
+                R.id.cardCamera -> cameraPage()
 
             }
         }
 
         // Appliquer le même listener sur toutes les cartes
         cardAboutUs.setOnClickListener(cardClickListener)
+        cardCamera.setOnClickListener(cardClickListener)
         cardPrivacyPolicy.setOnClickListener(cardClickListener)
         cardTermsOfUse.setOnClickListener(cardClickListener)
         cardLanguage.setOnClickListener(cardClickListener)
@@ -97,7 +101,9 @@ class SettingsActivity : BaseActivity() {
     private fun QrCodePage() {
         startActivity((Intent(this, QrCodeActivity::class.java)))
     }
-
+    private fun cameraPage() {
+        startActivity((Intent(this, CameraActivity::class.java)))
+    }
     private fun HelpPage() {
         startActivity((Intent(this, HelpActivity::class.java)))
     }
@@ -198,8 +204,10 @@ class SettingsActivity : BaseActivity() {
         val historyCard : CardView = findViewById(R.id.cardHistory)
         val repairCard : CardView = findViewById(R.id.cardRepair)
         val helpCard : CardView = findViewById(R.id.cardHelp)
+        val cameraCard : CardView = findViewById(R.id.cardCamera)
         if (role == "admin"){
             repairCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            cameraCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             helpCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             profileCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             logoutCard.visibility = if (isLoggged) View.VISIBLE else View.GONE

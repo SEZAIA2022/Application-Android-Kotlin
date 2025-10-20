@@ -87,8 +87,8 @@ class QrCodeDetailActivity : BaseActivity() {
                 override fun onResponse(call: Call<RepairApiResponse>, response: Response<RepairApiResponse>) {
                     if (response.isSuccessful) {
                         val body = response.body()
-                        if (body?.status == "success" && !body.data.isNullOrEmpty()) {
-                            allRepairs = body.data
+                        if (body?.status == "success" && !body.repairs.isNullOrEmpty()) {
+                            allRepairs = body.repairs
                             updateFilteredList()
                         } else {
                             Toast.makeText(this@QrCodeDetailActivity, body?.message ?: "History not found", Toast.LENGTH_SHORT).show()
@@ -143,7 +143,7 @@ class QrCodeDetailActivity : BaseActivity() {
                 message = message,
                 positiveButtonText = "OK",
                 onPositiveClick = {},
-                negativeButtonText = if (mapsUri != null) "Ouvrir dans Google Maps" else null,
+                negativeButtonText = if (mapsUri != null) "Open in Google Maps" else null,
                 onNegativeClick =
                     if (mapsUri != null) {
                         {

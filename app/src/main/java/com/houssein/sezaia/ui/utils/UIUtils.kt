@@ -1,7 +1,6 @@
 package com.houssein.sezaia.ui.utils
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -18,7 +17,6 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -108,6 +106,7 @@ object UIUtils {
         activity: AppCompatActivity,
         titleText: String,
         @DrawableRes actionIconRes: Int? = null,
+        showBackButton: Boolean = true, // ✅ Nouveau paramètre avec valeur par défaut
         onBackClick: (() -> Unit)? = { activity.finish() },
         onActionClick: (() -> Unit)? = {
             val intent = Intent(activity, SettingsActivity::class.java)
@@ -120,13 +119,20 @@ object UIUtils {
 
         title.text = titleText
 
-        // Forcer la couleur blanche
+        // Couleur blanche forcée
         val whiteColor = ContextCompat.getColor(activity, R.color.white)
         back.setColorFilter(whiteColor)
         action.setColorFilter(whiteColor)
 
-        back.setOnClickListener { onBackClick?.invoke() }
+        // ✅ Gérer la visibilité du bouton back
+        if (showBackButton) {
+            back.visibility = View.VISIBLE
+            back.setOnClickListener { onBackClick?.invoke() }
+        } else {
+            back.visibility = View.GONE
+        }
 
+        // Gérer le bouton action
         if (actionIconRes != null) {
             action.setImageResource(actionIconRes)
             action.visibility = View.VISIBLE

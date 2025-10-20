@@ -161,7 +161,16 @@ interface ApiService {
         @Query("username") username: String
     ): Call<QrIdResponse>
 
+    @POST("api/exist_company")
+    fun existCompany(
+        @Body body: Map<String, String> // { "application_name": "<name>" }
+    ): retrofit2.Call<BaseResponse>
 
+    @GET("api/get_repair_by_day")
+    suspend fun getRepairsByDay(
+        @Query("application") application: String,
+        @Query("tech_username") techUsername: String
+    ): RepairApiResponse
 
     @GET("api/get_repair_by_qrcode_full")
     fun fetchRepairByQrCode(

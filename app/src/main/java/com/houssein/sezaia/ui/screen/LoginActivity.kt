@@ -217,9 +217,9 @@ class LoginActivity : BaseActivity() {
 
                             targetActivity =
                                 when (typeApp) {
-                                    "direct" -> if (role == "user") RequestInterventionDirectActivity::class.java else CameraActivity::class.java
-                                    "scan"   -> if (role == "user" || role == "admin") CameraActivity::class.java else null
-                                    "both"   -> if (role == "user") InterventionActivity::class.java else CameraActivity::class.java
+                                    "direct" -> if (role == "user") RequestInterventionDirectActivity::class.java else DailyInterventionActivity::class.java
+                                    "scan"   -> if (role == "user") CameraActivity::class.java else DailyInterventionActivity::class.java
+                                    "both"   -> if (role == "user") InterventionActivity::class.java else DailyInterventionActivity::class.java
                                     else     -> null
                                 }
 

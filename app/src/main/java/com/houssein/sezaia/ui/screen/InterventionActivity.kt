@@ -22,6 +22,7 @@ class InterventionActivity : BaseActivity() {
             this,
             "Intervention",
             actionIconRes = R.drawable.baseline_density_medium_24,
+            showBackButton = false,
             onBackClick = {},
             onActionClick = {
                 startActivity(Intent(this, SettingsActivity::class.java))
