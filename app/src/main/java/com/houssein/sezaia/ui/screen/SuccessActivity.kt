@@ -26,11 +26,15 @@ class SuccessActivity : AppCompatActivity() {
         initViews()
         setupListeners()
         UIUtils.initToolbar(
-            this,getString(R.string.success),actionIconRes = R.drawable.outline_verified_24, showBackButton = false, onBackClick = {},
+            this,getString(R.string.success),actionIconRes = R.drawable.outline_verified_24,
+            showBackButton = false,
+            onBackClick = {},
             onActionClick = {}
         )
     }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
     private fun initViews(){
         val sharedPreferences = getSharedPreferences("MySuccessPrefs", MODE_PRIVATE)
 

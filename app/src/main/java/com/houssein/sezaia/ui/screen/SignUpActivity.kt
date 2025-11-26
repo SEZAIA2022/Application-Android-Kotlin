@@ -230,7 +230,7 @@ class SignUpActivity : BaseActivity() {
                         putString("previous_page", "SignUpActivity")
                     }
                     getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-                        .edit().putString("email", email).apply()
+                        .edit { putString("email", email) }
 
                     startActivity(Intent(this@SignUpActivity, VerifyEmailActivity::class.java))
                     finish()

@@ -10,11 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
-import com.houssein.sezaia.model.data.MyApp
-import com.houssein.sezaia.model.request.ChangePasswordRequest
 import com.houssein.sezaia.model.request.CreateNewPasswordRequest
 import com.houssein.sezaia.model.response.BaseResponse
-import com.houssein.sezaia.model.response.CreateNewPasswordResponse
 import com.houssein.sezaia.network.RetrofitClient
 import com.houssein.sezaia.ui.BaseActivity
 import com.houssein.sezaia.ui.utils.UIUtils
@@ -61,6 +58,7 @@ class CreatePasswordActivity : BaseActivity() {
             this,
             getString(R.string.create_new_password),
             actionIconRes = R.drawable.baseline_density_medium_24,
+            showBackButton = false,
             onBackClick = { finish() },
             onActionClick = {
                 startActivity(Intent(this, SettingsActivity::class.java))
@@ -82,7 +80,9 @@ class CreatePasswordActivity : BaseActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
         }
     }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
     private fun handleResetButtonClick() {
         btnResetPass.setOnClickListener {
 

@@ -1,6 +1,5 @@
 package com.houssein.sezaia.ui.screen
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +7,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.houssein.sezaia.R
@@ -115,7 +115,7 @@ class ForgetActivity : BaseActivity() {
 
                             // Sauvegarde (optionnel)
                             getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
-                                .edit().putString("email", email).apply()
+                                .edit { putString("email", email) }
 
                             // Aller à VerifyEmailActivity
                             startActivity(Intent(this@ForgetActivity, VerifyEmailActivity::class.java))

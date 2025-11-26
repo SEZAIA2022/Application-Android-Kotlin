@@ -41,7 +41,9 @@ class DailyInterventionActivity : BaseActivity() {
 
         loadDailyRepairs()
     }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
     private fun loadDailyRepairs() {
         val app = application as MyApp
         val applicationName = app.application_name

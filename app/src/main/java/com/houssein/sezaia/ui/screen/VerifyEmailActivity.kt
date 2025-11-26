@@ -37,6 +37,7 @@ class VerifyEmailActivity : BaseActivity() {
             this,
             getString(R.string.verify_email_title),
             actionIconRes = R.drawable.baseline_verified_user_24,
+            showBackButton = false,
             onBackClick = { finish() },
             onActionClick = { /* no-op */ }
         )
@@ -58,7 +59,9 @@ class VerifyEmailActivity : BaseActivity() {
         // Traiter le deeplink si présent
         handleDeepLink(intent?.data)
     }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)

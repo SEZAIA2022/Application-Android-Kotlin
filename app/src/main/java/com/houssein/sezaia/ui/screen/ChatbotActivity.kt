@@ -46,7 +46,8 @@ class ChatbotActivity : BaseActivity() {
 
         UIUtils.initToolbar(
             this, getString(R.string.chatbot),
-            actionIconRes = R.drawable.baseline_density_medium_24, onBackClick = {finish()},
+            actionIconRes = R.drawable.baseline_density_medium_24,
+            onBackClick = {finish()},
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
     }

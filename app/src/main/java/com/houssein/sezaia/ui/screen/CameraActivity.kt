@@ -74,11 +74,14 @@ class CameraActivity : BaseActivity() {
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         val app = applicationContext as MyApp
         val type = app.application_type
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val role = prefs.getString("userRole", "") ?: ""
         UIUtils.initToolbar(
             this,
             getString(R.string.qr_code_scan),
             actionIconRes = R.drawable.baseline_density_medium_24,
-            onBackClick = { if (type == "both") finish() else {} },
+            showBackButton = if (type == "both" || role == "admin") true else false,
+            onBackClick = { finish() },
             onActionClick = { startActivity(Intent(this, SettingsActivity::class.java)) }
         )
 
@@ -392,6 +395,16 @@ class CameraActivity : BaseActivity() {
             isQrCodeProcessed = false
             if (::overlayView.isInitialized) overlayView.clearBox()
         }, 3000)
+    }
+
+    override fun onBackPressed() {
+        val app = applicationContext as MyApp
+        val type = app.application_type
+        val prefs = getSharedPreferences("LoginData", MODE_PRIVATE)
+        val role = prefs.getString("userRole", "") ?: ""
+        if (type == "both" || role == "admin") {
+            super.onBackPressed() // autoriser le retour
+        } else {}
     }
 
     override fun onResume() {

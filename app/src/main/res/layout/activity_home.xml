@@ -6,6 +6,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
+
     tools:context=".ui.screen.HomeActivity">
 
     <!-- Toolbar -->
@@ -46,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
-                android:src="@drawable/sezaia_logo"
+                android:src="@drawable/assistbyscan_logo"
                 android:contentDescription="@string/app_name"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

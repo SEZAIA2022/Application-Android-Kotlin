@@ -30,7 +30,9 @@ class InterventionActivity : BaseActivity() {
         )
         setupListeners()
         }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
     private fun initViews() {
         btnIntDirect = findViewById(R.id.btnIntDirect)
         btnIntAppointment = findViewById(R.id.btnIntAppointment)    }
