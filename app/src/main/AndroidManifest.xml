@@ -30,6 +30,9 @@
         android:theme="@style/Theme.Sezaia"
         tools:targetApi="31">
         <activity
+            android:name=".ui.screen.ReportActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.screen.ReportCreationActivity"
             android:exported="false" />
         <activity
@@ -99,6 +102,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <activity
             android:name=".ui.screen.QrCodeDetailActivity"
             android:exported="false" />

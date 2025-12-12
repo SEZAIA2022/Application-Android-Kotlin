@@ -170,5 +170,7 @@
     <string name="report_for_id">Create report for ID #%1$s</string>
     <string name="problem_type">Problem type</string>
 
+    <string name="report_title">Report</string>
+    <string name="report_answer_hint">Write your answer here</string>
 
 </resources>

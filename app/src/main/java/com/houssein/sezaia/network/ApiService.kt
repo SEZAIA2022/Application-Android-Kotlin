@@ -40,13 +40,16 @@ import com.houssein.sezaia.model.response.ProblemTypesResponse
 import com.houssein.sezaia.model.response.QrCodeResponse
 import com.houssein.sezaia.model.response.QrIdResponse
 import com.houssein.sezaia.model.response.QrIdResponses
+import com.houssein.sezaia.model.response.QuestionsResponse
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.model.response.RepairApiResponse
 import com.houssein.sezaia.model.response.SendAskDirectResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
+import com.houssein.sezaia.model.response.SubtitlesResponse
 import com.houssein.sezaia.model.response.TakenSlotsResponse
 import com.houssein.sezaia.model.response.TechnicianResponse
 import com.houssein.sezaia.model.response.TermsOfUseResponse
+import com.houssein.sezaia.model.response.TitlesResponse
 import com.houssein.sezaia.model.response.VerifyResponse
 import retrofit2.Call
 import retrofit2.http.Body
@@ -214,4 +217,23 @@ interface ApiService {
         @Query("application_name") applicationName: String
     ): Call<AppNameTypeResponse>
 
+
+
+    @GET("api/repport/titles")
+    fun getRepportTitles(
+        @Query("application") application: String
+    ): Call<TitlesResponse>
+
+    @GET("api/repport/subtitles")
+    fun getRepportSubtitles(
+        @Query("application") application: String,
+        @Query("title") title: String
+    ): Call<SubtitlesResponse>
+
+    @GET("api/repport/questions")
+    fun getRepportQuestions(
+        @Query("application") application: String,
+        @Query("title") title: String,
+        @Query("subtitle") subtitle: String
+    ): Call<QuestionsResponse>
 }

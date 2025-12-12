@@ -1,5 +1,6 @@
 package com.houssein.sezaia.ui.screen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -29,6 +30,7 @@ class SettingsActivity : BaseActivity() {
     private lateinit var cardLanguage: MaterialCardView
     private lateinit var cardProfile: MaterialCardView
     private lateinit var cardCamera: MaterialCardView
+    private lateinit var cardReport: MaterialCardView
     private lateinit var cardHelp: MaterialCardView
     private lateinit var cardLogout: MaterialCardView
     private lateinit var cardHistory: MaterialCardView
@@ -68,6 +70,7 @@ class SettingsActivity : BaseActivity() {
         cardRepair = findViewById(R.id.cardRepair)
         cardHelp = findViewById(R.id.cardHelp)
         cardCamera = findViewById(R.id.cardCamera)
+        cardReport = findViewById(R.id.cardReport)
 
         val cardClickListener = View.OnClickListener { view ->
             when (view.id) {
@@ -81,6 +84,7 @@ class SettingsActivity : BaseActivity() {
                 R.id.cardHelp -> HelpPage()
                 R.id.cardRepair -> QrCodePage()
                 R.id.cardCamera -> cameraPage()
+                R.id.cardReport -> reportPage()
 
             }
         }
@@ -88,6 +92,7 @@ class SettingsActivity : BaseActivity() {
         // Appliquer le même listener sur toutes les cartes
         cardAboutUs.setOnClickListener(cardClickListener)
         cardCamera.setOnClickListener(cardClickListener)
+        cardReport.setOnClickListener (cardClickListener)
         cardPrivacyPolicy.setOnClickListener(cardClickListener)
         cardTermsOfUse.setOnClickListener(cardClickListener)
         cardLanguage.setOnClickListener(cardClickListener)
@@ -104,6 +109,15 @@ class SettingsActivity : BaseActivity() {
     private fun cameraPage() {
         startActivity((Intent(this, CameraActivity::class.java)))
     }
+    @SuppressLint("CommitPrefEdits")
+    private fun reportPage() {
+        val prefs = getSharedPreferences("REPORT_PREFS", MODE_PRIVATE)
+        prefs.edit {
+            putString("reportPage", "reportPage")
+        }
+        startActivity(Intent(this, CameraActivity::class.java))
+    }
+
     private fun HelpPage() {
         startActivity((Intent(this, HelpActivity::class.java)))
     }
@@ -205,9 +219,11 @@ class SettingsActivity : BaseActivity() {
         val repairCard : CardView = findViewById(R.id.cardRepair)
         val helpCard : CardView = findViewById(R.id.cardHelp)
         val cameraCard : CardView = findViewById(R.id.cardCamera)
+        val reportCard : CardView = findViewById(R.id.cardReport)
         if (role == "admin"){
             repairCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             cameraCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
+            reportCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             helpCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             profileCard.visibility = if (isLoggged) View.VISIBLE else View.GONE
             logoutCard.visibility = if (isLoggged) View.VISIBLE else View.GONE

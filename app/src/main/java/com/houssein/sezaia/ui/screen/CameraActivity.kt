@@ -313,6 +313,27 @@ class CameraActivity : BaseActivity() {
                     val message = body?.message ?: "QR code verified successfully."
 
                     if (response.isSuccessful && body?.status == "success") {
+
+                        // 🔹 1) Vérifier si on est en "mode rapport"
+                        val reportPrefs = getSharedPreferences("REPORT_PREFS", MODE_PRIVATE)
+                        val reportFlag = reportPrefs.getString("reportPage", null)
+                        val isReportMode = reportFlag == "reportPage"
+
+                        if (isReportMode) {
+                            // optionnel : on supprime le flag pour ne pas le réutiliser
+                            reportPrefs.edit().remove("reportPage").apply()
+
+                            // on peut aussi sauvegarder le QR si tu veux réutiliser plus tard
+                            saveQrCode(qrCode)
+
+                            // 🔹 2) Lancer ReportActivity avec qrCode + username (et autres si tu veux)
+                            val intent = Intent(this@CameraActivity, ReportActivity::class.java)
+
+                            startActivity(intent)
+                            return  // on ne continue pas vers handleActiveQrCode
+                        }
+
+
                         Toast.makeText(this@CameraActivity, message, Toast.LENGTH_SHORT).show()
                         if (body.is_active == true) {
                             handleActiveQrCode(qrCode, role, statusRepair, repairRequestId, message)
