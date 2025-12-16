@@ -30,6 +30,12 @@
         android:theme="@style/Theme.Sezaia"
         tools:targetApi="31">
         <activity
+            android:name=".ui.screen.VerifyAnswersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.screen.ReportHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.screen.ReportActivity"
             android:exported="false" />
         <activity

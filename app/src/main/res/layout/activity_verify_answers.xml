@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.screen.ReportActivity">
+    tools:context=".ui.screen.VerifyAnswersActivity">
 
     <!-- Toolbar -->
     <include
@@ -18,9 +18,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- RecyclerView -->
+    <!-- Progress indicator -->
+    <LinearLayout
+        android:id="@+id/progressContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#F5F5F5"
+        app:layout_constraintTop_toBottomOf="@+id/custom_toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:progress="0"
+            android:max="100"
+            android:progressDrawable="@drawable/progress_bar_style"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
+    <!-- RecyclerView pour les réponses -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/reportRecyclerView"
+        android:id="@+id/answersRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
@@ -28,12 +58,12 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:paddingTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/custom_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/progressContainer"
         app:layout_constraintBottom_toTopOf="@+id/buttonContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Conteneur des boutons en bas -->
+    <!-- Conteneur des boutons -->
     <LinearLayout
         android:id="@+id/buttonContainer"
         android:layout_width="0dp"
@@ -41,18 +71,17 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center"
-        android:spacing="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Bouton Historique -->
+        <!-- Bouton Modifier -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHistory"
+            android:id="@+id/btnEdit"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="@string/show_history"
+            android:text="@string/edit"
             android:textSize="14sp"
             android:textStyle="bold"
             style="@style/MyCustomButtonWhite"
@@ -61,21 +90,20 @@
             app:elevation="0dp"
             android:layout_marginEnd="6dp" />
 
-
-        <!-- Bouton Enregistrer -->
+        <!-- Bouton Soumettre -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
+            android:id="@+id/btnConfirm"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:text="@string/save"
+            android:text="@string/submit"
             android:textSize="14sp"
             android:textStyle="bold"
-            app:backgroundTint="@null"
             style="@style/MyCustomButtonBlue"
-            android:layout_marginStart="6dp"
+            app:backgroundTint="@null"
             app:cornerRadius="12dp"
-            app:elevation="0dp"/>
+            app:elevation="0dp"
+            android:layout_marginStart="6dp" />
 
 
     </LinearLayout>

@@ -1,7 +1,9 @@
 package com.houssein.sezaia.ui.screen
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,10 +19,7 @@ import com.houssein.sezaia.ui.utils.UIUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-
-// ===============================
-// Modèles pour la structure UI
-// ===============================
+import java.io.Serializable
 
 data class ReportTitle(
     val title: String,
@@ -35,38 +34,59 @@ data class ReportSubtitle(
 data class ReportQuestion(
     val id: Int,
     val question_text: String,
-    val question_type: String,     // "open", "qcm", "yes_no"
+    val question_type: String,
     val is_required: Boolean,
-    val options: List<String>?     // pour QCM
+    val options: List<String>?
 )
 
-// Items à plat pour le RecyclerView : Title / Subtitle / Question
 sealed class ReportUiItem {
     data class TitleItem(val title: String) : ReportUiItem()
     data class SubtitleItem(val subtitle: String) : ReportUiItem()
     data class QuestionItem(val question: ReportQuestion) : ReportUiItem()
 }
 
-// ===============================
-// ReportActivity
-// ===============================
+data class ReportStructureWithAnswers(
+    val title: String,
+    val subtitle: String,
+    val questions: MutableList<QuestionWithAnswer>  // MutableList pour pouvoir modifier
+) : Serializable
+
+data class QuestionWithAnswer(
+    val id: Int,
+    val question_text: String,
+    val answer: String,
+    val is_required: Boolean,
+    val question_type: String,
+    val options: List<String>?
+) : Serializable
+
 
 class ReportActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ReportAdapter
+    private lateinit var btnHistory: Button
+    private lateinit var btnSave: Button
     private lateinit var applicationName: String
+    private val completeStructures = mutableListOf<ReportStructureWithAnswers>()
 
     private var qrCode: String = ""
     private var username: String = ""
 
+
+
+    // Stocker les réponses: question_id -> answer_text
+    private val answers = mutableMapOf<Int, String>()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_report)
-
-        // Récupérer ce qui vient de CameraActivity
-        qrCode = intent.getStringExtra("qr_code") ?: ""
-        username = intent.getStringExtra("username") ?: ""
+        val sharedPrefs = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+        val qrData = sharedPrefs.getString("qrData", null)
+        val sharedLoginData = getSharedPreferences("LoginData", MODE_PRIVATE)
+        qrCode = qrData.toString()
+        username = sharedLoginData.getString("loggedUsername", null).toString()
 
         UIUtils.applySystemBarsInsets(findViewById(R.id.main))
         UIUtils.initToolbar(
@@ -80,7 +100,19 @@ class ReportActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.reportRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        btnHistory = findViewById(R.id.btnHistory)
+        btnSave = findViewById(R.id.btnSave)
+
+        btnHistory.setOnClickListener {
+            openHistory()
+        }
+
+        btnSave.setOnClickListener {
+            goToVerifyAnswers()
+        }
+
         fetchFullReportStructure()
+
     }
 
     private fun fetchFullReportStructure() {
@@ -97,7 +129,7 @@ class ReportActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         val titles = response.body()!!.data.titles
                         if (titles.isEmpty()) {
-                            adapter = ReportAdapter(emptyList())
+                            adapter = ReportAdapter(emptyList(), ::onAnswerChanged)
                             recyclerView.adapter = adapter
                         } else {
                             fetchSubtitlesAndQuestionsForTitles(titles)
@@ -105,7 +137,7 @@ class ReportActivity : AppCompatActivity() {
                     } else {
                         Toast.makeText(
                             this@ReportActivity,
-                            "Erreur lors de la récupération des titres",
+                            "Error retrieving titles",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -113,16 +145,12 @@ class ReportActivity : AppCompatActivity() {
 
                 override fun onFailure(call: Call<TitlesResponse>, t: Throwable) {
                     Log.e("ReportActivity", "getRepportTitles failed", t)
-                    Log.d("ReportActivity", "URL appelée: ${call.request().url}")
-
                     Toast.makeText(
                         this@ReportActivity,
-                        "Erreur réseau (titles): ${t.localizedMessage ?: "Erreur inconnue"}",
+                        "Network error: ${t.localizedMessage}",
                         Toast.LENGTH_LONG
                     ).show()
                 }
-
-
             })
     }
 
@@ -152,7 +180,6 @@ class ReportActivity : AppCompatActivity() {
                                 }
                             }
                         } else {
-                            Log.e("ReportActivity", "getRepportSubtitles error for title=$title")
                             reportTitles.add(ReportTitle(title, emptyList()))
                             pendingTitles--
                             if (pendingTitles == 0) buildAndDisplayUi(reportTitles)
@@ -161,14 +188,12 @@ class ReportActivity : AppCompatActivity() {
 
                     override fun onFailure(call: Call<SubtitlesResponse>, t: Throwable) {
                         Log.e("ReportActivity", "getRepportSubtitles failed", t)
-
                         Toast.makeText(
                             this@ReportActivity,
-                            "Erreur réseau (subtitles): ${t.localizedMessage ?: "Erreur inconnue"}",
+                            "Network error: ${t.localizedMessage}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
-
                 })
         }
     }
@@ -204,8 +229,6 @@ class ReportActivity : AppCompatActivity() {
                             }
                             result.add(ReportSubtitle(subtitle, questions))
                         } else {
-                            Log.e("ReportActivity",
-                                "getRepportQuestions error for $title / $subtitle")
                             result.add(ReportSubtitle(subtitle, emptyList()))
                         }
                         pendingSubs--
@@ -214,14 +237,12 @@ class ReportActivity : AppCompatActivity() {
 
                     override fun onFailure(call: Call<QuestionsResponse>, t: Throwable) {
                         Log.e("ReportActivity", "getRepportQuestions failed", t)
-
                         Toast.makeText(
                             this@ReportActivity,
-                            "Erreur réseau (questions): ${t.localizedMessage ?: "Erreur inconnue"}",
+                            "Network error: ${t.localizedMessage}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
-
                 })
         }
     }
@@ -230,17 +251,108 @@ class ReportActivity : AppCompatActivity() {
         val sortedTitles = reportTitles.sortedBy { it.title.lowercase() }
         val uiItems = mutableListOf<ReportUiItem>()
 
+        // ✅ Vider la liste précédente
+        completeStructures.clear()
+
         sortedTitles.forEach { t ->
             uiItems.add(ReportUiItem.TitleItem(t.title))
             t.subtitles.sortedBy { it.subtitle.lowercase() }.forEach { sub ->
                 uiItems.add(ReportUiItem.SubtitleItem(sub.subtitle))
+
+                // Créer la structure pour cette section
+                val questionsForThisSection = mutableListOf<QuestionWithAnswer>()
+
                 sub.questions.forEach { q ->
                     uiItems.add(ReportUiItem.QuestionItem(q))
+                    questionsForThisSection.add(
+                        QuestionWithAnswer(
+                            id = q.id,
+                            question_text = q.question_text,
+                            answer = "",  // Sera rempli par l'utilisateur
+                            is_required = q.is_required,
+                            question_type = q.question_type,
+                            options = q.options
+                        )
+                    )
+                }
+
+                // Ajouter cette structure seulement s'il y a des questions
+                if (questionsForThisSection.isNotEmpty()) {
+                    completeStructures.add(
+                        ReportStructureWithAnswers(
+                            title = t.title,
+                            subtitle = sub.subtitle,
+                            questions = questionsForThisSection
+                        )
+                    )
                 }
             }
         }
 
-        adapter = ReportAdapter(uiItems)
+        adapter = ReportAdapter(uiItems, ::onAnswerChanged)
         recyclerView.adapter = adapter
     }
+
+
+
+    // Callback appelé quand une réponse change
+    private fun onAnswerChanged(questionId: Int, answer: String) {
+        answers[questionId] = answer
+
+        // ✅ Mettre à jour dans completeStructures
+        completeStructures.forEach { structure ->
+            structure.questions.forEachIndexed { index, q ->
+                if (q.id == questionId) {
+                    structure.questions[index] = q.copy(answer = answer)
+                }
+            }
+        }
+
+        Log.d("ReportActivity", "Answer updated: q$questionId = '$answer'")
+    }
+
+
+    private fun openHistory() {
+        startActivity(Intent(this, ReportHistoryActivity::class.java).apply {
+            putExtra("application", applicationName)
+            putExtra("username", username)
+            putExtra("qr_code", qrCode)
+        })
+    }
+
+    private fun goToVerifyAnswers() {
+        // ✅ Validation améliorée
+        val allQuestions = completeStructures.flatMap { it.questions }
+        val missingRequired = allQuestions.filter { q ->
+            q.is_required && q.answer.trim().isEmpty()
+        }
+
+        Log.d("ReportActivity", "Total questions: ${allQuestions.size}")
+        Log.d("ReportActivity", "Missing required: ${missingRequired.size}")
+        Log.d("ReportActivity", "Missing questions: ${missingRequired.map { it.question_text }}")
+
+        if (missingRequired.isNotEmpty()) {
+            val missingText = missingRequired.take(3).joinToString("\n• ") { it.question_text }
+            Toast.makeText(
+                this,
+                "⚠️ Missing mandatory questions:\n• $missingText${if (missingRequired.size > 3) "\n... and ${missingRequired.size - 3} others" else ""}",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        if (completeStructures.isEmpty()) {
+            Toast.makeText(this, "No questions to check", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        startActivity(Intent(this, VerifyAnswersActivity::class.java).apply {
+            putExtra("application", applicationName)
+            putExtra("username", username)
+            putExtra("qr_code", qrCode)
+            putExtra("structures", ArrayList(completeStructures))
+        })
+    }
+
+
 }

@@ -3,133 +3,137 @@ package com.houssein.sezaia.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
 import com.houssein.sezaia.R
 import com.houssein.sezaia.ui.screen.ReportQuestion
 import com.houssein.sezaia.ui.screen.ReportUiItem
 
 class ReportAdapter(
-    private val items: List<ReportUiItem>
+    private val items: List<ReportUiItem>,
+    private val onAnswerChanged: (Int, String) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    companion object {
-        private const val VIEW_TYPE_TITLE = 1
-        private const val VIEW_TYPE_SUBTITLE = 2
-        private const val VIEW_TYPE_QUESTION = 3
+    override fun getItemViewType(position: Int): Int = when (items[position]) {
+        is ReportUiItem.TitleItem -> 0
+        is ReportUiItem.SubtitleItem -> 1
+        is ReportUiItem.QuestionItem -> 2
     }
-
-    override fun getItemViewType(position: Int): Int =
-        when (items[position]) {
-            is ReportUiItem.TitleItem -> VIEW_TYPE_TITLE
-            is ReportUiItem.SubtitleItem -> VIEW_TYPE_SUBTITLE
-            is ReportUiItem.QuestionItem -> VIEW_TYPE_QUESTION
-        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inf = LayoutInflater.from(parent.context)
         return when (viewType) {
-            VIEW_TYPE_TITLE -> {
-                val v = inf.inflate(R.layout.item_report_title, parent, false)
-                TitleViewHolder(v)
-            }
-            VIEW_TYPE_SUBTITLE -> {
-                val v = inf.inflate(R.layout.item_report_subtitle, parent, false)
-                SubtitleViewHolder(v)
-            }
-            VIEW_TYPE_QUESTION -> {
-                val v = inf.inflate(R.layout.item_report_question, parent, false)
-                QuestionViewHolder(v)
-            }
-            else -> throw IllegalArgumentException("Unknown viewType=$viewType")
+            0 -> TitleViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_report_title, parent, false))
+            1 -> SubtitleViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_report_subtitle, parent, false))
+            else -> QuestionViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_report_question, parent, false), onAnswerChanged)
         }
     }
-
-    override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val it = items[position]) {
-            is ReportUiItem.TitleItem -> (holder as TitleViewHolder).bind(it)
-            is ReportUiItem.SubtitleItem -> (holder as SubtitleViewHolder).bind(it)
-            is ReportUiItem.QuestionItem -> (holder as QuestionViewHolder).bind(it.question)
+        when (val item = items[position]) {
+            is ReportUiItem.TitleItem -> (holder as TitleViewHolder).bind(item.title)
+            is ReportUiItem.SubtitleItem -> (holder as SubtitleViewHolder).bind(item.subtitle)
+            is ReportUiItem.QuestionItem -> (holder as QuestionViewHolder).bind(item.question)
         }
     }
 
-    class TitleViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        private val txt: TextView = v.findViewById(R.id.txtReportTitle)
-        fun bind(item: ReportUiItem.TitleItem) {
-            txt.text = item.title
+    override fun getItemCount() = items.size
+
+    inner class TitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind(title: String) {
+            itemView.findViewById<TextView>(R.id.tvTitle).text = title
         }
     }
 
-    class SubtitleViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        private val txt: TextView = v.findViewById(R.id.txtReportSubtitle)
-        fun bind(item: ReportUiItem.SubtitleItem) {
-            txt.text = item.subtitle
+    inner class SubtitleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        fun bind(subtitle: String) {
+            itemView.findViewById<TextView>(R.id.tvSubtitle).text = subtitle
         }
     }
 
-    class QuestionViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        private val card: MaterialCardView = v.findViewById(R.id.cardQuestion)
-        private val txtQuestion: TextView = v.findViewById(R.id.txtQuestionLabel)
-        private val editAnswer: EditText = v.findViewById(R.id.editAnswerOpen)
+    inner class QuestionViewHolder(itemView: View, val onAnswerChanged: (Int, String) -> Unit) : RecyclerView.ViewHolder(itemView) {
+        fun bind(question: ReportQuestion) {
+            itemView.findViewById<TextView>(R.id.tvQuestionText).text = question.question_text
 
-        private val layoutYesNo: LinearLayout = v.findViewById(R.id.layoutYesNo)
-        private val cbYes: CheckBox = v.findViewById(R.id.cbYes)
-        private val cbNo: CheckBox = v.findViewById(R.id.cbNo)
+            when (question.question_type) {
+                "open" -> bindOpenQuestion(question)
+                "qcm" -> bindQcmQuestion(question)
+                "yes_no" -> bindYesNoQuestion(question)
+            }
+        }
 
-        private val layoutQcm: LinearLayout = v.findViewById(R.id.layoutQcmOptions)
+        private fun bindOpenQuestion(question: ReportQuestion) {
+            val etAnswer = itemView.findViewById<EditText>(R.id.etAnswer)
+            itemView.findViewById<RadioGroup>(R.id.rgOptions).visibility = View.GONE
+            itemView.findViewById<RadioGroup>(R.id.rgYesNo).visibility = View.GONE
 
-        fun bind(q: ReportQuestion) {
-            txtQuestion.text = q.question_text
+            etAnswer.visibility = View.VISIBLE
 
-            // Reset visibilités
-            editAnswer.visibility = View.GONE
-            layoutYesNo.visibility = View.GONE
-            layoutQcm.visibility = View.GONE
-
-            when (q.question_type) {
-                "open" -> {
-                    editAnswer.visibility = View.VISIBLE
-                }
-                "yes_no" -> {
-                    layoutYesNo.visibility = View.VISIBLE
-
-                    cbYes.setOnCheckedChangeListener(null)
-                    cbNo.setOnCheckedChangeListener(null)
-                    cbYes.isChecked = false
-                    cbNo.isChecked = false
-
-                    cbYes.setOnCheckedChangeListener { _, isChecked ->
-                        if (isChecked) cbNo.isChecked = false
-                    }
-                    cbNo.setOnCheckedChangeListener { _, isChecked ->
-                        if (isChecked) cbYes.isChecked = false
-                    }
-                }
-                "qcm" -> {
-                    layoutQcm.visibility = View.VISIBLE
-                    layoutQcm.removeAllViews()
-
-                    q.options?.forEach { optText ->
-                        val cb = CheckBox(itemView.context).apply {
-                            text = optText
-                        }
-                        layoutQcm.addView(cb)
-                    }
+            // Capturer la réponse au moment où l'utilisateur quitte le champ
+            etAnswer.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    val answer = etAnswer.text.toString().trim()
+                    onAnswerChanged(question.id, answer)
                 }
             }
 
-            if (q.is_required) {
-                card.strokeWidth = 3
-                // ⚠️ assure-toi d'avoir une couleur red dans colors.xml
-                card.strokeColor = itemView.context.getColor(R.color.red)
-            } else {
-                card.strokeWidth = 0
+            // Aussi capturer quand l'utilisateur change le texte (optionnel)
+            etAnswer.setOnEditorActionListener { _, _, _ ->
+                val answer = etAnswer.text.toString().trim()
+                onAnswerChanged(question.id, answer)
+                false
+            }
+        }
+
+        private fun bindQcmQuestion(question: ReportQuestion) {
+            val rgOptions = itemView.findViewById<RadioGroup>(R.id.rgOptions)
+            itemView.findViewById<EditText>(R.id.etAnswer).visibility = View.GONE
+            itemView.findViewById<RadioGroup>(R.id.rgYesNo).visibility = View.GONE
+
+            rgOptions.visibility = View.VISIBLE
+            rgOptions.removeAllViews()
+
+            // ✅ IMPORTANT: On doit créer les RadioButtons avec des IDs uniques
+            question.options?.forEachIndexed { index, option ->
+                val rb = RadioButton(itemView.context)
+                rb.id = View.generateViewId()  // Générer un ID unique
+                rb.text = option
+
+                rgOptions.addView(rb)
+            }
+
+            // ✅ Écouter le changement de RadioButton sélectionné
+            rgOptions.setOnCheckedChangeListener { _, checkedId ->
+                if (checkedId != -1) {  // -1 = aucun bouton sélectionné
+                    val selectedRb = itemView.findViewById<RadioButton>(checkedId)
+                    val answer = selectedRb.text.toString().trim()
+
+                    // ✅ Envoyer la réponse sélectionnée
+                    onAnswerChanged(question.id, answer)
+                }
+            }
+        }
+
+        private fun bindYesNoQuestion(question: ReportQuestion) {
+            val rgYesNo = itemView.findViewById<RadioGroup>(R.id.rgYesNo)
+            itemView.findViewById<EditText>(R.id.etAnswer).visibility = View.GONE
+            itemView.findViewById<RadioGroup>(R.id.rgOptions).visibility = View.GONE
+
+            rgYesNo.visibility = View.VISIBLE
+
+            // ✅ Écouter le changement Oui/Non
+            rgYesNo.setOnCheckedChangeListener { _, checkedId ->
+                val answer = when (checkedId) {
+                    itemView.findViewById<RadioButton>(R.id.rbYes).id -> "yes"
+                    itemView.findViewById<RadioButton>(R.id.rbNo).id -> "no"
+                    else -> ""
+                }
+
+                if (answer.isNotEmpty()) {
+                    onAnswerChanged(question.id, answer)
+                }
             }
         }
     }

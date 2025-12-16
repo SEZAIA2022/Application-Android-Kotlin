@@ -33,6 +33,7 @@ import com.houssein.sezaia.model.response.ChangeNumberResponse
 import com.houssein.sezaia.model.response.ChangePasswordResponse
 import com.houssein.sezaia.model.response.ChangeUsernameResponse
 import com.houssein.sezaia.model.response.HelpResponse
+import com.houssein.sezaia.model.response.HistoryResponse
 import com.houssein.sezaia.model.response.LoginResponse
 import com.houssein.sezaia.model.response.Message
 import com.houssein.sezaia.model.response.PrivacyPolicyResponse
@@ -236,4 +237,36 @@ interface ApiService {
         @Query("title") title: String,
         @Query("subtitle") subtitle: String
     ): Call<QuestionsResponse>
+
+    @POST("api/repport/submit")
+    fun submitRepport(@Body submitRequest: SubmitRepportRequest): Call<SubmitResponse>
+
+    @GET("api/repport/history")
+    fun getRepportHistory(
+        @Query("application") application: String,
+        @Query("username") username: String? = null,
+        @Query("qr_code") qrCode: String? = null
+    ): Call<HistoryResponse>
 }
+
+data class SubmitRepportRequest(
+    val application: String,
+    val title: String,
+    val subtitle: String,
+    val username: String?,
+    val qr_code: String?,
+    val answers: Map<String, String>  // {question_id: answer_text}
+)
+
+data class SubmitResponse(
+    val status: String,
+    val message: String,
+    val data: SubmitData?
+)
+
+data class SubmitData(
+    val submission_id: Int,
+    val repport_id: Int,
+    val submitted_at: String
+)
+

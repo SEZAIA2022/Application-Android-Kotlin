@@ -26,6 +26,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.houssein.sezaia.R
@@ -321,7 +322,7 @@ class CameraActivity : BaseActivity() {
 
                         if (isReportMode) {
                             // optionnel : on supprime le flag pour ne pas le réutiliser
-                            reportPrefs.edit().remove("reportPage").apply()
+                            reportPrefs.edit { remove("reportPage") }
 
                             // on peut aussi sauvegarder le QR si tu veux réutiliser plus tard
                             saveQrCode(qrCode)
