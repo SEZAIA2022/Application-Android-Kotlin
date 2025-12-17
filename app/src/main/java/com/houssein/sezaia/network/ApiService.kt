@@ -44,6 +44,7 @@ import com.houssein.sezaia.model.response.QrIdResponses
 import com.houssein.sezaia.model.response.QuestionsResponse
 import com.houssein.sezaia.model.response.Repair
 import com.houssein.sezaia.model.response.RepairApiResponse
+import com.houssein.sezaia.model.response.RepportMetaByIdsResponse
 import com.houssein.sezaia.model.response.SendAskDirectResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
 import com.houssein.sezaia.model.response.SubtitlesResponse
@@ -246,6 +247,12 @@ interface ApiService {
         @Query("application") application: String,
         @Query("qr_code") qrCode: String? = null
     ): Call<HistoryResponse>
+
+    @GET("api/repport/meta/by-question-ids")
+    fun getRepportMetaByQuestionIds(
+        @Query("question_ids") questionIdsCsv: String
+    ): Call<RepportMetaByIdsResponse>
+
 }
 
 data class SubmitRepportRequest(

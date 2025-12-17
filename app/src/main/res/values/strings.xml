@@ -180,5 +180,8 @@
     <string name="check_questions">✓</string>
     <string name="see_report">See report</string>
     <string name="serial_number">Serial number</string>
+    <string name="print_pdf">Print PDF</string>
+    <string name="finish">Finish</string>
+
 
 </resources>

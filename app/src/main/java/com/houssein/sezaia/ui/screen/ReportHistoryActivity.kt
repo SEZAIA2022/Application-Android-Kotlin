@@ -78,13 +78,25 @@ class ReportHistoryActivity : AppCompatActivity() {
                             username = data.username,
                             submissions = submissions,
                             onViewReport = { submission ->
-                                // ✅ ouvrir une page détail
-                                val intent = Intent(this@ReportHistoryActivity, ReportDetailsActivity::class.java)
-                                intent.putExtra("submission_id", submission.id)
-                                intent.putExtra("repport_id", submission.repport_id)
-                                intent.putExtra("submitted_at", submission.submitted_at ?: "")
-                                intent.putExtra("answers_json", Gson().toJson(submission.answers ?: emptyMap<String, Any>()))
-                                startActivity(intent)
+                                val i = Intent(this@ReportHistoryActivity, ReportDetailsActivity::class.java)
+
+                                // ✅ header
+                                i.putExtra("application", data.application)
+                                i.putExtra("qr_id", data.qr_id)
+                                i.putExtra("username", data.username)
+
+                                // ✅ infos submission
+                                i.putExtra("submitted_at", submission.submitted_at ?: "")
+                                i.putExtra("tech_user", submission.tech_user ?: "")
+                                i.putExtra("qr_code", submission.qr_code ?: "")
+
+                                // ✅ answers
+                                i.putExtra("answers_json", Gson().toJson(submission.answers ?: emptyMap<String, Any>()))
+
+                                // ✅ si tu veux l'afficher aussi dans details
+                                i.putExtra("serial_number", data.serial_number)
+
+                                startActivity(i)
                             }
                         )
                         recyclerView.adapter = adapter
