@@ -178,5 +178,7 @@
     <string name="edit">Edit</string>
     <string name="submit">Submit</string>
     <string name="check_questions">✓</string>
+    <string name="see_report">See report</string>
+    <string name="serial_number">Serial number</string>
 
 </resources>

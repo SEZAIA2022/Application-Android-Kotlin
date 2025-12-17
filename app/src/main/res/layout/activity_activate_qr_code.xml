@@ -48,6 +48,7 @@
                     android:hint="@string/username"
                     android:drawableEnd="@drawable/baseline_group_24"/>
             </com.google.android.material.textfield.TextInputLayout>
+
             <!-- qr id -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/idQrLayout"
@@ -58,6 +59,17 @@
                     style="@style/CustomTextInputEditText"
                     android:hint="@string/qr_id"
                     android:drawableEnd="@drawable/baseline_qr_code_24"/>
+            </com.google.android.material.textfield.TextInputLayout>
+            <!-- serial number -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/serialNumberLayout"
+                android:layout_width="match_parent"
+                style="@style/CustomTextInputLayout">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/serialNumber"
+                    style="@style/CustomTextInputEditText"
+                    android:hint="@string/serial_number"
+                    android:drawableEnd="@drawable/outline_barcode_24"/>
             </com.google.android.material.textfield.TextInputLayout>
             <!-- Country -->
             <com.google.android.material.textfield.TextInputLayout

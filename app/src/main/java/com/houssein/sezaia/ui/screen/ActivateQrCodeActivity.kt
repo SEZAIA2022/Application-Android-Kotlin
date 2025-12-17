@@ -32,6 +32,7 @@ class ActivateQrCodeActivity : BaseActivity() {
     private lateinit var scroll: NestedScrollView
 
     private lateinit var usernameEditText: TextInputEditText
+    private lateinit var serialNumberEditText: TextInputEditText
     private lateinit var qrIdEditText: TextInputEditText
     private lateinit var countryEditText: TextInputEditText
     private lateinit var cityEditText: TextInputEditText
@@ -41,6 +42,7 @@ class ActivateQrCodeActivity : BaseActivity() {
     private lateinit var btnAddQrCode: Button
 
     private lateinit var userLayout: TextInputLayout
+    private lateinit var serialNumberLayout: TextInputLayout
     private lateinit var qrIdLayout: TextInputLayout
     private lateinit var countryLayout: TextInputLayout
     private lateinit var cityLayout: TextInputLayout
@@ -89,6 +91,7 @@ class ActivateQrCodeActivity : BaseActivity() {
 
     private fun initViews() {
         usernameEditText = findViewById(R.id.user)
+        serialNumberEditText = findViewById(R.id.serialNumber)
         qrIdEditText = findViewById(R.id.idQr)
         countryEditText = findViewById(R.id.country)
         cityEditText = findViewById(R.id.city)
@@ -96,6 +99,7 @@ class ActivateQrCodeActivity : BaseActivity() {
         streetEditText = findViewById(R.id.street)
         exactLocationEditText = findViewById(R.id.exactLocation)
 
+        serialNumberLayout = findViewById(R.id.serialNumberLayout)
         userLayout = findViewById(R.id.userLayout)
         qrIdLayout = findViewById(R.id.idQrLayout)
         countryLayout = findViewById(R.id.countryLayout)
@@ -108,6 +112,7 @@ class ActivateQrCodeActivity : BaseActivity() {
 
         inputFields = listOf(
             usernameEditText to userLayout,
+            serialNumberEditText to serialNumberLayout,
             qrIdEditText to qrIdLayout,
             countryEditText to countryLayout,
             cityEditText to cityLayout,
@@ -206,6 +211,7 @@ class ActivateQrCodeActivity : BaseActivity() {
         }
 
         val idQr = qrIdEditText.text.toString().trim()
+        val serialNumber = serialNumberEditText.text.toString().trim()
         val country = countryEditText.text.toString().trim()
         val city = cityEditText.text.toString().trim()
         val zone = zoneEditText.text.toString().trim()
@@ -217,7 +223,7 @@ class ActivateQrCodeActivity : BaseActivity() {
             .orEmpty()
 
         // Validation simple
-        if (username.isEmpty() || idQr.isEmpty() || country.isEmpty() || city.isEmpty()
+        if (username.isEmpty() || serialNumber.isEmpty() || idQr.isEmpty() || country.isEmpty() || city.isEmpty()
             || zone.isEmpty() || street.isEmpty() || exactLocation.isEmpty() || qrCode.isEmpty()
         ) {
             Toast.makeText(this, R.string.all_fields_required, Toast.LENGTH_SHORT).show()
@@ -226,6 +232,7 @@ class ActivateQrCodeActivity : BaseActivity() {
 
         val request = AddQrRequest(
             username = username,
+            serial_number = serialNumber,
             qr_id = idQr,
             country = country,
             city = city,

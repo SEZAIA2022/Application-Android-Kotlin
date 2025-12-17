@@ -58,6 +58,7 @@
         app:layout_constraintTop_toBottomOf="@+id/custom_toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_report_history"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

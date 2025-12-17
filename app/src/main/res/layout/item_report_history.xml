@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -68,7 +69,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp" />
 
-    <!-- Date de soumission et statut -->
+    <!-- Date + bouton -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -86,18 +87,19 @@
             android:textStyle="bold"
             android:gravity="start" />
 
-        <TextView
-            android:id="@+id/tvStatus"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewReport"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="11sp"
-            android:textColor="#4CAF50"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"
-            android:background="@drawable/status_bg"
-            android:gravity="end" />
+            android:text="@string/see_report"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            style="@style/MyCustomButtonBlue"
+            app:backgroundTint="@null"
+            app:cornerRadius="10dp"
+            app:elevation="0dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"/>
+
 
     </LinearLayout>
 

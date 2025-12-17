@@ -244,7 +244,6 @@ interface ApiService {
     @GET("api/repport/history")
     fun getRepportHistory(
         @Query("application") application: String,
-        @Query("username") username: String? = null,
         @Query("qr_code") qrCode: String? = null
     ): Call<HistoryResponse>
 }

@@ -1,6 +1,7 @@
 package com.houssein.sezaia.ui.screen
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -158,7 +159,7 @@ class VerifyAnswersActivity : AppCompatActivity() {
                         ).show()
 
                         // Retour à l'écran principal
-                        finish()
+                        startActivity(Intent(this@VerifyAnswersActivity, DailyInterventionActivity::class.java))
                     } else {
                         Toast.makeText(
                             this@VerifyAnswersActivity,
