@@ -107,6 +107,10 @@ class SettingsActivity : BaseActivity() {
         startActivity((Intent(this, QrCodeActivity::class.java)))
     }
     private fun cameraPage() {
+        val prefs = getSharedPreferences("REPORT_PREFS", MODE_PRIVATE)
+        prefs.edit {
+            putString("reportPage", null)
+        }
         startActivity((Intent(this, CameraActivity::class.java)))
     }
     @SuppressLint("CommitPrefEdits")

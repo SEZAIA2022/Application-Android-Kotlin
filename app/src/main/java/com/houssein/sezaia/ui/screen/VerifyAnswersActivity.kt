@@ -78,17 +78,30 @@ class VerifyAnswersActivity : AppCompatActivity() {
         // Construire les items pour l'adapter
         val uiItems = mutableListOf<VerifyReportUiItem>()
 
-        structures.forEach { structure ->
-            uiItems.add(VerifyReportUiItem.TitleItem(structure.title))
-            uiItems.add(VerifyReportUiItem.SubtitleItem(structure.subtitle))
+        var lastTitle: String? = null
 
-            structure.questions.forEach { question ->
-                uiItems.add(VerifyReportUiItem.QuestionItem(question))
+        structures
+            .sortedWith(compareBy({ it.title.lowercase() }, { it.subtitle.lowercase() }))
+            .forEach { structure ->
+
+                // ✅ ajouter le titre UNE SEULE FOIS
+                if (lastTitle != structure.title) {
+                    uiItems.add(VerifyReportUiItem.TitleItem(structure.title))
+                    lastTitle = structure.title
+                }
+
+                // ✅ ajouter chaque sous-titre
+                uiItems.add(VerifyReportUiItem.SubtitleItem(structure.subtitle))
+
+                // ✅ ajouter les questions
+                structure.questions.forEach { question ->
+                    uiItems.add(VerifyReportUiItem.QuestionItem(question))
+                }
             }
-        }
 
         adapter = VerifyReportAdapter(uiItems)
         recyclerView.adapter = adapter
+
 
         updateProgress()
     }

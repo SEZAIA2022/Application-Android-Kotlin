@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.houssein.sezaia.R
@@ -93,7 +94,12 @@ class ReportActivity : AppCompatActivity() {
             this,
             getString(R.string.report_title),
             actionIconRes = R.drawable.outline_collections_bookmark_24,
-            onBackClick = { finish() },
+            onBackClick = { finish()
+                            val prefs = getSharedPreferences("REPORT_PREFS", MODE_PRIVATE)
+                            prefs.edit {
+                                putString("reportPage", "reportPage")
+                            }
+                          },
             onActionClick = { recreate() }
         )
 
@@ -353,6 +359,17 @@ class ReportActivity : AppCompatActivity() {
             putExtra("structures", ArrayList(completeStructures))
         })
     }
+
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
+    override fun onBackPressed() {
+        val prefs = getSharedPreferences("REPORT_PREFS", MODE_PRIVATE)
+        prefs.edit {
+            putString("reportPage", "reportPage")
+        }
+
+        super.onBackPressed()
+    }
+
 
 
 }

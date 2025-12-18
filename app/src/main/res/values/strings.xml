@@ -182,6 +182,11 @@
     <string name="serial_number">Serial number</string>
     <string name="print_pdf">Print PDF</string>
     <string name="finish">Finish</string>
+    <string name="camera_scanner">Camera scanner</string>
+    <string name="regular_report">Regular report</string>
+    <string name="need_help">Need help</string>
+    <string name="repair_history">Repair history</string>
+    <string name="logout">Logout</string>
 
 
 </resources>
