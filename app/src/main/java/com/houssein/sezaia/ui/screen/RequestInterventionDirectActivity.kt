@@ -151,27 +151,53 @@ class RequestInterventionDirectActivity : BaseActivity() {
 
                     RetrofitClient.instance.sendAskDirect(createReq)
                         .enqueue(object : Callback<SendAskDirectResponse> {
-                            override fun onResponse(call: Call<SendAskDirectResponse>, resp: Response<SendAskDirectResponse>) {
-                                val ok = resp.isSuccessful && resp.body()?.status == "success"
-                                if (ok) {
-                                    Toast.makeText(this@RequestInterventionDirectActivity,
-                                        resp.body()?.message ?: getString(R.string.request_sent),
-                                        Toast.LENGTH_SHORT).show()
+                            override fun onResponse(
+                                call: Call<SendAskDirectResponse>,
+                                resp: Response<SendAskDirectResponse>
+                            ) {
+                                if (resp.isSuccessful) {
+                                    val body = resp.body()
 
-                                    // Notifs (optionnel)
-                                    sendNotification("admin", techEmail,
-                                        "Direct intervention request\nQR: $qrId\nComment: $commentText"
-                                    ) {
-                                        sendNotification("user", loggedEmail,
-                                            "Your direct intervention request has been sent."
-                                        ) { /* done */ }
+                                    if (body?.status.equals("success", ignoreCase = true)) {
+                                        Toast.makeText(
+                                            this@RequestInterventionDirectActivity,
+                                            body?.message ?: getString(R.string.request_sent),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+
+                                        sendNotification(
+                                            "admin",
+                                            techEmail,
+                                            "Direct intervention request\nQR: $qrId\nComment: $commentText"
+                                        ) {
+                                            sendNotification(
+                                                "user",
+                                                loggedEmail,
+                                                "Your direct intervention request has been sent."
+                                            ) { }
+                                        }
+
+                                    } else {
+                                        // 200 OK mais status = error
+                                        Toast.makeText(
+                                            this@RequestInterventionDirectActivity,
+                                            body?.message ?: getString(R.string.booking_error),
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
+
                                 } else {
-                                    Toast.makeText(this@RequestInterventionDirectActivity,
-                                        resp.body()?.message ?: getString(R.string.booking_error),
-                                        Toast.LENGTH_LONG).show()
+
+                                    val errorMessage = UIUtils.extractErrorMessage(resp)
+
+                                    Toast.makeText(
+                                        this@RequestInterventionDirectActivity,
+                                        errorMessage,
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             }
+
 
                             @SuppressLint("StringFormatInvalid")
                             override fun onFailure(call: Call<SendAskDirectResponse>, t: Throwable) {

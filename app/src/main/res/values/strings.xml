@@ -142,7 +142,7 @@
     <!-- Etats / erreurs -->
     <string name="no_tech_available">Aucun technicien disponible pour le moment.</string>
     <string name="no_tech_this_slot">Aucun technicien disponible à ce créneau.</string>
-    <string name="booking_error">Erreur lors de la réservation.</string>
+    <string name="booking_error">Error during booking.</string>
     <string name="save">Save</string>
     <string name="qr_id">Qr id</string>
     <string name="request_intervention">Request intervention</string>
