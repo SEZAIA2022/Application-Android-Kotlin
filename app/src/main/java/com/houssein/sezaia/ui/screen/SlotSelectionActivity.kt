@@ -3,9 +3,9 @@ package com.houssein.sezaia.ui.screen
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.core.widget.NestedScrollView
 import com.google.android.material.button.MaterialButton
 import com.houssein.sezaia.R
 import com.houssein.sezaia.model.data.DayItem
@@ -89,6 +89,9 @@ class SlotSelectionActivity : BaseActivity() {
 
             val outFmt = DateTimeFormatter.ofPattern("EEEE, dd MMMM", Locale.ENGLISH)
             val formattedDate = "${date.format(outFmt)} $slot"
+            val answers_json = intent.getStringExtra("questions_submission_json") ?: ""
+
+
 
             val i = Intent(this, ConfirmAppointmentActivity::class.java).apply {
                 putExtra("loggedUser", loggedUser)
@@ -97,6 +100,8 @@ class SlotSelectionActivity : BaseActivity() {
                 putExtra("applicationName", applicationName)
                 putExtra("selectedDate", date.toString())   // ISO
                 putExtra("selectedSlot", slot)
+                putExtra("questions_submission", answers_json)
+
                 putExtra("formattedDate", formattedDate)
                 putExtra("responses", responseList)
             }

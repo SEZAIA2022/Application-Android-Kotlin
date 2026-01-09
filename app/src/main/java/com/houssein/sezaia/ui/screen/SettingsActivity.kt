@@ -135,6 +135,10 @@ class SettingsActivity : BaseActivity() {
         val username = prefs.getString("loggedUsername", null)
         val app = application as MyApp
         val applicationName = app.application_name
+        val prefs1 = getSharedPreferences("REPORT_PREFS", MODE_PRIVATE)
+        prefs1.edit {
+            putString("reportPage", "")
+        }
 
         val logoutRequest = LogoutRequest(username.toString(), applicationName)
 

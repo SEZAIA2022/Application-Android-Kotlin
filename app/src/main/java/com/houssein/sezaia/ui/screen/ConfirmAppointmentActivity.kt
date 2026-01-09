@@ -23,7 +23,6 @@ import com.houssein.sezaia.model.data.MyApp
 import com.houssein.sezaia.model.data.QuestionAnswer
 import com.houssein.sezaia.model.request.AskRepairWithResponsesRequest
 import com.houssein.sezaia.model.request.NotificationRequest
-import com.houssein.sezaia.model.request.ResponseItem
 import com.houssein.sezaia.model.request.TechnicianRequest
 import com.houssein.sezaia.model.response.BaseResponse
 import com.houssein.sezaia.model.response.TechnicianResponse
@@ -128,13 +127,13 @@ class ConfirmAppointmentActivity : BaseActivity() {
                 return@launch
             }
 
-            val responsesPayload = responseList.map { ResponseItem(it.id, it.answer) }
+            val answers_json = intent.getStringExtra("questions_submission")
             val req = AskRepairWithResponsesRequest(
                 loggedUser,
                 formattedDate,               // "EEEE, dd MMMM HH:mm"
                 commentText,
                 qrData,
-                responsesPayload,
+                answers_json,
                 applicationName,
                 technicianEmail
             )

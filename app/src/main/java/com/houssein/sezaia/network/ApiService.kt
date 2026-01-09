@@ -35,7 +35,7 @@ import com.houssein.sezaia.model.response.ChangeUsernameResponse
 import com.houssein.sezaia.model.response.HelpResponse
 import com.houssein.sezaia.model.response.HistoryResponse
 import com.houssein.sezaia.model.response.LoginResponse
-import com.houssein.sezaia.model.response.Message
+import com.houssein.sezaia.model.response.MachineTypesResponse
 import com.houssein.sezaia.model.response.PrivacyPolicyResponse
 import com.houssein.sezaia.model.response.ProblemTypesResponse
 import com.houssein.sezaia.model.response.QrCodeResponse
@@ -47,6 +47,7 @@ import com.houssein.sezaia.model.response.RepairApiResponse
 import com.houssein.sezaia.model.response.RepportMetaByIdsResponse
 import com.houssein.sezaia.model.response.SendAskDirectResponse
 import com.houssein.sezaia.model.response.SendEmailResponse
+import com.houssein.sezaia.model.response.SimpleQuestionDto
 import com.houssein.sezaia.model.response.SubtitlesResponse
 import com.houssein.sezaia.model.response.TakenSlotsResponse
 import com.houssein.sezaia.model.response.TechnicianResponse
@@ -102,8 +103,17 @@ interface ApiService {
     @POST("api/add_qr")
     fun addQr(@Body request: AddQrRequest): Call<BaseResponse>
 
-    @GET("api/questions")
-    fun getQuestions(@Query("application") application: String): Call<List<Message>>
+    @GET("api/machine_types")
+    fun getMachineTypes(
+        @Query("application") application: String
+    ): Call<MachineTypesResponse>
+
+    @GET("api/questions_by_machine_type")
+    fun getQuestionsByMachineType(
+        @Query("application") application: String,
+        @Query("machine_type_id") machineTypeId: Int
+    ): Call<List<SimpleQuestionDto>>
+
 
     @POST("api/send_ask_and_response")
     fun sendAskRepairWithResponses(@Body request: AskRepairWithResponsesRequest): Call<BaseResponse>

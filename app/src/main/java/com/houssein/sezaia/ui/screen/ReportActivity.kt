@@ -341,7 +341,7 @@ class ReportActivity : AppCompatActivity() {
             val missingText = missingRequired.take(3).joinToString("\n• ") { it.question_text }
             Toast.makeText(
                 this,
-                "⚠️ Missing mandatory questions:\n• $missingText${if (missingRequired.size > 3) "\n... and ${missingRequired.size - 3} others" else ""}",
+                " Missing mandatory questions:\n• $missingText${if (missingRequired.size > 3) "\n... and ${missingRequired.size - 3} others" else ""}",
                 Toast.LENGTH_LONG
             ).show()
             return

@@ -394,7 +394,7 @@ class CameraActivity : BaseActivity() {
                 resetScannerWithDelay()
             } else {
                 saveQrCode(qrCode)
-                startActivity(Intent(this@CameraActivity, WelcomeChatbotActivity::class.java))
+                startActivity(Intent(this@CameraActivity, QuestionsActivity::class.java))
             }
         }
     }
